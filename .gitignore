@@ -1,0 +1,4 @@
+# Los .cfx originales son plantillas de un tercero: no se publican en este repositorio público.
+originales/*.cfx
+__pycache__/
+*.pyc
