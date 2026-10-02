@@ -168,6 +168,27 @@ def main():
           "4. Aceptación sugerida (la misma lógica que el WFM inactivo de los originales): ≥ 70 % de ejecuciones "
           "rentables, ninguna ejecución con > 50 % del beneficio total, DD por ejecución ≤ 25 %, y una zona de la "
           "matriz (no una celda aislada) que pase.", "",
+          "## A.5 Si el Builder no genera ninguna estrategia", "",
+          "Revisión 3 de los archivos: la causa principal era la **población inicial**. Las versiones anteriores pedían "
+          "160-200 estrategias aleatorias que cumpliesen Ret/DD, % de acierto y 200-870 operaciones antes de empezar a "
+          "evolucionar; SQX no guarda nada hasta completarla, así que podía pasar horas o días sin mostrar ninguna. "
+          "Ahora la población inicial sólo exige un mínimo de operaciones, la calibración de indicadores está activa y "
+          "se han quitado los filtros de calendario muy restrictivos. Si aun así no aparece nada:", "",
+          "1. **Mira en qué fase está.** Si el progreso indica *initial population* / población inicial durante mucho "
+          "tiempo, el filtro de *Genetic options › Initial population* sigue siendo demasiado estricto: déjalo sólo con "
+          "nº de operaciones (o desactívalo).",
+          "2. **Mira las estadísticas de rechazo** (generadas / aceptadas / rechazadas y motivo). Si casi todo se "
+          "rechaza por *NumberOfTrades*, baja la densidad del estilo; si es por *Ret/DD* o *PF*, los costes del símbolo "
+          "probablemente se comen la ventaja (típico de Scalping y NewsProxy con GBPJPY).",
+          "3. **Calibra a mano**: *Building blocks › Calibrate* con el símbolo y timeframe ya puestos en *Data*. Comprueba "
+          "que `ATR` ya no tiene rango −5000…5000.",
+          "4. **Prueba de humo**: pon *Generation type* = generación aleatoria y quita temporalmente los filtros del "
+          "*Ranking* salvo `NumberOfTrades`. Si en 10-15 minutos tampoco salen estrategias, el problema es de datos o de "
+          "importación (símbolo, fechas, timeframe, dirección), no de los filtros.",
+          "5. **Control con el original**: ejecuta el `Ventaja_Build_ConfigInicial_H1_BUY.cfx` original. Si tampoco "
+          "genera nada, el problema está en los datos (`GBPJPY_M1_M1_UTCPlus02`, rango 2013-2020) y no en los archivos nuevos.",
+          "6. **Empieza por un estilo de barras largas** (Swing H4, Trend H1, Range H1): Scalping y NewsProxy sobre "
+          "GBPJPY con 2 pips de spread + deslizamiento casi nunca encuentran estrategias rentables (ver Fase 2).", "",
           "## E) Lista de verificación al importar", "",
           "### E.1 Para los 64 archivos", "",
           "1. **Versión:** SQX puede avisar de que el archivo es de la build 140.2099. Anota cualquier aviso; si dice que "
@@ -191,7 +212,9 @@ def main():
           "10. **Filtros:** revisa que las condiciones IS/OOS/Full aparecen con la muestra correcta (IS, OOS, *Full*).",
           "11. **Bases de datos:** Builder → salida `Results`; Retest → entrada y salida `Results`. Si encadenas Builder y "
           "Retest en un proyecto, apunta la entrada del Retest al banco de resultados del Builder.",
-          "12. **No mezclar direcciones:** retestea las estrategias BUY con los Retest `_BUY` y las SELL con los `_SELL` "
+          "12. **Población inicial y calibración** (*Genetic options* y *Building blocks*): el filtro de población "
+          "inicial debe tener sólo `NumberOfTrades`; la calibración antes de empezar debe estar activa.",
+          "13. **No mezclar direcciones:** retestea las estrategias BUY con los Retest `_BUY` y las SELL con los `_SELL` "
           "(o en bancos de datos separados).", "",
           "### E.1b Sólo kits SELL", "",
           "- *What to build › Trading direction* debe mostrar **Short only**. `short` es el valor deducido del XML (los "
@@ -203,25 +226,25 @@ def main():
           "- Un kit SELL sobre un activo con deriva alcista de largo plazo (índices) encontrará menos estrategias: es "
           "esperable, no un fallo de configuración.", "",
           "### E.2 Builders", "",
-          "13. *What to build*: `Simple strategy` (o plantilla, si sigues A.3), dirección del kit, rangos de complejidad de "
+          "14. *What to build*: `Simple strategy` (o plantilla, si sigues A.3), dirección del kit, rangos de complejidad de "
           "la tabla A.2.",
-          "14. *Building blocks*: nº de bloques activos = el de la tabla A.2 (p. ej. Scalping 93/48/40). Si la build 144 "
+          "15. *Building blocks*: nº de bloques activos = el de la tabla A.2 (p. ej. Scalping 93/48/40). Si la build 144 "
           "añade bloques nuevos, deben quedar **desactivados**.",
-          "15. *Order types* y *Exit types*: sólo los de la tabla; en `Ventaja_*`, **únicamente** *Exit after bars*.",
-          "16. Prueba corta: lanza el Builder 10-15 minutos y comprueba que se generan estrategias con el nº de operaciones "
+          "16. *Order types* y *Exit types*: sólo los de la tabla; en `Ventaja_*`, **únicamente** *Exit after bars*.",
+          "17. Prueba corta: lanza el Builder 10-15 minutos y comprueba que se generan estrategias con el nº de operaciones "
           "esperado y que los rechazos no se deben a un filtro mal puesto (p. ej. todas descartadas por `NumberOfTrades`). "
           "Si casi todo se descarta por número de operaciones, baja la densidad del estilo en `tools/estilos.py` en vez "
           "de quitar el filtro.",
-          "17. Abre 2-3 estrategias generadas y verifica a ojo que su lógica corresponde al estilo (p. ej. órdenes stop en "
+          "18. Abre 2-3 estrategias generadas y verifica a ojo que su lógica corresponde al estilo (p. ej. órdenes stop en "
           "el máximo del rango asiático en Day Trading BUY / en el mínimo en SELL, órdenes límite en Range).", "",
           "### E.3 Retesters", "",
-          "18. **Datos tick:** *Retest with higher precision* usa precisión 2 (tick real + spread personalizado) o 3 "
+          "19. **Datos tick:** *Retest with higher precision* usa precisión 2 (tick real + spread personalizado) o 3 "
           "(tick real + spread real, en Scalping y Noticias). Sin datos tick ese cross check fallará o no se ejecutará.",
-          "19. Monte Carlo: nº de simulaciones, métodos (OHLC, spread, deslizamiento, vela de inicio) y condiciones al 95 %.",
-          "20. Monte Carlo de manipulación: la condición de beneficio debe compararse contra el resultado **principal** "
+          "20. Monte Carlo: nº de simulaciones, métodos (OHLC, spread, deslizamiento, vela de inicio) y condiciones al 95 %.",
+          "21. Monte Carlo de manipulación: la condición de beneficio debe compararse contra el resultado **principal** "
           "(no contra otro Monte Carlo).",
-          "21. SPP: nº de tests y % de rentables de la tabla; empieza con pocas estrategias (el coste es alto).",
-          "22. *Retest on additional markets* sigue **desactivado**: configúralo con 1-3 símbolos reales relacionados si "
+          "22. SPP: nº de tests y % de rentables de la tabla; empieza con pocas estrategias (el coste es alto).",
+          "23. *Retest on additional markets* sigue **desactivado**: configúralo con 1-3 símbolos reales relacionados si "
           "vas a usarlo (el original repetía GBPJPY).", "",
           "### E.4 Comprobaciones específicas por estilo", "",
           "| Estilo | Comprobar |", "|---|---|",

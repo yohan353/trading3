@@ -54,9 +54,11 @@ SIG = {
                    "BBBarClosesAboveDown", "KCBarOpensAboveLowerAfterOpenBelow", "KCBarClosesBelowLower",
                    "KCBarOpensBelowLower", "KCBarClosesAboveLower"],
     "velas": ["BullishEngulfing", "Hammer", "PiercingLine", "Doji", "IsBullishFractal"],
-    "tiempo_intradia": ["BarHourIs", "BarHourIsBigger", "BarHourIsSmaller", "BarDayOfWeekIs", "BarDayOfWeekIsNot"],
-    "tiempo_calendario": ["BarDayOfWeekIs", "BarDayOfWeekIsNot", "BarMonthIs", "BarMonthIsNot",
-                          "IsMonthFirstTradingDay", "IsMonthLastTradingDay"],
+    # Sólo filtros horarios PERMISIVOS (franjas, excluir un día/mes). Los de valor exacto (hora concreta, un día, un
+    # mes, primer/último día de mes) eliminan el 80-95 % de las operaciones y hacen imposible el mínimo exigido.
+    "tiempo_intradia": ["BarHourIsBigger", "BarHourIsSmaller", "BarDayOfWeekIsNot"],
+    "tiempo_calendario": ["BarDayOfWeekIsNot", "BarMonthIsNot"],
+    "tiempo_hora": ["BarHourIs", "BarDayOfWeekIs"],  # sólo NewsProxy: la hora del dato ES la tesis
 }
 
 # ------------------------------------------------------------------------------------------------- indicadores
@@ -302,8 +304,9 @@ FAMILIA_DESC = {
     "lateral": "ADX bajo/decreciente, eficiencia de Kaufman baja, SuperTrend en rango: no hay tendencia.",
     "rev_bandas": "Exceso fuera de la banda inferior y reentrada (reversión a la media).",
     "velas": "Patrones de vela de giro alcista (envolvente, martillo, pauta penetrante, doji) y fractal.",
-    "tiempo_intradia": "Hora y día de la semana de la vela.",
-    "tiempo_calendario": "Día de la semana, mes y primer/último día de mes.",
+    "tiempo_intradia": "Franja horaria (hora mayor/menor que) y excluir un día de la semana.",
+    "tiempo_calendario": "Excluir un día de la semana o un mes.",
+    "tiempo_hora": "Hora exacta y día concreto (muy restrictivos: sólo donde la hora es la tesis).",
     "niv_canal": "Máximo/mínimo de N velas.",
     "niv_horario": "Máximo/mínimo de un rango horario y de la sesión (apertura/cierre de sesión).",
     "niv_diario": "Máximo/mínimo/apertura/cierre del día.",

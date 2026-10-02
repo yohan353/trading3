@@ -85,12 +85,13 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Cierres forzados | no diario; no viernes | diario 21:00; viernes 20:00 | Red de seguridad: nada abierto al cierre del día. |
 | Máx. operaciones/día | 0 (sin límite) | 6 | Permite varias operaciones/día sin sobre-operar en días de ruido. |
 | Distancia máx. orden | no | 0.3 % | 0,3 % ≈ 45 pips en GBPJPY; tope razonable para M5. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 93 señales / 48 indicadores / 40 stop-limit | Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 91 señales / 48 indicadores / 40 stop-limit | Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Riesgo fijo 0.5 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | SQN premia expectativa consistente con muchas operaciones (lo propio de un scalper); Ret/DD evita curvas con drawdowns profundos. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 3.75; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 871; WinningPct(IS) >= 40 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 320 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 20 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -116,12 +117,13 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Cierres forzados | no diario; no viernes | diario 21:00; viernes 20:00 | Red de seguridad: nada abierto al cierre del día. |
 | Máx. operaciones/día | 0 (sin límite) | 6 | Permite varias operaciones/día sin sobre-operar en días de ruido. |
 | Distancia máx. orden | no | 0.3 % | 0,3 % ≈ 45 pips en GBPJPY; tope razonable para M5. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 93 señales / 48 indicadores / 40 stop-limit | Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 91 señales / 48 indicadores / 40 stop-limit | Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.5; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 871; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 320 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 20 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -151,7 +153,7 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 Criterio general: Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto.
 
-Recuento: **93 señales, 48 indicadores y 40 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+Recuento: **91 señales, 48 indicadores y 40 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
 
 #### Señales
 
@@ -165,7 +167,7 @@ Recuento: **93 señales, 48 indicadores y 40 niveles/rangos stop-limit** (el ori
 | mom_nivel (1) | Osciladores en zona de fuerza (RSI 50-70, estocástico 50-80, CCI 0-150…) y MACD/OSMA/ROC por encima de cero. | Filtro auxiliar: amplía la variedad. | `RSIHigher`, `RSICrossUp`, `LaguerreRSICrossUP`, `StochSlowDHigher`, `StochSlowDCrossUp`, `CCIHigher`, `CCICrossUp`, `WPRHigher`, `WPRCrossUp`, `QQEValue1Higher`, `QQEValue1CrossAbove`, `MACDMainHigherZero`, `MACDMainCrossAboveZero`, `OSMAHigherZero`, `OSMACrossZeroUp`, `ROCAboveLevel`, `ROCCrossesAboveLevel`, `SchaffTrendCycleAboveLevel`, `SchaffTrendCycleCrossesAboveLevel` | `RSILower`, `RSICrossDown`, `LaguerreRSICrossDown`, `StochSlowDLower`, `StochSlowDCrossDown`, `CCILower`, `CCICrossDown`, `WPRLower`, `WPRCrossDown`, `QQEValue1Lower`, `QQEValue1CrossBelow`, `MACDMainLowerZero`, `MACDMainCrossBelowZero`, `OSMALowerZero`, `OSMACrossZeroDown`, `ROCBelowLevel`, `ROCCrossesBelowLevel`, `SchaffTrendCycleBelowLevel`, `SchaffTrendCycleCrossesBelowLevel` |
 | tend_medias (1) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Filtro auxiliar: amplía la variedad. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
 | fuerza (1) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Filtro auxiliar: amplía la variedad. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
-| tiempo_intradia (1) | Hora y día de la semana de la vela. | Filtro auxiliar: amplía la variedad. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+| tiempo_intradia (1) | Franja horaria (hora mayor/menor que) y excluir un día de la semana. | Filtro auxiliar: amplía la variedad. | `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIsNot` | igual (neutral) |
 
 #### Indicadores
 
@@ -228,7 +230,6 @@ Recuento: **93 señales, 48 indicadores y 40 niveles/rangos stop-limit** (el ori
 | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
 | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
 | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `BarHourIs` | Hour 9 a 18 (paso 1) | `BarHourIs` | Hour 9 a 18 (paso 1) |
 | `BarHourIsBigger` | Hour 8 a 12 (paso 1) | `BarHourIsBigger` | Hour 8 a 12 (paso 1) |
 | `BarHourIsSmaller` | Hour 12 a 19 (paso 1) | `BarHourIsSmaller` | Hour 12 a 19 (paso 1) |
 
@@ -246,7 +247,7 @@ SL 1-2,5 ATR(14-50) de M5 (≈6-25 pips en EURUSD), PT 1-3 ATR con PT = 80-250 %
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 9; NumberOfTrades(Full) >= 2920; NumberOfTrades(OOS) >= 850; DrawdownPct(Full) <= 20 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 2920; NumberOfTrades(OOS) >= 850 |
@@ -255,7 +256,7 @@ Justificación: SQN premia expectativa consistente con muchas operaciones (lo pr
 
 ### 7. Motor y robustez
 
-- **Builder:** población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 20 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 3 (tick real + spread real); 3 condiciones. Precisión 3 (tick real con spread real): en M5 el spread variable decide el resultado.
 - **Monte Carlo:** activo; 200 sims; OHLC ±10 % ATR(14), desliz. 0-1, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -328,12 +329,13 @@ El rango de la sesión asiática concentra órdenes en sus extremos; la apertura
 | Cierres forzados | no diario; no viernes | diario 22:30; viernes 21:30 | Definición de day trading: plano al cierre. |
 | Máx. operaciones/día | 0 (sin límite) | 3 | La ruptura y hasta dos reintentos. |
 | Distancia máx. orden | no | 0.6 % | ≈ 90 pips en GBPJPY: cubre rangos asiáticos amplios. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 112 señales / 52 indicadores / 40 stop-limit | Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 110 señales / 52 indicadores / 40 stop-limit | Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Riesgo fijo 0.5 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | Ret/DD como el original; StagnationPct penaliza meses planos (típico de rupturas intradía en régimen de baja volatilidad). |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 3.12; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 522; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 190 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -359,12 +361,13 @@ El rango de la sesión asiática concentra órdenes en sus extremos; la apertura
 | Cierres forzados | no diario; no viernes | diario 22:30; viernes 21:30 | Definición de day trading: plano al cierre. |
 | Máx. operaciones/día | 0 (sin límite) | 3 | La ruptura y hasta dos reintentos. |
 | Distancia máx. orden | no | 0.6 % | ≈ 90 pips en GBPJPY: cubre rangos asiáticos amplios. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 112 señales / 52 indicadores / 40 stop-limit | Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 110 señales / 52 indicadores / 40 stop-limit | Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 2.5; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 522; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 190 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -394,7 +397,7 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 Criterio general: Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1.
 
-Recuento: **112 señales, 52 indicadores y 40 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+Recuento: **110 señales, 52 indicadores y 40 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
 
 #### Señales
 
@@ -410,7 +413,7 @@ Recuento: **112 señales, 52 indicadores y 40 niveles/rangos stop-limit** (el or
 | tend_medias (1) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Filtro auxiliar: amplía la variedad. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
 | tend_sistemas (1) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Filtro auxiliar: amplía la variedad. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
 | fuerza (1) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Filtro auxiliar: amplía la variedad. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
-| tiempo_intradia (2) | Hora y día de la semana de la vela. | Acotan la franja de entrada dentro de la ventana global. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+| tiempo_intradia (2) | Franja horaria (hora mayor/menor que) y excluir un día de la semana. | Acotan la franja de entrada dentro de la ventana global. | `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIsNot` | igual (neutral) |
 
 #### Indicadores
 
@@ -476,7 +479,6 @@ Recuento: **112 señales, 52 indicadores y 40 niveles/rangos stop-limit** (el or
 | `Prices.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) |
 | `Stop/Limit Price Levels.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) |
 | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `BarHourIs` | Hour 9 a 18 (paso 1) | `BarHourIs` | Hour 9 a 18 (paso 1) |
 | `BarHourIsBigger` | Hour 8 a 12 (paso 1) | `BarHourIsBigger` | Hour 8 a 12 (paso 1) |
 | `BarHourIsSmaller` | Hour 12 a 19 (paso 1) | `BarHourIsSmaller` | Hour 12 a 19 (paso 1) |
 
@@ -494,7 +496,7 @@ SL 1-2,5 ATR(14-60) de M15; objetivo opcional 1,5-4 ATR (50 %); trailing 1,5-3 A
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 7.5; NumberOfTrades(Full) >= 1170; NumberOfTrades(OOS) >= 340; DrawdownPct(Full) <= 20 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 2.5; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 1170; NumberOfTrades(OOS) >= 340 |
@@ -503,7 +505,7 @@ Justificación: Ret/DD como el original; StagnationPct penaliza meses planos (t�
 
 ### 7. Motor y robustez
 
-- **Builder:** población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. Tick real con spread personalizado, como el original.
 - **Monte Carlo:** activo; 300 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -574,12 +576,13 @@ Tras una contracción de volatilidad, la ruptura del rango tiende a continuar du
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Swing: hasta dos entradas diarias. |
 | Distancia máx. orden | no | 2 % | 2 %: holgura para rupturas de rangos de varios días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 119 señales / 51 indicadores / 38 stop-limit | Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 115 señales / 51 indicadores / 38 stop-limit | Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Ret/DD + estabilidad de la curva. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 199; WinningPct(IS) >= 33 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 70 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -605,12 +608,13 @@ Tras una contracción de volatilidad, la ruptura del rango tiende a continuar du
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Swing: hasta dos entradas diarias. |
 | Distancia máx. orden | no | 2 % | 2 %: holgura para rupturas de rangos de varios días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 119 señales / 51 indicadores / 38 stop-limit | Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 115 señales / 51 indicadores / 38 stop-limit | Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 199; WinningPct(IS) >= 28 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 70 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -640,7 +644,7 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 Criterio general: Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario.
 
-Recuento: **119 señales, 51 indicadores y 38 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+Recuento: **115 señales, 51 indicadores y 38 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
 
 #### Señales
 
@@ -656,7 +660,7 @@ Recuento: **119 señales, 51 indicadores y 38 niveles/rangos stop-limit** (el or
 | tend_medias (1) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Filtro auxiliar: amplía la variedad. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
 | tend_sistemas (1) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Filtro auxiliar: amplía la variedad. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
 | fuerza (2) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | El swing a favor de un régimen con fuerza tiene más recorrido. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
-| tiempo_calendario (1) | Día de la semana, mes y primer/último día de mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIs`, `BarDayOfWeekIsNot`, `BarMonthIs`, `BarMonthIsNot`, `IsMonthFirstTradingDay`, `IsMonthLastTradingDay` | igual (neutral) |
+| tiempo_calendario (1) | Excluir un día de la semana o un mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIsNot`, `BarMonthIsNot` | igual (neutral) |
 
 #### Indicadores
 
@@ -731,7 +735,7 @@ SL 1,5-3,5 ATR(14-100) de H4; objetivo opcional 2-6 ATR; trailing 2-4 ATR (50 %)
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 440; NumberOfTrades(OOS) >= 130; DrawdownPct(Full) <= 20 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 440; NumberOfTrades(OOS) >= 130 |
@@ -740,7 +744,7 @@ Justificación: Ret/DD + estabilidad de la curva. El mínimo de operaciones sale
 
 ### 7. Motor y robustez
 
-- **Builder:** población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. Se añade aleatorizar la vela de inicio: el resultado no debe depender del punto de arranque.
 - **Monte Carlo:** activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -810,12 +814,13 @@ El momentum de series temporales (rupturas de máximos de semanas/meses y pendie
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 1 | Position: una entrada como máximo. |
 | Distancia máx. orden | no | 5 % | 5 %: rupturas de máximos de 20-250 días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 97 señales / 48 indicadores / 31 stop-limit | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 93 señales / 48 indicadores / 31 stop-limit | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Ret/DD + estabilidad; SQN es poco fiable con <200 operaciones. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.4; AvgBarsInTrade(IS) >= 4 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.88; AvgBarsInTrade(IS) >= 4; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 28 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 40 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -841,12 +846,13 @@ El momentum de series temporales (rupturas de máximos de semanas/meses y pendie
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 1 | Position: una entrada como máximo. |
 | Distancia máx. orden | no | 5 % | 5 %: rupturas de máximos de 20-250 días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 97 señales / 48 indicadores / 31 stop-limit | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 93 señales / 48 indicadores / 31 stop-limit | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 4 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 4; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 40 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -876,7 +882,7 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 Criterio general: Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas.
 
-Recuento: **97 señales, 48 indicadores y 31 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+Recuento: **93 señales, 48 indicadores y 31 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
 
 #### Señales
 
@@ -889,7 +895,7 @@ Recuento: **97 señales, 48 indicadores y 31 niveles/rangos stop-limit** (el ori
 | tend_medias (2) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Pendiente de medias largas. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
 | tend_sistemas (2) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Sistemas de tendencia lentos. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
 | fuerza (1) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Filtro auxiliar: amplía la variedad. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
-| tiempo_calendario (1) | Día de la semana, mes y primer/último día de mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIs`, `BarDayOfWeekIsNot`, `BarMonthIs`, `BarMonthIsNot`, `IsMonthFirstTradingDay`, `IsMonthLastTradingDay` | igual (neutral) |
+| tiempo_calendario (1) | Excluir un día de la semana o un mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIsNot`, `BarMonthIsNot` | igual (neutral) |
 
 #### Indicadores
 
@@ -969,7 +975,7 @@ Justificación: Ret/DD + estabilidad; SQN es poco fiable con <200 operaciones. E
 
 ### 7. Motor y robustez
 
-- **Builder:** población 50 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. SPP ±30 %: con periodos largos la superficie debe ser lisa; exigencia 90 %.
 - **Monte Carlo:** activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-1, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 175% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -1043,9 +1049,10 @@ Las tendencias persisten más de lo que predice un paseo aleatorio (reacción le
 | Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 105 señales / 46 indicadores / 33 stop-limit | Núcleo: sistemas y medias de tendencia, fuerza (ADX/KER) y ruptura de canal; sin osciladores de sobrecompra/sobreventa (contradicen la tesis). |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | El talón de Aquiles del TF son las rachas planas largas: StagnationPct las penaliza. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80; ProfitFactor(OOS) >= 1.05 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.19; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 215; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 80 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -1075,8 +1082,9 @@ Las tendencias persisten más de lo que predice un paseo aleatorio (reacción le
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 1.75; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.88; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 215; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 80 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -1191,7 +1199,7 @@ SL 2-4 ATR(14-100) de H1; **trailing 2,5-5 ATR como salida principal (80 %)**; o
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80; ProfitFactor(OOS) >= 1.05 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 5.25; NumberOfTrades(Full) >= 490; NumberOfTrades(OOS) >= 140; DrawdownPct(Full) <= 25 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 1.75; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 490; NumberOfTrades(OOS) >= 140 |
@@ -1200,7 +1208,7 @@ Justificación: El talón de Aquiles del TF son las rachas planas largas: Stagna
 
 ### 7. Motor y robustez
 
-- **Builder:** población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. What-if quita las 2 mejores operaciones: mide la dependencia de outliers (esperable en TF, pero no puede volverse perdedor).
 - **Monte Carlo:** activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 175% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -1269,12 +1277,13 @@ Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Evita promediar en tendencia. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 49 señales / 48 indicadores / 36 stop-limit | Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 47 señales / 48 indicadores / 36 stop-limit | Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 75 por operación | Riesgo fijo 0.75 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | PF alto es imprescindible en reversión (pérdidas medias > ganancias medias). |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 50 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 100 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -1300,12 +1309,13 @@ Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Evita promediar en tendencia. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 49 señales / 48 indicadores / 36 stop-limit | Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 47 señales / 48 indicadores / 36 stop-limit | Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 50; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 45 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 100 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -1335,7 +1345,7 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 Criterio general: Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'.
 
-Recuento: **49 señales, 48 indicadores y 36 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+Recuento: **47 señales, 48 indicadores y 36 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
 
 #### Señales
 
@@ -1347,7 +1357,7 @@ Recuento: **49 señales, 48 indicadores y 36 niveles/rangos stop-limit** (el ori
 | falsa_ruptura (3) | Recuperación por encima del mínimo de N velas tras perforarlo (trampa bajista). | Recuperación tras perforar el extremo del rango. | `BarOpensAboveLowestAfterOpenBelow` | `BarOpensBelowHighestAfterOpenAbove` |
 | vol_contraccion (1) | ATR/desviación típica/bandas cerrándose: compresión previa a un movimiento. | Filtro auxiliar: amplía la variedad. | `ATRFalling`, `ATRChangesDown`, `StdDevFalling`, `StdDevChangesDown`, `BBUpperFalling`, `BBLowerRising`, `KCUpperFalling`, `KCLowerRising` | igual (neutral) |
 | velas (1) | Patrones de vela de giro alcista (envolvente, martillo, pauta penetrante, doji) y fractal. | Filtro auxiliar: amplía la variedad. | `BullishEngulfing`, `Hammer`, `PiercingLine`, `Doji`, `IsBullishFractal` | `BearishEngulfing`, `ShootingStar`, `DarkCloud`, `Doji`, `IsBearishFractal` |
-| tiempo_intradia (1) | Hora y día de la semana de la vela. | Filtro auxiliar: amplía la variedad. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+| tiempo_intradia (1) | Franja horaria (hora mayor/menor que) y excluir un día de la semana. | Filtro auxiliar: amplía la variedad. | `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIsNot` | igual (neutral) |
 
 #### Indicadores
 
@@ -1409,7 +1419,6 @@ Recuento: **49 señales, 48 indicadores y 36 niveles/rangos stop-limit** (el ori
 | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
 | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
 | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `BarHourIs` | Hour 1 a 9 (paso 1) | `BarHourIs` | Hour 1 a 9 (paso 1) |
 | `BarHourIsBigger` | Hour 1 a 4 (paso 1) | `BarHourIsBigger` | Hour 1 a 4 (paso 1) |
 | `BarHourIsSmaller` | Hour 5 a 10 (paso 1) | `BarHourIsSmaller` | Hour 5 a 10 (paso 1) |
 
@@ -1427,7 +1436,7 @@ SL 1,5-3 ATR(14-60) obligatorio; objetivo 0,8-2 ATR obligatorio con PT = 40-120 
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 50; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170 |
@@ -1436,7 +1445,7 @@ Justificación: PF alto es imprescindible en reversión (pérdidas medias > gana
 
 ### 7. Motor y robustez
 
-- **Builder:** población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. What-if excluye el 5 % de mejores y peores: una reversión sana no depende de outliers.
 - **Monte Carlo:** activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -1505,12 +1514,13 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal 
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Evita encadenar señales en el mismo nivel. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 38 señales / 37 indicadores / 32 stop-limit | Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 33 señales / 37 indicadores / 32 stop-limit | Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | Ret/DD + SQN (consistencia por operación). |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 100 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -1536,12 +1546,13 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal 
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Evita encadenar señales en el mismo nivel. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 38 señales / 37 indicadores / 32 stop-limit | Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 33 señales / 37 indicadores / 32 stop-limit | Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 100 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -1571,7 +1582,7 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 Criterio general: Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias.
 
-Recuento: **38 señales, 37 indicadores y 32 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+Recuento: **33 señales, 37 indicadores y 32 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
 
 #### Señales
 
@@ -1583,8 +1594,8 @@ Recuento: **38 señales, 37 indicadores y 32 niveles/rangos stop-limit** (el ori
 | rup_bandas (1) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Filtro auxiliar: amplía la variedad. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
 | vol_expansion (1) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | Filtro auxiliar: amplía la variedad. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
 | vol_contraccion (1) | ATR/desviación típica/bandas cerrándose: compresión previa a un movimiento. | Filtro auxiliar: amplía la variedad. | `ATRFalling`, `ATRChangesDown`, `StdDevFalling`, `StdDevChangesDown`, `BBUpperFalling`, `BBLowerRising`, `KCUpperFalling`, `KCLowerRising` | igual (neutral) |
-| tiempo_intradia (1) | Hora y día de la semana de la vela. | Filtro auxiliar: amplía la variedad. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
-| tiempo_calendario (1) | Día de la semana, mes y primer/último día de mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIs`, `BarDayOfWeekIsNot`, `BarMonthIs`, `BarMonthIsNot`, `IsMonthFirstTradingDay`, `IsMonthLastTradingDay` | igual (neutral) |
+| tiempo_intradia (1) | Franja horaria (hora mayor/menor que) y excluir un día de la semana. | Filtro auxiliar: amplía la variedad. | `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIsNot` | igual (neutral) |
+| tiempo_calendario (1) | Excluir un día de la semana o un mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIsNot`, `BarMonthIsNot` | igual (neutral) |
 
 #### Indicadores
 
@@ -1640,7 +1651,7 @@ SL 1-2,5 ATR(14-50); objetivo 1,5-4 ATR con PT = 150-300 % del SL; break-even 1-
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170 |
@@ -1649,7 +1660,7 @@ Justificación: Ret/DD + SQN (consistencia por operación). El mínimo de operac
 
 ### 7. Motor y robustez
 
-- **Builder:** población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 25 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. Igual que el original + what-if de outliers.
 - **Monte Carlo:** activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -1723,9 +1734,10 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 54 señales / 38 indicadores / 26 stop-limit | Núcleo: rango previo a la publicación (12:00-15:00 → 15:00/15:30), filtros de hora/día y expansión de volatilidad y de volumen de ticks; órdenes stop sobre el rango pre-dato. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Riesgo fijo 0.5 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | Operaciones con mucha varianza: PF + Ret/DD. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.05 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.88; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 174; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 60 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 20 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -1755,8 +1767,9 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
 | Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 174; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | NumberOfTrades(IS) >= 60 | Sólo nº mínimo de operaciones (recomendación de SQX): con filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto. |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 20 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | 80-100 individuos por generación (el original 25-75) y 30 generaciones (el original 10, insuficiente para que la evolución actúe). |
+| Calibración de indicadores | false | true | Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) para el símbolo y timeframe antes de construir. |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -1792,7 +1805,8 @@ Recuento: **54 señales, 38 indicadores y 26 niveles/rangos stop-limit** (el ori
 
 | Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
 |---|---|---|---|---|
-| tiempo_intradia (4) | Hora y día de la semana de la vela. | Aproximación al calendario: hora (15-16) y día de la semana. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+| tiempo_hora (3) | Hora exacta y día concreto (muy restrictivos: sólo donde la hora es la tesis). | Núcleo del estilo. | `BarHourIs`, `BarDayOfWeekIs` | igual (neutral) |
+| tiempo_intradia (2) | Franja horaria (hora mayor/menor que) y excluir un día de la semana. | Aproximación al calendario: hora (15-16) y día de la semana. | `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIsNot` | igual (neutral) |
 | vol_expansion (4) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | La publicación se manifiesta como expansión súbita de rango. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
 | vol_tick (2) | Volumen de ticks creciente (en FX es actividad, no volumen real). | Pico de actividad en la publicación. | `VolumeRising`, `AvgVolumeRising` | igual (neutral) |
 | rup_canal (6) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Ruptura del rango previo. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
@@ -1853,7 +1867,7 @@ SL 1-2 ATR(10-40) de M15; objetivo opcional 1,5-4 ATR; break-even 0,5-1,5 ATR (5
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.05 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 |
 | `Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 |
 | `Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 |
 | `Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170 |
@@ -1862,7 +1876,7 @@ Justificación: Operaciones con mucha varianza: PF + Ret/DD. El mínimo de opera
 
 ### 7. Motor y robustez
 
-- **Builder:** población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 20 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 3 (tick real + spread real); 3 condiciones. Spread aleatorio hasta 4x y deslizamiento hasta 3 pips: así es una publicación real.
 - **Monte Carlo:** activo; 200 sims; OHLC ±10 % ATR(14), desliz. 0-3, spread 2-8. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.

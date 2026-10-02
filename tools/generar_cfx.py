@@ -174,7 +174,8 @@ def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new
     b = "Settings/WhatToBuild/BuildMode/"
     sec = "Genetic options"
     p.text(b + "PopulationSize", g["pop"], sec, "PopulationSize",
-           "5-15 individuos por isla es demasiado poco para que el cruce explore; 30-50 es un mínimo práctico.")
+           f"{g['pop']} por isla × {g['islands']} islas = {g['pop'] * g['islands']} por generación: más diversidad que el "
+           "original (5-15) sin que la población inicial tarde horas en completarse.")
     p.text(b + "MaxGenerations", g["gens"], sec, "MaxGenerations",
            "Con 10 generaciones la evolución apenas actúa (y el reinicio por estancamiento a 30 nunca saltaba).")
     p.text(b + "Islands", g["islands"], sec, "Islands", "4 islas: diversidad suficiente con menos coste.")
@@ -196,21 +197,18 @@ def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new
     else:
         rd, wn, ab = round(f["retdd"] / 2, 2), max(30, f["win"] - 5), f["avgbars"]
         pf = 1.3 if st["name"] == "Position" else 1.15
-    init = [("ReturnDDRatio", ">=", round(rd * (0.625 if E else 0.5), 2), "IS"),
-            ("AvgBarsInTrade", ">=", ab, "IS"),
-            ("NumberOfTrades", ">=", int(tr * 0.83), "IS"),
-            ("WinningPct", ">=", wn - 5, "IS")]
+    init = [("NumberOfTrades", ">=", int(round(tr * 0.3 / 10.0)) * 10, "IS")]
     p.replace_conditions(p.find(b + "Conditions"), init, "main", sec, "BuildMode/Conditions (población inicial)",
-                         "Misma lógica del autor (≈60 % del Ret/DD final, ≈83 % de las operaciones, -5 puntos de "
-                         "acierto) con los umbrales del estilo.")
+                         "SÓLO nº mínimo de operaciones (30 % del mínimo final), como recomienda SQX. La población "
+                         "inicial no se guarda en el banco y SQX genera aleatorias hasta completarla: con 80-100 "
+                         "individuos y filtros de rentabilidad (Ret/DD, acierto) el Builder puede pasar horas o días "
+                         "sin producir nada. La exigencia de calidad está en los filtros del Ranking.")
     final = [("NumberOfTrades", ">=", tr, "IS"), ("ReturnDDRatio", ">=", rd, "IS"),
              ("WinningPct", ">=", wn, "IS"), ("ProfitFactor", ">=", pf, "IS"),
              ("AvgBarsInTrade", ">=", ab, "IS")]
     if st["valid"]:
         final.append(("NetProfit", ">", 0, "OOS"))
         final.append(("NumberOfTrades", ">=", mt["oos"], "OOS"))
-        if E and f["oos_pf"]:
-            final.append(("ProfitFactor", ">=", f["oos_pf"], "OOS"))
     p.replace_conditions(p.find("Settings/Rankings/Conditions"), final, "main", "Ranking",
                          "Rankings/Conditions (filtros)",
                          f"Mínimo de operaciones = {mt['per_year']}/año × años de cada tramo (el original exigía "
@@ -236,6 +234,11 @@ def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new
                    "Coherencia si se activa (sigue desactivado).")
 
     # --- Bloques
+    p.attr("Settings/Blocks/Calibration", "calibrateBeforeStart", "true", "Building blocks",
+           "Calibration@calibrateBeforeStart",
+           "Recalibra antes de empezar los rangos de valores de los indicadores (p. ej. ATR y rangos de órdenes "
+           "stop/limit, que traen ±5000 por defecto) con el símbolo y timeframe de Data. Sin ello, al cambiar de H1 a "
+           "M5/M15/H4/D1 las comparaciones con números y los desplazamientos de órdenes stop/limit no tienen sentido.")
     patch_blocks(p, st, side)
     patch_order_types(p, st, kind)
     patch_exit_types(p, st, kind)

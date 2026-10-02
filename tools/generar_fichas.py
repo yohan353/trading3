@@ -207,10 +207,13 @@ BUILD_ROWS = [
      "SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio."),
     ("Filtros (Ranking)", filt, lambda st, n, k: "Umbrales del estilo + exigencia OOS."
      + (" Test de ventaja: Ret/DD a la mitad y PF ≥1,15." if k == "VB" else "")),
-    ("Filtro población inicial", init, lambda st, n, k: "Misma proporción que el autor (≈60 % Ret/DD, ≈83 % "
-     "operaciones, -5 puntos de acierto)."),
-    ("Motor genético", gen, lambda st, n, k: "Población y generaciones del original insuficientes para que la "
-     "evolución actúe (Fase 1 §6)."),
+    ("Filtro población inicial", init, lambda st, n, k: "Sólo nº mínimo de operaciones (recomendación de SQX): con "
+     "filtros de rentabilidad la población inicial puede tardar horas/días y el Builder no guarda nada mientras tanto."),
+    ("Motor genético", gen, lambda st, n, k: "80-100 individuos por generación (el original 25-75) y 30 generaciones "
+     "(el original 10, insuficiente para que la evolución actúe)."),
+    ("Calibración de indicadores", lambda r: r.find("Settings/Blocks/Calibration").get("calibrateBeforeStart"),
+     lambda st, n, k: "Recalibra los rangos de valores de indicadores y de rangos stop/limit (±5000 por defecto) "
+     "para el símbolo y timeframe antes de construir."),
 ]
 RETEST_ROWS = [
     ("Timeframe", tf, lambda st, n, k: "Debe coincidir con el Builder del estilo."),
