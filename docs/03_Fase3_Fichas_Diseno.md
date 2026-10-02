@@ -16,18 +16,18 @@ Se formulan antes de diseñar; al no tener respuesta se continúa con los supues
 
 | Id | Tema | Supuesto |
 |---|---|---|
-| S1 | Símbolo | Se conserva `GBPJPY_M1_M1_UTCPlus02` en los 32 archivos para que carguen en tu instalación (es el único símbolo presente en los Setup de los 4 originales). Cada ficha indica el instrumento recomendado; cámbialo en *Data* antes de ejecutar. |
+| S1 | Símbolo | Se conserva `GBPJPY_M1_M1_UTCPlus02` en los 64 archivos para que carguen en tu instalación (es el único símbolo presente en los Setup de los 4 originales). Cada ficha indica el instrumento recomendado; cámbialo en *Data* antes de ejecutar. |
 | S2 | Costes | Se conservan los costes del original (spread 2, comisión SizeBased 0,7, swap -7,67/+4,30 triple viernes) porque no conozco tu bróker; **son incoherentes con GBPJPY** y deben corregirse (checklist, punto 3). Sólo se cambia el deslizamiento (0 → 0,3-1,5 según estilo). |
 | S3 | Datos | M1 disponible de 2013.09.30 a 2024.07.22 (el rango que usan los originales). |
 | S4 | Partición temporal | Se conserva la partición del autor: construcción hasta 2020.12.31 y OOS final 2021.01.01-2024.07.22 en el Retest (nunca visto por el Builder). Se añade un tramo de validación dentro del Builder (2019-2020, o 2019.07-2020 en M5/M15). |
 | S5 | Horario del servidor | UTC+2 en invierno / UTC+3 en verano siguiendo el cambio de hora de EE. UU. (convención "cierre de Nueva York = 00:00"). Con ella, 8:30 ET = 15:30 servidor todo el año. |
-| S6 | Dirección | Sólo largos, como los originales; el kit SELL se obtiene replicando con *Market sides* = short. |
+| S6 | Dirección | Dos kits por estilo: BUY (*Market sides* = long, como los originales) y SELL (*Market sides* = short) con los bloques y niveles espejados. El valor `short` del XML es deducido (sólo hay `long` en los originales): verifica la dirección al importar. |
 | S7 | Capital y riesgo | 10.000 de capital; riesgo fijo 0,5 % (alta frecuencia) o 1 % por operación; drawdown máximo tolerable 20 % (25 % en Position/Trend). |
 | S8 | Build | Los archivos son de la build 140.2099. Se asume que la build 144 los importa (SQX suele mantener compatibilidad hacia atrás), pero **no está verificado**. |
 
 ## Estructura común de cada kit
 
-Cada estilo conserva la arquitectura de dos etapas del autor, que es su principal acierto:
+Cada estilo tiene **dos kits idénticos salvo la dirección**: BUY (`Market sides` = long) y SELL (`Market sides` = short, bloques y niveles espejados). Cada kit conserva la arquitectura de dos etapas del autor, que es su principal acierto:
 
 1. **`Ventaja_Build`** busca *entradas* con ventaja usando sólo una salida temporal y tamaño fijo (sin SL/PT), para medir la entrada aislada.
 2. **`Ventaja_Retest`** comprueba la robustez de esa ventaja (tick real, Monte Carlo, SPP, OOS 2021-2024).
@@ -44,16 +44,20 @@ Cada estilo conserva la arquitectura de dos etapas del autor, que es su principa
 
 > **Viabilidad:** Scalping de ticks/segundos (libro de órdenes, latencia) **no es viable en SQX**: el motor trabaja con barras (mínimo M1). Esta ficha es la alternativa más cercana (M5). Si no tienes datos tick con spread real ni spreads brutos ≤0,3 pips, usa la ficha Day Trading.
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/Scalping/Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5.md)
-- `configs/Scalping/Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5.md)
-- `configs/Scalping/Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5.md)
-- `configs/Scalping/Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5_SELL.md) |
+
+**Operaciones mínimas exigidas** (300/año): Builder IS ≥ 1050, OOS 2019-2020 ≥ 360 (≈1410 en 5.0 años de construcción); Retest periodo completo ≥ 2920 y holdout 2021-2024 ≥ 850.
 
 ### 1. Tesis
 
-En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direccional; tras una micro-consolidación, la ruptura de su máximo tiende a continuar unas pocas velas. La ventaja es pequeña y sólo existe si el coste total (spread+comisión+deslizamiento) es una fracción pequeña del ATR de M5.
+En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direccional; tras una micro-consolidación, la ruptura de su extremo tiende a continuar unas pocas velas. La ventaja es pequeña y sólo existe si el coste total (spread+comisión+deslizamiento) es una fracción pequeña del ATR de M5.
 
 ### 2. Cambios respecto al original
 
@@ -70,7 +74,7 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Periodos de indicadores | 4–200 | 5–100 | Periodos 5-100 velas de M5 (25 min a 8 h): horizonte de micro-estructura; ≥100 no aporta nada a un scalper y sobreajusta. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 2–4 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w2, válida 1-3 velas) | Orden stop por encima del máximo: entra sólo si la ruptura ocurre; validez 1-3 velas (5-15 min) para no comprar rupturas viejas. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-3 velas) | Orden stop en el nivel de ruptura: entra sólo si la ruptura ocurre; validez 1-3 velas (5-15 min) para no comprar rupturas viejas. |
 | Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 1-2.5 × ATR(14-50) | SL/PT en ATR de M5 (adaptativos); break-even rápido; salida temporal 30 min-3 h: la ventaja de un scalp se agota en pocas velas. |
 | Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=true; 1-3 × ATR(14-50); PT=80-250 % del SL | SL/PT en ATR de M5 (adaptativos); break-even rápido; salida temporal 30 min-3 h: la ventaja de un scalp se agota en pocas velas. |
 | Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | no | SL/PT en ATR de M5 (adaptativos); break-even rápido; salida temporal 30 min-3 h: la ventaja de un scalp se agota en pocas velas. |
@@ -79,14 +83,14 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Salida por regla | no | sí (30 %) | SL/PT en ATR de M5 (adaptativos); break-even rápido; salida temporal 30 min-3 h: la ventaja de un scalp se agota en pocas velas. |
 | Ventana de señales | 01:30-23:30 | 09:00-18:30 + cierre al final | 18:30 servidor ≈ final del solape Londres-NY. |
 | Cierres forzados | no diario; no viernes | diario 21:00; viernes 20:00 | Red de seguridad: nada abierto al cierre del día. |
-| Máx. operaciones/día | 0 (sin límite) | 4 | Limita sobre-operar en días de ruido. |
+| Máx. operaciones/día | 0 (sin límite) | 6 | Permite varias operaciones/día sin sobre-operar en días de ruido. |
 | Distancia máx. orden | no | 0.3 % | 0,3 % ≈ 45 pips en GBPJPY; tope razonable para M5. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 12 señales / 17 indicadores / 8 stop-limit | Bloques de ruptura de rango corto (Donchian, Bollinger, Keltner, máximo de sesión asiática) + confirmación de expansión de volatilidad sin niveles absolutos (dependientes de precio). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 93 señales / 48 indicadores / 40 stop-limit | Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Riesgo fijo 0.5 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | SQN premia expectativa consistente con muchas operaciones (lo propio de un scalper); Ret/DD evita curvas con drawdowns profundos. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1000; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 3.75; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 830; WinningPct(IS) >= 40 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 30 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 3.75; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 871; WinningPct(IS) >= 40 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -101,7 +105,7 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Periodos de indicadores | 4–200 | 5–100 | Periodos 5-100 velas de M5 (25 min a 8 h): horizonte de micro-estructura; ≥100 no aporta nada a un scalper y sobreajusta. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w2, válida 1-3 velas) | Orden stop por encima del máximo: entra sólo si la ruptura ocurre; validez 1-3 velas (5-15 min) para no comprar rupturas viejas. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-3 velas) | Orden stop en el nivel de ruptura: entra sólo si la ruptura ocurre; validez 1-3 velas (5-15 min) para no comprar rupturas viejas. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
@@ -110,14 +114,14 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Salida por regla | no | no | Sin cambio. |
 | Ventana de señales | 01:30-23:30 | 09:00-18:30 + cierre al final | 18:30 servidor ≈ final del solape Londres-NY. |
 | Cierres forzados | no diario; no viernes | diario 21:00; viernes 20:00 | Red de seguridad: nada abierto al cierre del día. |
-| Máx. operaciones/día | 0 (sin límite) | 4 | Limita sobre-operar en días de ruido. |
+| Máx. operaciones/día | 0 (sin límite) | 6 | Permite varias operaciones/día sin sobre-operar en días de ruido. |
 | Distancia máx. orden | no | 0.3 % | 0,3 % ≈ 45 pips en GBPJPY; tope razonable para M5. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 12 señales / 17 indicadores / 8 stop-limit | Bloques de ruptura de rango corto (Donchian, Bollinger, Keltner, máximo de sesión asiática) + confirmación de expansión de volatilidad sin niveles absolutos (dependientes de precio). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 93 señales / 48 indicadores / 40 stop-limit | Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1000; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.5; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 830; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 30 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.5; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 871; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -130,7 +134,7 @@ En las aperturas de Londres y el solape Londres-Nueva York entra liquidez direcc
 | Cierres forzados | no diario; no viernes | diario 21:00; viernes 20:00 | Idénticos al Builder. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Igual que el Builder correspondiente. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 9; NumberOfTrades(Full) >= 1500; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 9; NumberOfTrades(Full) >= 2920; NumberOfTrades(OOS) >= 850; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 3 (tick real + spread real); 3 condiciones | Precisión 3 (tick real con spread real): en M5 el spread variable decide el resultado. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 200 sims; OHLC ±10 % ATR(14), desliz. 0-1, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -141,51 +145,92 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 1500
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 2920; NumberOfTrades(OOS) >= 850
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Bloques de ruptura de rango corto (Donchian, Bollinger, Keltner, máximo de sesión asiática) + confirmación de expansión de volatilidad sin niveles absolutos (dependientes de precio). El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: ruptura de canal/bandas y de los extremos de la sesión asiática (pesos 4-10, y órdenes stop en esos niveles, que son las que materializan la ruptura). Filtros a peso 1: expansión de volatilidad, momentum, tendencia corta, fuerza y hora. Sin bloques de nivel absoluto.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveHighestAfterOpenBelow` | 3 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | La tesis es la micro-ruptura: estos bloques definen el nivel roto. | global del estilo |
-| `BBBarOpensAboveUpAfterOpenBelow` | 2 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Bollinger. | La tesis es la micro-ruptura: estos bloques definen el nivel roto. | global del estilo |
-| `KCBarOpensAboveUpperAfterOpenBelow` | 2 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Keltner (ATR). | La tesis es la micro-ruptura: estos bloques definen el nivel roto. | global del estilo |
-| `BBBarClosesAboveUp` | 1 | Ruptura de nivel | Cierre por encima de la banda superior de Bollinger. | La tesis es la micro-ruptura: estos bloques definen el nivel roto. | global del estilo |
-| `KCBarClosesAboveUpper` | 1 | Ruptura de nivel | Cierre por encima de la banda superior de Keltner. | La tesis es la micro-ruptura: estos bloques definen el nivel roto. | global del estilo |
-| `LaguerreRSICrossUP` | 1 | Oscilador | RSI de Laguerre (0-1, poco retardo) cruza al alza un nivel. | Sólo como filtro de momentum (niveles 50-70 / 0,4-0,85), nunca como sobreventa. | Gamma 0.3 a 0.8 (paso 0.05); Level 0.4 a 0.85 (paso 0.05) |
-| `RSICrossUp` | 1 | Oscilador | RSI cruza hacia arriba un nivel. | Sólo como filtro de momentum (niveles 50-70 / 0,4-0,85), nunca como sobreventa. | Level 50 a 70 (paso 5) |
-| `ADXRising` | 1 | Tendencia | ADX creciente: la tendencia gana fuerza. | Filtro de dirección de muy corto plazo. | global del estilo |
-| `Indicators.EMA` | 1 | Tendencia | Media exponencial. | Filtro de dirección de muy corto plazo. | global del estilo |
-| `MARising` | 1 | Tendencia | Media móvil con pendiente positiva. | Filtro de dirección de muy corto plazo. | global del estilo |
-| `ATRChangesUp` | 1 | Volatilidad | El ATR cambia de dirección al alza. | Sin expansión de volatilidad la ruptura no cubre costes; confirman que entra flujo. | global del estilo |
-| `ATRRising` | 1 | Volatilidad | ATR creciente: expansión de volatilidad (sin nivel absoluto). | Sin expansión de volatilidad la ruptura no cubre costes; confirman que entra flujo. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | Sin expansión de volatilidad la ruptura no cubre costes; confirman que entra flujo. | global del estilo |
-| `StdDevRising` | 1 | Volatilidad | Desviación típica creciente. | Sin expansión de volatilidad la ruptura no cubre costes; confirman que entra flujo. | global del estilo |
-| `Indicators.Highest` | 2 | Nivel de referencia | Máximo de N velas (canal Donchian). | Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe. | global del estilo |
-| `Prices.SessionHigh` | 2 | Nivel de referencia | Máximo de una sesión horaria configurable. | Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Indicators.BollingerBands` | 1 | Nivel de referencia | Bandas de Bollinger (media ± k·desviación). | Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe. | global del estilo |
-| `Indicators.KeltnerChannel` | 1 | Nivel de referencia | Canal de Keltner (media ± k·ATR). | Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe. | global del estilo |
-| `Prices.SessionLow` | 1 | Nivel de referencia | Mínimo de una sesión horaria configurable. | Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones de precio con los niveles. | global del estilo |
-| `Prices.High` | 1 | Precio | Máximo. | Comparaciones de precio con los niveles. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones de precio con los niveles. | global del estilo |
-| `Prices.Open` | 1 | Precio | Apertura. | Comparaciones de precio con los niveles. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Construyen 'precio cruza/está sobre nivel'. | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Construyen 'precio cruza/está sobre nivel'. | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Construyen 'precio cruza/está sobre nivel'. | global del estilo |
-| `IsGreaterCount` | 1 | Comparador | A > B durante N velas seguidas. | Construyen 'precio cruza/está sobre nivel'. | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Construyen 'precio cruza/está sobre nivel'. | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 3 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Dónde se coloca la orden stop de ruptura. | global del estilo |
-| `Stop/Limit Price Levels.High` | 2 | Precio de orden stop/limit | Precio de la orden = máximo de una vela (vela señal). | Dónde se coloca la orden stop de ruptura. | global del estilo |
-| `Stop/Limit Price Levels.SessionHigh` | 2 | Precio de orden stop/limit | Precio = máximo de sesión. | Dónde se coloca la orden stop de ruptura. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Stop/Limit Price Levels.BollingerBands` | 1 | Precio de orden stop/limit | Precio = banda de Bollinger. | Dónde se coloca la orden stop de ruptura. | global del estilo |
-| `Stop/Limit Price Levels.KeltnerChannel` | 1 | Precio de orden stop/limit | Precio = banda de Keltner. | Dónde se coloca la orden stop de ruptura. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 2 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen por encima del nivel para filtrar toques. | global del estilo |
-| `Stop/Limit Price Ranges.BarRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango de la vela. | Margen por encima del nivel para filtrar toques. | global del estilo |
-| `Stop/Limit Price Ranges.SmallestRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango mínimo de N velas (contracción). | Margen por encima del nivel para filtrar toques. | global del estilo |
+Recuento: **93 señales, 48 indicadores y 40 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| rup_canal (10) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | La tesis es la micro-ruptura: define el nivel roto. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_bandas (4) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Ruptura de bandas de volatilidad: variante de la misma tesis. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
+| vol_expansion (2) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | Sin expansión de volatilidad la ruptura no cubre costes. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
+| vol_tick (1) | Volumen de ticks creciente (en FX es actividad, no volumen real). | Filtro auxiliar: amplía la variedad. | `VolumeRising`, `AvgVolumeRising` | igual (neutral) |
+| mom_direccion (1) | Osciladores y momentum girando o subiendo (RSI, estocástico, MACD, OSMA, QQE, Reflex, ROC, CCI, WPR, DeMarker…), sin niveles absolutos. | Filtro auxiliar: amplía la variedad. | `RSIRising`, `RSIChangesUp`, `LaguerreRSIRising`, `LaguerreRSIChangesUP`, `StochSlowDRising`, `StochSlowDChangesUp`, `StochFastKUp`, `MomRising`, `MomChangesUp`, `MACDMainRising`, `MACDMainChangesUp`, `MACDMainCrossAboveSignal`, `MACDMainHigherSignal`, `MACDSignalRising`, `OSMARising`, `OSMAChangesUp`, `AWORising`, `AWOChangesUp`, `QQEValue1Rising`, `QQEValue1CrossAboveValue2`, `QQEValue1HigherValue2`, `QQEValue2Rising`, `ReflexRising`, `ReflexChangesDirectionUP`, `FastReflexCrossUPSlowReflex`, `ROCRising`, `CCIRising`, `CCIChangesUp`, `WPRRising`, `WPRChangesUp`, `DEMRising`, `DEMChangesUp` | `RSIFalling`, `RSIChangesDown`, `LaguerreRSIFalling`, `LaguerreRSIChangesDown`, `StochSlowDFalling`, `StochSlowDChangesDown`, `StochFastKDown`, `MomFalling`, `MomChangesDown`, `MACDMainFalling`, `MACDMainChangesDown`, `MACDMainCrossBelowSignal`, `MACDMainLowerSignal`, `MACDSignalFalling`, `OSMAFalling`, `OSMAChangesDown`, `AWOFalling`, `AWOChangesDown`, `QQEValue1Falling`, `QQEValue1CrossBelowValue2`, `QQEValue1LowerValue2`, `QQEValue2Falling`, `ReflexFalling`, `ReflexChangesDirectionDown`, `FastReflexCrossDownSlowReflex`, `ROCFalling`, `CCIFalling`, `CCIChangesDown`, `WPRFalling`, `WPRChangesDown`, `DEMFalling`, `DEMChangesDown` |
+| mom_nivel (1) | Osciladores en zona de fuerza (RSI 50-70, estocástico 50-80, CCI 0-150…) y MACD/OSMA/ROC por encima de cero. | Filtro auxiliar: amplía la variedad. | `RSIHigher`, `RSICrossUp`, `LaguerreRSICrossUP`, `StochSlowDHigher`, `StochSlowDCrossUp`, `CCIHigher`, `CCICrossUp`, `WPRHigher`, `WPRCrossUp`, `QQEValue1Higher`, `QQEValue1CrossAbove`, `MACDMainHigherZero`, `MACDMainCrossAboveZero`, `OSMAHigherZero`, `OSMACrossZeroUp`, `ROCAboveLevel`, `ROCCrossesAboveLevel`, `SchaffTrendCycleAboveLevel`, `SchaffTrendCycleCrossesAboveLevel` | `RSILower`, `RSICrossDown`, `LaguerreRSICrossDown`, `StochSlowDLower`, `StochSlowDCrossDown`, `CCILower`, `CCICrossDown`, `WPRLower`, `WPRCrossDown`, `QQEValue1Lower`, `QQEValue1CrossBelow`, `MACDMainLowerZero`, `MACDMainCrossBelowZero`, `OSMALowerZero`, `OSMACrossZeroDown`, `ROCBelowLevel`, `ROCCrossesBelowLevel`, `SchaffTrendCycleBelowLevel`, `SchaffTrendCycleCrossesBelowLevel` |
+| tend_medias (1) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Filtro auxiliar: amplía la variedad. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
+| fuerza (1) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Filtro auxiliar: amplía la variedad. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
+| tiempo_intradia (1) | Hora y día de la semana de la vela. | Filtro auxiliar: amplía la variedad. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| niv_canal (3) | Máximo/mínimo de N velas. | Máximos/mínimos recientes: el nivel que se rompe. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| niv_horario (2) | Máximo/mínimo de un rango horario y de la sesión (apertura/cierre de sesión). | Extremos de la sesión asiática, que la apertura de Londres rompe. | `HighestInRange`, `LowestInRange`(w1), `SessionHigh`, `SessionLow`(w1), `SessionOpen`, `SessionClose` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen`, `SessionClose` |
+| niv_diario (1) | Máximo/mínimo/apertura/cierre del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| medias (1) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| bandas (1) | Bandas de Bollinger y canal de Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel` | igual (neutral) |
+| sistemas (1) | SuperTrend, Parabolic SAR, Ichimoku y Gann HiLo como valores. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| osciladores (1) | RSI, estocástico, CCI, Williams %R, RSI de Laguerre y DeMarker como valores. | Filtro auxiliar: amplía la variedad. | `RSI`, `Stochastic`, `CCI`, `WilliamsPR`, `LaguerreRSI`, `DeMarker` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (1) | N velas seguidas por encima/debajo, subiendo/bajando. | Filtro auxiliar: amplía la variedad. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_canal (5) | Orden en el máximo/mínimo de N velas. | Orden stop en el extremo de N velas: materializa la ruptura. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_vela (3) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Stop sobre el extremo de la vela previa (micro-ruptura). | `High`, `Low`(w1), `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_horario (3) | Orden en el extremo de un rango horario o de sesión. | Stop en el extremo de la sesión asiática. | `HighestInRange`, `LowestInRange`(w1), `SessionHigh`, `SessionLow`(w1), `SessionOpen` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen` |
+| stl_diario (1) | Orden en niveles del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_bandas (2) | Orden en Bollinger/Keltner. | Stop en la banda de volatilidad. | `BollingerBands`, `KeltnerChannel`, `MTKeltnerChannel` | igual (neutral) |
+| stl_medias (1) | Orden en una media móvil. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| stl_sistemas (1) | Orden en SuperTrend, PSAR, Ichimoku o Gann HiLo. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| stl_estructura (1) | Orden en fractales o pivotes. | Filtro auxiliar: amplía la variedad. | `Fractal`, `Pivots` | igual (neutral) |
+| stl_rangos (2) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Margen sobre el nivel para filtrar toques. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `RSIHigher` | Level 50 a 70 (paso 5) | `RSILower` | Level 30 a 50 (paso 5) |
+| `RSICrossUp` | Level 50 a 70 (paso 5) | `RSICrossDown` | Level 30 a 50 (paso 5) |
+| `LaguerreRSICrossUP` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.4 a 0.85 (paso 0.05) | `LaguerreRSICrossDown` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.15 a 0.6 (paso 0.05) |
+| `StochSlowDHigher` | Level 50 a 80 (paso 5) | `StochSlowDLower` | Level 20 a 50 (paso 5) |
+| `StochSlowDCrossUp` | Level 50 a 80 (paso 5) | `StochSlowDCrossDown` | Level 20 a 50 (paso 5) |
+| `CCIHigher` | Level 0 a 150 (paso 10) | `CCILower` | Level -150 a 0 (paso 10) |
+| `CCICrossUp` | Level 0 a 150 (paso 10) | `CCICrossDown` | Level -150 a 0 (paso 10) |
+| `WPRHigher` | Level -50 a -20 (paso 5) | `WPRLower` | Level -80 a -50 (paso 5) |
+| `WPRCrossUp` | Level -50 a -20 (paso 5) | `WPRCrossDown` | Level -80 a -50 (paso 5) |
+| `QQEValue1Higher` | Level 50 a 70 (paso 5) | `QQEValue1Lower` | Level 30 a 50 (paso 5) |
+| `QQEValue1CrossAbove` | Level 50 a 70 (paso 5) | `QQEValue1CrossBelow` | Level 30 a 50 (paso 5) |
+| `SchaffTrendCycleAboveLevel` | Level 50 a 90 (paso 5) | `SchaffTrendCycleBelowLevel` | Level 10 a 50 (paso 5) |
+| `SchaffTrendCycleCrossesAboveLevel` | Level 25 a 75 (paso 5) | `SchaffTrendCycleCrossesBelowLevel` | Level 25 a 75 (paso 5) |
+| `ADXHigher` | Level 20 a 40 (paso 5) | `ADXHigher` | Level 20 a 40 (paso 5) |
+| `ADXCrossUp` | Level 20 a 35 (paso 5) | `ADXCrossUp` | Level 20 a 35 (paso 5) |
+| `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) | `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) |
+| `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `ROCAboveLevel` | Level 0 a 1 (paso 0.05) | `ROCBelowLevel` | Level -1 a 0 (paso 0.05) |
+| `ROCCrossesAboveLevel` | Level 0 a 1 (paso 0.05) | `ROCCrossesBelowLevel` | Level -1 a 0 (paso 0.05) |
+| `Indicators.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Indicators.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Stop/Limit Price Levels.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Stop/Limit Price Levels.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Prices.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `BarHourIs` | Hour 9 a 18 (paso 1) | `BarHourIs` | Hour 9 a 18 (paso 1) |
+| `BarHourIsBigger` | Hour 8 a 12 (paso 1) | `BarHourIsBigger` | Hour 8 a 12 (paso 1) |
+| `BarHourIsSmaller` | Hour 12 a 19 (paso 1) | `BarHourIsSmaller` | Hour 12 a 19 (paso 1) |
 
 ### 4. Timeframe, símbolos y horarios
 
@@ -201,16 +246,16 @@ SL 1-2,5 ATR(14-50) de M5 (≈6-25 pips en EURUSD), PT 1-3 ATR con PT = 80-250 %
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NumberOfTrades(IS) >= 1000; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 9; NumberOfTrades(Full) >= 1500; DrawdownPct(Full) <= 20 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 1000; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 1500 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 6; WinningPct(IS) >= 45; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: ReturnDDRatio (peso 1, max), SQN (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 9; NumberOfTrades(Full) >= 2920; NumberOfTrades(OOS) >= 850; DrawdownPct(Full) <= 20 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 1050; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 360 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__Scalping_M5_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 2920; NumberOfTrades(OOS) >= 850 |
 
-Justificación: SQN premia expectativa consistente con muchas operaciones (lo propio de un scalper); Ret/DD evita curvas con drawdowns profundos. Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: SQN premia expectativa consistente con muchas operaciones (lo propio de un scalper); Ret/DD evita curvas con drawdowns profundos. El mínimo de operaciones sale de la densidad del estilo (300/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
-- **Builder:** población 30 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 3 (tick real + spread real); 3 condiciones. Precisión 3 (tick real con spread real): en M5 el spread variable decide el resultado.
 - **Monte Carlo:** activo; 200 sims; OHLC ±10 % ATR(14), desliz. 0-1, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
@@ -242,12 +287,16 @@ Riesgos propios del estilo: Sensibilidad extrema a costes y latencia; datos M1 c
 
 **Day Trading (ruptura del rango asiático)** · timeframe `M15`
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/DayTrading/Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15.md)
-- `configs/DayTrading/Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15.md)
-- `configs/DayTrading/Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15.md)
-- `configs/DayTrading/Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15_SELL.md) |
+
+**Operaciones mínimas exigidas** (120/año): Builder IS ≥ 630, OOS 2019-2020 ≥ 190 (≈820 en 7.3 años de construcción); Retest periodo completo ≥ 1170 y holdout 2021-2024 ≥ 340.
 
 ### 1. Tesis
 
@@ -277,13 +326,13 @@ El rango de la sesión asiática concentra órdenes en sus extremos; la apertura
 | Salida por regla | no | sí (30 %) | SL en ATR; objetivo opcional porque el cierre de fin de día ya acota la operación. |
 | Ventana de señales | 01:30-23:30 | 09:00-19:00 | Tras las 19:00 queda poco recorrido intradía. |
 | Cierres forzados | no diario; no viernes | diario 22:30; viernes 21:30 | Definición de day trading: plano al cierre. |
-| Máx. operaciones/día | 0 (sin límite) | 2 | Una ruptura y, como mucho, un reintento. |
+| Máx. operaciones/día | 0 (sin límite) | 3 | La ruptura y hasta dos reintentos. |
 | Distancia máx. orden | no | 0.6 % | ≈ 90 pips en GBPJPY: cubre rangos asiáticos amplios. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 11 señales / 21 indicadores / 7 stop-limit | El nivel roto es el máximo del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00, en horas enteras: el rango original 0-2359 con paso 30 generaba horas HHMM inválidas como 0060) y los niveles del día anterior. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 112 señales / 52 indicadores / 40 stop-limit | Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Riesgo fijo 0.5 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | Ret/DD como el original; StagnationPct penaliza meses planos (típico de rupturas intradía en régimen de baja volatilidad). |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 500; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 3.12; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 415; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 3.12; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 522; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
@@ -308,13 +357,13 @@ El rango de la sesión asiática concentra órdenes en sus extremos; la apertura
 | Salida por regla | no | no | Sin cambio. |
 | Ventana de señales | 01:30-23:30 | 09:00-19:00 | Tras las 19:00 queda poco recorrido intradía. |
 | Cierres forzados | no diario; no viernes | diario 22:30; viernes 21:30 | Definición de day trading: plano al cierre. |
-| Máx. operaciones/día | 0 (sin límite) | 2 | Una ruptura y, como mucho, un reintento. |
+| Máx. operaciones/día | 0 (sin límite) | 3 | La ruptura y hasta dos reintentos. |
 | Distancia máx. orden | no | 0.6 % | ≈ 90 pips en GBPJPY: cubre rangos asiáticos amplios. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 11 señales / 21 indicadores / 7 stop-limit | El nivel roto es el máximo del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00, en horas enteras: el rango original 0-2359 con paso 30 generaba horas HHMM inválidas como 0060) y los niveles del día anterior. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 112 señales / 52 indicadores / 40 stop-limit | Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 500; ReturnDDRatio(IS) >= 2.5; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 415; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 2.5; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 522; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
@@ -328,7 +377,7 @@ El rango de la sesión asiática concentra órdenes en sus extremos; la apertura
 | Cierres forzados | no diario; no viernes | diario 22:30; viernes 21:30 | Idénticos al Builder. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Igual que el Builder correspondiente. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 7.5; NumberOfTrades(Full) >= 750; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 7.5; NumberOfTrades(Full) >= 1170; NumberOfTrades(OOS) >= 340; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 2 (tick real + spread personalizado); 3 condiciones | Se activan también las condiciones de nº de operaciones y DD. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 300 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -339,53 +388,97 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 750
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 1170; NumberOfTrades(OOS) >= 340
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: El nivel roto es el máximo del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00, en horas enteras: el rango original 0-2359 con paso 30 generaba horas HHMM inválidas como 0060) y los niveles del día anterior. El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: extremos del rango asiático (HighestInRange 00:00-03:00 → 07:00-10:00 en horas enteras; el original usaba paso 30 sobre HHMM, que genera horas inválidas como 0060), niveles del día anterior y aperturas de sesión, con órdenes stop en ellos. Filtros amplios a peso 1.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveHighestAfterOpenBelow` | 2 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | Rupturas de canal confirmadas en apertura. | global del estilo |
-| `BBBarOpensAboveUpAfterOpenBelow` | 1 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Bollinger. | Rupturas de canal confirmadas en apertura. | global del estilo |
-| `KCBarOpensAboveUpperAfterOpenBelow` | 1 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Keltner (ATR). | Rupturas de canal confirmadas en apertura. | global del estilo |
-| `ADXHigher` | 1 | Tendencia | ADX por encima de un nivel: tendencia con fuerza. | Sesgo direccional intradía (ADX, pendientes). | Level 20 a 40 (paso 5) |
-| `ADXRising` | 1 | Tendencia | ADX creciente: la tendencia gana fuerza. | Sesgo direccional intradía (ADX, pendientes). | global del estilo |
-| `Indicators.EMA` | 1 | Tendencia | Media exponencial. | Sesgo direccional intradía (ADX, pendientes). | global del estilo |
-| `LinRegRising` | 1 | Tendencia | Regresión lineal con pendiente positiva. | Sesgo direccional intradía (ADX, pendientes). | global del estilo |
-| `MABarClosesAbove` | 1 | Tendencia | Cierre por encima de una media móvil. | Sesgo direccional intradía (ADX, pendientes). | global del estilo |
-| `MARising` | 1 | Tendencia | Media móvil con pendiente positiva. | Sesgo direccional intradía (ADX, pendientes). | global del estilo |
-| `ATRRising` | 1 | Volatilidad | ATR creciente: expansión de volatilidad (sin nivel absoluto). | La ruptura necesita expansión. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | La ruptura necesita expansión. | global del estilo |
-| `BarHourIsBigger` | 1 | Tiempo | Hora de la vela posterior a H. | Permiten al Builder acotar la franja de entrada dentro de la ventana global. | Hour 8 a 12 (paso 1) |
-| `BarHourIsSmaller` | 1 | Tiempo | Hora de la vela anterior a H. | Permiten al Builder acotar la franja de entrada dentro de la ventana global. | Hour 12 a 19 (paso 1) |
-| `Indicators.HighestInRange` | 3 | Nivel de referencia | Máximo entre dos horas del día (rango horario, p. ej. asiático). | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
-| `Indicators.LowestInRange` | 2 | Nivel de referencia | Mínimo entre dos horas del día. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
-| `Prices.SessionHigh` | 2 | Nivel de referencia | Máximo de una sesión horaria configurable. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Indicators.Highest` | 1 | Nivel de referencia | Máximo de N velas (canal Donchian). | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | global del estilo |
-| `Prices.CloseD` | 1 | Nivel de referencia | Cierre del día anterior. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | global del estilo |
-| `Prices.HighD` | 1 | Nivel de referencia | Máximo del día anterior. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | global del estilo |
-| `Prices.LowD` | 1 | Nivel de referencia | Mínimo del día anterior. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | global del estilo |
-| `Prices.OpenD` | 1 | Nivel de referencia | Apertura diaria. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | global del estilo |
-| `Prices.SessionLow` | 1 | Nivel de referencia | Mínimo de una sesión horaria configurable. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Prices.SessionOpen` | 1 | Nivel de referencia | Apertura de una sesión horaria configurable. | Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía. | Start Hours 9 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones con los niveles. | global del estilo |
-| `Prices.High` | 1 | Precio | Máximo. | Comparaciones con los niveles. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones con los niveles. | global del estilo |
-| `Prices.Open` | 1 | Precio | Apertura. | Comparaciones con los niveles. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Construyen las condiciones de ruptura. | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Construyen las condiciones de ruptura. | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Construyen las condiciones de ruptura. | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Construyen las condiciones de ruptura. | global del estilo |
-| `Stop/Limit Price Levels.HighestInRange` | 3 | Precio de orden stop/limit | Precio = máximo de un rango horario. | Orden stop en el extremo del rango asiático/día anterior. | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
-| `Stop/Limit Price Levels.SessionHigh` | 2 | Precio de orden stop/limit | Precio = máximo de sesión. | Orden stop en el extremo del rango asiático/día anterior. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Stop/Limit Price Levels.HighD` | 1 | Precio de orden stop/limit | Precio = máximo del día anterior. | Orden stop en el extremo del rango asiático/día anterior. | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Orden stop en el extremo del rango asiático/día anterior. | global del estilo |
-| `Stop/Limit Price Levels.OpenD` | 1 | Precio de orden stop/limit | Precio = apertura diaria. | Orden stop en el extremo del rango asiático/día anterior. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 2 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen sobre el nivel. | global del estilo |
-| `Stop/Limit Price Ranges.BarRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango de la vela. | Margen sobre el nivel. | global del estilo |
+Recuento: **112 señales, 52 indicadores y 40 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| rup_canal (8) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Ruptura de canal intradía. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_bandas (3) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Ruptura de bandas. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
+| rup_ichimoku (1) | Salida de la nube y cruces alcistas de Ichimoku. | Filtro auxiliar: amplía la variedad. | `IchimokuKumoBreakoutBullish`, `IchimokuKijunSenCrossBullish`, `IchimokuSenkouSpanCrossBullish`, `IchimokuTenkanKijunCrossBullish` | `IchimokuKumoBreakoutBearish`, `IchimokuKijunSenCrossBearish`, `IchimokuSenkouSpanCrossBearish`, `IchimokuTenkanKijunCrossBearish` |
+| vol_expansion (2) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | La ruptura necesita expansión. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
+| vol_tick (1) | Volumen de ticks creciente (en FX es actividad, no volumen real). | Filtro auxiliar: amplía la variedad. | `VolumeRising`, `AvgVolumeRising` | igual (neutral) |
+| mom_direccion (1) | Osciladores y momentum girando o subiendo (RSI, estocástico, MACD, OSMA, QQE, Reflex, ROC, CCI, WPR, DeMarker…), sin niveles absolutos. | Filtro auxiliar: amplía la variedad. | `RSIRising`, `RSIChangesUp`, `LaguerreRSIRising`, `LaguerreRSIChangesUP`, `StochSlowDRising`, `StochSlowDChangesUp`, `StochFastKUp`, `MomRising`, `MomChangesUp`, `MACDMainRising`, `MACDMainChangesUp`, `MACDMainCrossAboveSignal`, `MACDMainHigherSignal`, `MACDSignalRising`, `OSMARising`, `OSMAChangesUp`, `AWORising`, `AWOChangesUp`, `QQEValue1Rising`, `QQEValue1CrossAboveValue2`, `QQEValue1HigherValue2`, `QQEValue2Rising`, `ReflexRising`, `ReflexChangesDirectionUP`, `FastReflexCrossUPSlowReflex`, `ROCRising`, `CCIRising`, `CCIChangesUp`, `WPRRising`, `WPRChangesUp`, `DEMRising`, `DEMChangesUp` | `RSIFalling`, `RSIChangesDown`, `LaguerreRSIFalling`, `LaguerreRSIChangesDown`, `StochSlowDFalling`, `StochSlowDChangesDown`, `StochFastKDown`, `MomFalling`, `MomChangesDown`, `MACDMainFalling`, `MACDMainChangesDown`, `MACDMainCrossBelowSignal`, `MACDMainLowerSignal`, `MACDSignalFalling`, `OSMAFalling`, `OSMAChangesDown`, `AWOFalling`, `AWOChangesDown`, `QQEValue1Falling`, `QQEValue1CrossBelowValue2`, `QQEValue1LowerValue2`, `QQEValue2Falling`, `ReflexFalling`, `ReflexChangesDirectionDown`, `FastReflexCrossDownSlowReflex`, `ROCFalling`, `CCIFalling`, `CCIChangesDown`, `WPRFalling`, `WPRChangesDown`, `DEMFalling`, `DEMChangesDown` |
+| mom_nivel (1) | Osciladores en zona de fuerza (RSI 50-70, estocástico 50-80, CCI 0-150…) y MACD/OSMA/ROC por encima de cero. | Filtro auxiliar: amplía la variedad. | `RSIHigher`, `RSICrossUp`, `LaguerreRSICrossUP`, `StochSlowDHigher`, `StochSlowDCrossUp`, `CCIHigher`, `CCICrossUp`, `WPRHigher`, `WPRCrossUp`, `QQEValue1Higher`, `QQEValue1CrossAbove`, `MACDMainHigherZero`, `MACDMainCrossAboveZero`, `OSMAHigherZero`, `OSMACrossZeroUp`, `ROCAboveLevel`, `ROCCrossesAboveLevel`, `SchaffTrendCycleAboveLevel`, `SchaffTrendCycleCrossesAboveLevel` | `RSILower`, `RSICrossDown`, `LaguerreRSICrossDown`, `StochSlowDLower`, `StochSlowDCrossDown`, `CCILower`, `CCICrossDown`, `WPRLower`, `WPRCrossDown`, `QQEValue1Lower`, `QQEValue1CrossBelow`, `MACDMainLowerZero`, `MACDMainCrossBelowZero`, `OSMALowerZero`, `OSMACrossZeroDown`, `ROCBelowLevel`, `ROCCrossesBelowLevel`, `SchaffTrendCycleBelowLevel`, `SchaffTrendCycleCrossesBelowLevel` |
+| tend_medias (1) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Filtro auxiliar: amplía la variedad. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
+| tend_sistemas (1) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Filtro auxiliar: amplía la variedad. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
+| fuerza (1) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Filtro auxiliar: amplía la variedad. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
+| tiempo_intradia (2) | Hora y día de la semana de la vela. | Acotan la franja de entrada dentro de la ventana global. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| niv_horario (4) | Máximo/mínimo de un rango horario y de la sesión (apertura/cierre de sesión). | Rango asiático y aperturas de sesión: los niveles clásicos intradía. | `HighestInRange`, `LowestInRange`(w2), `SessionHigh`, `SessionLow`(w2), `SessionOpen`, `SessionClose` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen`, `SessionClose` |
+| niv_canal (2) | Máximo/mínimo de N velas. | Extremos recientes. | `Highest`, `Lowest` | `Lowest`, `Highest` |
+| niv_diario (2) | Máximo/mínimo/apertura/cierre del día. | Niveles del día anterior. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| medias (1) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| bandas (1) | Bandas de Bollinger y canal de Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel` | igual (neutral) |
+| sistemas (1) | SuperTrend, Parabolic SAR, Ichimoku y Gann HiLo como valores. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| osciladores (1) | RSI, estocástico, CCI, Williams %R, RSI de Laguerre y DeMarker como valores. | Filtro auxiliar: amplía la variedad. | `RSI`, `Stochastic`, `CCI`, `WilliamsPR`, `LaguerreRSI`, `DeMarker` | igual (neutral) |
+| fuerza_ind (1) | ADX, eficiencia de Kaufman, Aroon y Vortex como valores. | Filtro auxiliar: amplía la variedad. | `ADX`, `KaufmanEfficiencyRatio`, `Aroon`, `Vortex` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (1) | N velas seguidas por encima/debajo, subiendo/bajando. | Filtro auxiliar: amplía la variedad. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_horario (5) | Orden en el extremo de un rango horario o de sesión. | Stop en el extremo del rango asiático: el núcleo del estilo. | `HighestInRange`, `LowestInRange`(w1), `SessionHigh`, `SessionLow`(w1), `SessionOpen` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen` |
+| stl_diario (3) | Orden en niveles del día. | Stop en máximo/mínimo/apertura del día. | `HighD`, `LowD`(w1), `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_canal (2) | Orden en el máximo/mínimo de N velas. | Stop en extremo de N velas. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_vela (2) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Stop en la vela previa. | `High`, `Low`(w1), `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_bandas (1) | Orden en Bollinger/Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel`, `MTKeltnerChannel` | igual (neutral) |
+| stl_medias (1) | Orden en una media móvil. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| stl_sistemas (1) | Orden en SuperTrend, PSAR, Ichimoku o Gann HiLo. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| stl_estructura (1) | Orden en fractales o pivotes. | Filtro auxiliar: amplía la variedad. | `Fractal`, `Pivots` | igual (neutral) |
+| stl_rangos (2) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Margen sobre el nivel. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `RSIHigher` | Level 50 a 70 (paso 5) | `RSILower` | Level 30 a 50 (paso 5) |
+| `RSICrossUp` | Level 50 a 70 (paso 5) | `RSICrossDown` | Level 30 a 50 (paso 5) |
+| `LaguerreRSICrossUP` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.4 a 0.85 (paso 0.05) | `LaguerreRSICrossDown` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.15 a 0.6 (paso 0.05) |
+| `StochSlowDHigher` | Level 50 a 80 (paso 5) | `StochSlowDLower` | Level 20 a 50 (paso 5) |
+| `StochSlowDCrossUp` | Level 50 a 80 (paso 5) | `StochSlowDCrossDown` | Level 20 a 50 (paso 5) |
+| `CCIHigher` | Level 0 a 150 (paso 10) | `CCILower` | Level -150 a 0 (paso 10) |
+| `CCICrossUp` | Level 0 a 150 (paso 10) | `CCICrossDown` | Level -150 a 0 (paso 10) |
+| `WPRHigher` | Level -50 a -20 (paso 5) | `WPRLower` | Level -80 a -50 (paso 5) |
+| `WPRCrossUp` | Level -50 a -20 (paso 5) | `WPRCrossDown` | Level -80 a -50 (paso 5) |
+| `QQEValue1Higher` | Level 50 a 70 (paso 5) | `QQEValue1Lower` | Level 30 a 50 (paso 5) |
+| `QQEValue1CrossAbove` | Level 50 a 70 (paso 5) | `QQEValue1CrossBelow` | Level 30 a 50 (paso 5) |
+| `SchaffTrendCycleAboveLevel` | Level 50 a 90 (paso 5) | `SchaffTrendCycleBelowLevel` | Level 10 a 50 (paso 5) |
+| `SchaffTrendCycleCrossesAboveLevel` | Level 25 a 75 (paso 5) | `SchaffTrendCycleCrossesBelowLevel` | Level 25 a 75 (paso 5) |
+| `ADXHigher` | Level 20 a 40 (paso 5) | `ADXHigher` | Level 20 a 40 (paso 5) |
+| `ADXCrossUp` | Level 20 a 35 (paso 5) | `ADXCrossUp` | Level 20 a 35 (paso 5) |
+| `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) | `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) |
+| `SuperTrendUPTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `SuperTrendDownTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `BarClosesAboveSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `BarClosesBelowSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `ROCAboveLevel` | Level 0 a 1 (paso 0.05) | `ROCBelowLevel` | Level -1 a 0 (paso 0.05) |
+| `ROCCrossesAboveLevel` | Level 0 a 1 (paso 0.05) | `ROCCrossesBelowLevel` | Level -1 a 0 (paso 0.05) |
+| `Indicators.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Indicators.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Stop/Limit Price Levels.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Stop/Limit Price Levels.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Prices.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Prices.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 8 a 10 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `BarHourIs` | Hour 9 a 18 (paso 1) | `BarHourIs` | Hour 9 a 18 (paso 1) |
+| `BarHourIsBigger` | Hour 8 a 12 (paso 1) | `BarHourIsBigger` | Hour 8 a 12 (paso 1) |
+| `BarHourIsSmaller` | Hour 12 a 19 (paso 1) | `BarHourIsSmaller` | Hour 12 a 19 (paso 1) |
 
 ### 4. Timeframe, símbolos y horarios
 
@@ -401,12 +494,12 @@ SL 1-2,5 ATR(14-60) de M15; objetivo opcional 1,5-4 ATR (50 %); trailing 1,5-3 A
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 500; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 7.5; NumberOfTrades(Full) >= 750; DrawdownPct(Full) <= 20 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 500; ReturnDDRatio(IS) >= 2.5; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 750 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 5; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 7.5; NumberOfTrades(Full) >= 1170; NumberOfTrades(OOS) >= 340; DrawdownPct(Full) <= 20 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 630; ReturnDDRatio(IS) >= 2.5; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 190 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__DayTrading_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 1170; NumberOfTrades(OOS) >= 340 |
 
-Justificación: Ret/DD como el original; StagnationPct penaliza meses planos (típico de rupturas intradía en régimen de baja volatilidad). Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: Ret/DD como el original; StagnationPct penaliza meses planos (típico de rupturas intradía en régimen de baja volatilidad). El mínimo de operaciones sale de la densidad del estilo (120/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
@@ -440,16 +533,20 @@ Riesgos propios del estilo: Dependencia del horario del servidor (DST); rupturas
 
 **Swing Trading (ruptura de consolidación multi-día)** · timeframe `H4`
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/Swing/Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4.md)
-- `configs/Swing/Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4.md)
-- `configs/Swing/Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4.md)
-- `configs/Swing/Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4_SELL.md) |
+
+**Operaciones mínimas exigidas** (45/año): Builder IS ≥ 240, OOS 2019-2020 ≥ 70 (≈310 en 7.3 años de construcción); Retest periodo completo ≥ 440 y holdout 2021-2024 ≥ 130.
 
 ### 1. Tesis
 
-Tras una contracción de volatilidad de varios días, la ruptura del rango tiende a continuar durante 2-10 días en la dirección del régimen de fondo. Se mantiene la posición noches y fines de semana.
+Tras una contracción de volatilidad, la ruptura del rango tiende a continuar durante 1-5 días en la dirección del régimen de fondo. Se mantiene la posición noches y fines de semana.
 
 ### 2. Cambios respecto al original
 
@@ -466,22 +563,22 @@ Tras una contracción de volatilidad de varios días, la ruptura del rango tiend
 | Periodos de indicadores | 4–200 | 5–120 | 5-120 velas H4 = 1-20 días: horizonte de swing. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 2–4 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w2, válida 2-6 velas) | Stop válida 8-24 h. |
-| Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 1.5-3.5 × ATR(14-100) | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 2-7 días. |
-| Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=false; 2-6 × ATR(14-100) | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 2-7 días. |
-| Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | sí (50 %), 2-4 ATR | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 2-7 días. |
-| Break-even | no | sí (30 %), 1-2 ATR | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 2-7 días. |
-| Salida temporal | no | sí (30 %), 10-40 velas | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 2-7 días. |
-| Salida por regla | no | sí (30 %) | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 2-7 días. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 2-6 velas) | Stop válida 8-24 h. |
+| Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 1.5-3.5 × ATR(14-100) | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 1-5 días. |
+| Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=false; 2-6 × ATR(14-100) | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 1-5 días. |
+| Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | sí (50 %), 2-4 ATR | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 1-5 días. |
+| Break-even | no | sí (30 %), 1-2 ATR | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 1-5 días. |
+| Salida temporal | no | sí (40 %), 6-30 velas | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 1-5 días. |
+| Salida por regla | no | sí (30 %) | Stop amplio en ATR, objetivo y trailing opcionales, salida temporal 1-5 días. |
 | Ventana de señales | 01:30-23:30 | sin ventana | En H4 la ventana 01:30-23:30 excluiría la vela de las 00:00 (1/6 de las señales) sin motivo de estilo. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
-| Máx. operaciones/día | 0 (sin límite) | 1 | Swing: como mucho una entrada diaria. |
+| Máx. operaciones/día | 0 (sin límite) | 2 | Swing: hasta dos entradas diarias. |
 | Distancia máx. orden | no | 2 % | 2 %: holgura para rupturas de rangos de varios días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 14 señales / 20 indicadores / 9 stop-limit | Ruptura de máximos de N días (Donchian/Bollinger/Keltner/Kumo) filtrada por régimen (ADX, pendiente de medias, eficiencia de Kaufman). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 119 señales / 51 indicadores / 38 stop-limit | Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
-| Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Ret/DD + estabilidad de la curva: un swing con 30 operaciones/año necesita curvas regulares. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 33 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Ret/DD + estabilidad de la curva. |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 199; WinningPct(IS) >= 33 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
@@ -497,7 +594,7 @@ Tras una contracción de volatilidad de varios días, la ruptura del rango tiend
 | Periodos de indicadores | 4–200 | 5–120 | 5-120 velas H4 = 1-20 días: horizonte de swing. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w2, válida 2-6 velas) | Stop válida 8-24 h. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 2-6 velas) | Stop válida 8-24 h. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
@@ -506,13 +603,13 @@ Tras una contracción de volatilidad de varios días, la ruptura del rango tiend
 | Salida por regla | no | no | Sin cambio. |
 | Ventana de señales | 01:30-23:30 | sin ventana | En H4 la ventana 01:30-23:30 excluiría la vela de las 00:00 (1/6 de las señales) sin motivo de estilo. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
-| Máx. operaciones/día | 0 (sin límite) | 1 | Swing: como mucho una entrada diaria. |
+| Máx. operaciones/día | 0 (sin límite) | 2 | Swing: hasta dos entradas diarias. |
 | Distancia máx. orden | no | 2 % | 2 %: holgura para rupturas de rangos de varios días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 14 señales / 20 indicadores / 9 stop-limit | Ruptura de máximos de N días (Donchian/Bollinger/Keltner/Kumo) filtrada por régimen (ADX, pendiente de medias, eficiencia de Kaufman). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 119 señales / 51 indicadores / 38 stop-limit | Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 28 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 3; NumberOfTrades(IS) >= 199; WinningPct(IS) >= 28 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
@@ -526,7 +623,7 @@ Tras una contracción de volatilidad de varios días, la ruptura del rango tiend
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 225; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 440; NumberOfTrades(OOS) >= 130; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 2 (tick real + spread personalizado); 3 condiciones | Se activan también las condiciones de nº de operaciones y DD. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -537,57 +634,88 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 225
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 440; NumberOfTrades(OOS) >= 130
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Ruptura de máximos de N días (Donchian/Bollinger/Keltner/Kumo) filtrada por régimen (ADX, pendiente de medias, eficiencia de Kaufman). El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: ruptura de máximos de N velas/día/semana, bandas y nube de Ichimoku, con órdenes stop; filtros de régimen (ADX, KER, medias, sistemas de tendencia), volatilidad y calendario.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveHighestAfterOpenBelow` | 3 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | Ruptura de consolidaciones de varios días. | global del estilo |
-| `BBBarOpensAboveUpAfterOpenBelow` | 1 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Bollinger. | Ruptura de consolidaciones de varios días. | global del estilo |
-| `IchimokuKumoBreakoutBullish` | 1 | Ruptura de nivel | El precio sale por encima de la nube de Ichimoku. | Ruptura de consolidaciones de varios días. | global del estilo |
-| `KCBarOpensAboveUpperAfterOpenBelow` | 1 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Keltner (ATR). | Ruptura de consolidaciones de varios días. | global del estilo |
-| `RSIHigher` | 1 | Momentum | RSI por encima de un nivel (fuerza relativa). | Fuerza relativa (RSI > 50-70) como confirmación, no como sobrecompra. | Level 50 a 70 (paso 5) |
-| `ADXHigher` | 1 | Tendencia | ADX por encima de un nivel: tendencia con fuerza. | El swing a favor del régimen de fondo tiene más recorrido. | Level 20 a 40 (paso 5) |
-| `ADXRising` | 1 | Tendencia | ADX creciente: la tendencia gana fuerza. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `Indicators.EMA` | 1 | Tendencia | Media exponencial. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `Indicators.SMA` | 1 | Tendencia | Media simple. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `KERaboveLevel` | 1 | Tendencia | Ratio de eficiencia de Kaufman alto: movimiento direccional limpio. | El swing a favor del régimen de fondo tiene más recorrido. | Level 0.2 a 0.6 (paso 0.05) |
-| `LinRegRising` | 1 | Tendencia | Regresión lineal con pendiente positiva. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `MABarClosesAbove` | 1 | Tendencia | Cierre por encima de una media móvil. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `MARising` | 1 | Tendencia | Media móvil con pendiente positiva. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `SuperTrendUPTrend` | 1 | Tendencia | SuperTrend en modo alcista. | El swing a favor del régimen de fondo tiene más recorrido. | global del estilo |
-| `ATRRising` | 1 | Volatilidad | ATR creciente: expansión de volatilidad (sin nivel absoluto). | Contracción → expansión. | global del estilo |
-| `BBUpperRising` | 1 | Volatilidad | Banda superior de Bollinger subiendo (expansión). | Contracción → expansión. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | Contracción → expansión. | global del estilo |
-| `Indicators.Highest` | 2 | Nivel de referencia | Máximo de N velas (canal Donchian). | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Indicators.BollingerBands` | 1 | Nivel de referencia | Bandas de Bollinger (media ± k·desviación). | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Indicators.KeltnerChannel` | 1 | Nivel de referencia | Canal de Keltner (media ± k·ATR). | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Prices.HighD` | 1 | Nivel de referencia | Máximo del día anterior. | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Prices.HighW` | 1 | Nivel de referencia | Máximo semanal. | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Prices.LowD` | 1 | Nivel de referencia | Mínimo del día anterior. | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Prices.LowW` | 1 | Nivel de referencia | Mínimo semanal. | Máximos de N velas, del día y de la semana. | global del estilo |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones con niveles. | global del estilo |
-| `Prices.High` | 1 | Precio | Máximo. | Comparaciones con niveles. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones con niveles. | global del estilo |
-| `Prices.Open` | 1 | Precio | Apertura. | Comparaciones con niveles. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Incluye 'N velas seguidas por encima' (persistencia). | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Incluye 'N velas seguidas por encima' (persistencia). | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Incluye 'N velas seguidas por encima' (persistencia). | global del estilo |
-| `IsGreaterCount` | 1 | Comparador | A > B durante N velas seguidas. | Incluye 'N velas seguidas por encima' (persistencia). | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Incluye 'N velas seguidas por encima' (persistencia). | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 3 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Stop sobre el máximo de la consolidación. | global del estilo |
-| `Stop/Limit Price Levels.BollingerBands` | 1 | Precio de orden stop/limit | Precio = banda de Bollinger. | Stop sobre el máximo de la consolidación. | global del estilo |
-| `Stop/Limit Price Levels.High` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de una vela (vela señal). | Stop sobre el máximo de la consolidación. | global del estilo |
-| `Stop/Limit Price Levels.HighD` | 1 | Precio de orden stop/limit | Precio = máximo del día anterior. | Stop sobre el máximo de la consolidación. | global del estilo |
-| `Stop/Limit Price Levels.HighW` | 1 | Precio de orden stop/limit | Precio = máximo semanal. | Stop sobre el máximo de la consolidación. | global del estilo |
-| `Stop/Limit Price Levels.KeltnerChannel` | 1 | Precio de orden stop/limit | Precio = banda de Keltner. | Stop sobre el máximo de la consolidación. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 2 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen proporcional a la volatilidad. | global del estilo |
-| `Stop/Limit Price Ranges.BBRange` | 1 | Desplazamiento de orden | Desplazamiento = k·anchura de Bollinger. | Margen proporcional a la volatilidad. | global del estilo |
-| `Stop/Limit Price Ranges.BarRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango de la vela. | Margen proporcional a la volatilidad. | global del estilo |
+Recuento: **119 señales, 51 indicadores y 38 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| rup_canal (8) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Ruptura de consolidaciones de varios días. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_bandas (3) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Ruptura de bandas. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
+| rup_ichimoku (2) | Salida de la nube y cruces alcistas de Ichimoku. | Salida de la nube: ruptura de equilibrio de medio plazo. | `IchimokuKumoBreakoutBullish`, `IchimokuKijunSenCrossBullish`, `IchimokuSenkouSpanCrossBullish`, `IchimokuTenkanKijunCrossBullish` | `IchimokuKumoBreakoutBearish`, `IchimokuKijunSenCrossBearish`, `IchimokuSenkouSpanCrossBearish`, `IchimokuTenkanKijunCrossBearish` |
+| vol_expansion (1) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | Filtro auxiliar: amplía la variedad. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
+| vol_contraccion (1) | ATR/desviación típica/bandas cerrándose: compresión previa a un movimiento. | Filtro auxiliar: amplía la variedad. | `ATRFalling`, `ATRChangesDown`, `StdDevFalling`, `StdDevChangesDown`, `BBUpperFalling`, `BBLowerRising`, `KCUpperFalling`, `KCLowerRising` | igual (neutral) |
+| mom_direccion (1) | Osciladores y momentum girando o subiendo (RSI, estocástico, MACD, OSMA, QQE, Reflex, ROC, CCI, WPR, DeMarker…), sin niveles absolutos. | Filtro auxiliar: amplía la variedad. | `RSIRising`, `RSIChangesUp`, `LaguerreRSIRising`, `LaguerreRSIChangesUP`, `StochSlowDRising`, `StochSlowDChangesUp`, `StochFastKUp`, `MomRising`, `MomChangesUp`, `MACDMainRising`, `MACDMainChangesUp`, `MACDMainCrossAboveSignal`, `MACDMainHigherSignal`, `MACDSignalRising`, `OSMARising`, `OSMAChangesUp`, `AWORising`, `AWOChangesUp`, `QQEValue1Rising`, `QQEValue1CrossAboveValue2`, `QQEValue1HigherValue2`, `QQEValue2Rising`, `ReflexRising`, `ReflexChangesDirectionUP`, `FastReflexCrossUPSlowReflex`, `ROCRising`, `CCIRising`, `CCIChangesUp`, `WPRRising`, `WPRChangesUp`, `DEMRising`, `DEMChangesUp` | `RSIFalling`, `RSIChangesDown`, `LaguerreRSIFalling`, `LaguerreRSIChangesDown`, `StochSlowDFalling`, `StochSlowDChangesDown`, `StochFastKDown`, `MomFalling`, `MomChangesDown`, `MACDMainFalling`, `MACDMainChangesDown`, `MACDMainCrossBelowSignal`, `MACDMainLowerSignal`, `MACDSignalFalling`, `OSMAFalling`, `OSMAChangesDown`, `AWOFalling`, `AWOChangesDown`, `QQEValue1Falling`, `QQEValue1CrossBelowValue2`, `QQEValue1LowerValue2`, `QQEValue2Falling`, `ReflexFalling`, `ReflexChangesDirectionDown`, `FastReflexCrossDownSlowReflex`, `ROCFalling`, `CCIFalling`, `CCIChangesDown`, `WPRFalling`, `WPRChangesDown`, `DEMFalling`, `DEMChangesDown` |
+| mom_nivel (1) | Osciladores en zona de fuerza (RSI 50-70, estocástico 50-80, CCI 0-150…) y MACD/OSMA/ROC por encima de cero. | Filtro auxiliar: amplía la variedad. | `RSIHigher`, `RSICrossUp`, `LaguerreRSICrossUP`, `StochSlowDHigher`, `StochSlowDCrossUp`, `CCIHigher`, `CCICrossUp`, `WPRHigher`, `WPRCrossUp`, `QQEValue1Higher`, `QQEValue1CrossAbove`, `MACDMainHigherZero`, `MACDMainCrossAboveZero`, `OSMAHigherZero`, `OSMACrossZeroUp`, `ROCAboveLevel`, `ROCCrossesAboveLevel`, `SchaffTrendCycleAboveLevel`, `SchaffTrendCycleCrossesAboveLevel` | `RSILower`, `RSICrossDown`, `LaguerreRSICrossDown`, `StochSlowDLower`, `StochSlowDCrossDown`, `CCILower`, `CCICrossDown`, `WPRLower`, `WPRCrossDown`, `QQEValue1Lower`, `QQEValue1CrossBelow`, `MACDMainLowerZero`, `MACDMainCrossBelowZero`, `OSMALowerZero`, `OSMACrossZeroDown`, `ROCBelowLevel`, `ROCCrossesBelowLevel`, `SchaffTrendCycleBelowLevel`, `SchaffTrendCycleCrossesBelowLevel` |
+| tend_medias (1) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Filtro auxiliar: amplía la variedad. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
+| tend_sistemas (1) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Filtro auxiliar: amplía la variedad. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
+| fuerza (2) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | El swing a favor de un régimen con fuerza tiene más recorrido. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
+| tiempo_calendario (1) | Día de la semana, mes y primer/último día de mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIs`, `BarDayOfWeekIsNot`, `BarMonthIs`, `BarMonthIsNot`, `IsMonthFirstTradingDay`, `IsMonthLastTradingDay` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| niv_canal (3) | Máximo/mínimo de N velas. | Máximos de N velas. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| niv_diario (2) | Máximo/mínimo/apertura/cierre del día. | Niveles diarios. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| niv_semanal (2) | Máximo/mínimo/apertura/cierre de la semana. | Niveles semanales. | `HighW`, `LowW`, `OpenW`, `CloseW` | `LowW`, `HighW`, `OpenW`, `CloseW` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| medias (1) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| bandas (1) | Bandas de Bollinger y canal de Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel` | igual (neutral) |
+| sistemas (1) | SuperTrend, Parabolic SAR, Ichimoku y Gann HiLo como valores. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| osciladores (1) | RSI, estocástico, CCI, Williams %R, RSI de Laguerre y DeMarker como valores. | Filtro auxiliar: amplía la variedad. | `RSI`, `Stochastic`, `CCI`, `WilliamsPR`, `LaguerreRSI`, `DeMarker` | igual (neutral) |
+| fuerza_ind (1) | ADX, eficiencia de Kaufman, Aroon y Vortex como valores. | Filtro auxiliar: amplía la variedad. | `ADX`, `KaufmanEfficiencyRatio`, `Aroon`, `Vortex` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| estructura (1) | Fractales (máximos/mínimos locales). | Filtro auxiliar: amplía la variedad. | `Fractal` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (1) | N velas seguidas por encima/debajo, subiendo/bajando. | Filtro auxiliar: amplía la variedad. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_canal (5) | Orden en el máximo/mínimo de N velas. | Stop sobre el máximo de la consolidación. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_diario (2) | Orden en niveles del día. | Stop en niveles diarios. | `HighD`, `LowD`(w1), `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_semanal (2) | Orden en niveles de la semana. | Stop en niveles semanales. | `HighW`, `LowW`(w1), `OpenW` | `LowW`, `HighW`, `OpenW` |
+| stl_vela (1) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Filtro auxiliar: amplía la variedad. | `High`, `Low`, `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_bandas (2) | Orden en Bollinger/Keltner. | Stop en la banda. | `BollingerBands`, `KeltnerChannel`, `MTKeltnerChannel` | igual (neutral) |
+| stl_medias (1) | Orden en una media móvil. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| stl_sistemas (1) | Orden en SuperTrend, PSAR, Ichimoku o Gann HiLo. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| stl_estructura (1) | Orden en fractales o pivotes. | Filtro auxiliar: amplía la variedad. | `Fractal`, `Pivots` | igual (neutral) |
+| stl_rangos (2) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Margen proporcional a la volatilidad. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `RSIHigher` | Level 50 a 70 (paso 5) | `RSILower` | Level 30 a 50 (paso 5) |
+| `RSICrossUp` | Level 50 a 70 (paso 5) | `RSICrossDown` | Level 30 a 50 (paso 5) |
+| `LaguerreRSICrossUP` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.4 a 0.85 (paso 0.05) | `LaguerreRSICrossDown` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.15 a 0.6 (paso 0.05) |
+| `StochSlowDHigher` | Level 50 a 80 (paso 5) | `StochSlowDLower` | Level 20 a 50 (paso 5) |
+| `StochSlowDCrossUp` | Level 50 a 80 (paso 5) | `StochSlowDCrossDown` | Level 20 a 50 (paso 5) |
+| `CCIHigher` | Level 0 a 150 (paso 10) | `CCILower` | Level -150 a 0 (paso 10) |
+| `CCICrossUp` | Level 0 a 150 (paso 10) | `CCICrossDown` | Level -150 a 0 (paso 10) |
+| `WPRHigher` | Level -50 a -20 (paso 5) | `WPRLower` | Level -80 a -50 (paso 5) |
+| `WPRCrossUp` | Level -50 a -20 (paso 5) | `WPRCrossDown` | Level -80 a -50 (paso 5) |
+| `QQEValue1Higher` | Level 50 a 70 (paso 5) | `QQEValue1Lower` | Level 30 a 50 (paso 5) |
+| `QQEValue1CrossAbove` | Level 50 a 70 (paso 5) | `QQEValue1CrossBelow` | Level 30 a 50 (paso 5) |
+| `SchaffTrendCycleAboveLevel` | Level 50 a 90 (paso 5) | `SchaffTrendCycleBelowLevel` | Level 10 a 50 (paso 5) |
+| `SchaffTrendCycleCrossesAboveLevel` | Level 25 a 75 (paso 5) | `SchaffTrendCycleCrossesBelowLevel` | Level 25 a 75 (paso 5) |
+| `ADXHigher` | Level 20 a 40 (paso 5) | `ADXHigher` | Level 20 a 40 (paso 5) |
+| `ADXCrossUp` | Level 20 a 35 (paso 5) | `ADXCrossUp` | Level 20 a 35 (paso 5) |
+| `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) | `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) |
+| `SuperTrendUPTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `SuperTrendDownTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `BarClosesAboveSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `BarClosesBelowSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `ROCAboveLevel` | Level 0 a 3 (paso 0.1) | `ROCBelowLevel` | Level -3 a 0 (paso 0.1) |
+| `ROCCrossesAboveLevel` | Level 0 a 3 (paso 0.1) | `ROCCrossesBelowLevel` | Level -3 a 0 (paso 0.1) |
 
 ### 4. Timeframe, símbolos y horarios
 
@@ -597,23 +725,23 @@ Criterio general: Ruptura de máximos de N días (Donchian/Bollinger/Keltner/Kum
 
 ### 5. Salidas y gestión del riesgo
 
-SL 1,5-3,5 ATR(14-100) de H4; objetivo opcional 2-6 ATR; trailing 2-4 ATR (50 %); break-even (30 %); salida temporal 10-40 velas = 2-7 días (30 %). Riesgo 1 %; 1 entrada/día.
+SL 1,5-3,5 ATR(14-100) de H4; objetivo opcional 2-6 ATR; trailing 2-4 ATR (50 %); break-even (30 %); salida temporal 6-30 velas = 1-5 días (40 %). Riesgo 1 %; hasta 2 entradas/día.
 
 ### 6. Filtros y ranking
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 225; DrawdownPct(Full) <= 20 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 225 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 38; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 440; NumberOfTrades(OOS) >= 130; DrawdownPct(Full) <= 20 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 240; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 3; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__Swing_H4_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 440; NumberOfTrades(OOS) >= 130 |
 
-Justificación: Ret/DD + estabilidad de la curva: un swing con 30 operaciones/año necesita curvas regulares. Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: Ret/DD + estabilidad de la curva. El mínimo de operaciones sale de la densidad del estilo (45/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
 - **Builder:** población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
-- **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. Se añade aleatorizar la vela de inicio: con pocas operaciones el punto de arranque importa.
+- **Retest:** activo; precisión 2 (tick real + spread personalizado); 3 condiciones. Se añade aleatorizar la vela de inicio: el resultado no debe depender del punto de arranque.
 - **Monte Carlo:** activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.
 - **SPP:** activo; 5000 tests, ±20 %, 6 pasos; ≥85 % rentables.
@@ -621,9 +749,9 @@ Justificación: Ret/DD + estabilidad de la curva: un swing con 30 operaciones/a�
 
 ### 8. Riesgos conocidos, sobreoptimización y mitigación
 
-Riesgos propios del estilo: Gaps de fin de semana; swap; pocas operaciones por año → estadística débil.
+Riesgos propios del estilo: Gaps de fin de semana; swap; exposición nocturna.
 
-1. ~30 operaciones/año: la significación estadística es limitada. Mitigación: Stability en la fitness, OOS 2019-2020, holdout 2021-2024 y validación multi-mercado.
+1. ≥45 operaciones/año exigidas (≈310 en 7,25 años): muestra suficiente, pero sigue siendo recomendable Stability en la fitness, OOS 2019-2020, holdout 2021-2024 y validación multi-mercado.
 2. Sensibilidad al punto de inicio: MC con vela de inicio aleatoria.
 3. Swap: el original aplica el swap del Dow; con GBPJPY el carry real cambia el resultado de un swing.
 
@@ -639,18 +767,22 @@ Riesgos propios del estilo: Gaps de fin de semana; swap; pocas operaciones por a
 
 ## Position
 
-**Position Trading (momentum de largo plazo)** · timeframe `D1`
+**Position Trading (momentum de medio-largo plazo)** · timeframe `D1`
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/Position/Estrategia_Build_ConfigInicial_H1_BUY__Position_D1.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__Position_D1.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Position_D1.md)
-- `configs/Position/Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1.md)
-- `configs/Position/Ventaja_Build_ConfigInicial_H1_BUY__Position_D1.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__Position_D1.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Position_D1.md)
-- `configs/Position/Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__Position_D1_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Position_D1_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__Position_D1_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Position_D1_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1_SELL.md) |
+
+**Operaciones mínimas exigidas** (20/año): Builder IS ≥ 150 (≈150 en 7.3 años de construcción); Retest periodo completo ≥ 190 y holdout 2021-2024 ≥ 60.
 
 ### 1. Tesis
 
-El momentum de series temporales a 3-12 meses (rupturas de máximos de largo plazo y pendiente de medias largas) es una de las anomalías más documentadas; se captura con pocas operaciones, stops amplios y sin objetivo fijo.
+El momentum de series temporales (rupturas de máximos de semanas/meses y pendiente de medias largas) es una de las anomalías más documentadas. Para obtener una muestra estadística útil en un solo mercado, las posiciones duran de 1 a 8 semanas (no meses).
 
 ### 2. Cambios respecto al original
 
@@ -664,25 +796,25 @@ El momentum de series temporales a 3-12 meses (rupturas de máximos de largo pla
 | Deslizamiento (pips) | 0 | 0.5 | D1 entra a la apertura del día (a menudo tras gap): 0,5 pips conservador. |
 | Modo de generación | template (plantilla externa .sqx) | simple | El original dependía de una plantilla .sqx no incluida; en modo simple el archivo es autónomo (docs/04 §A.3 para volver a plantilla). |
 | Condiciones de entrada | 0–0 | 1–2 | Nivel + 1-2 filtros como máximo; más condiciones = más grados de libertad. Position: máx. 2 por la muestra pequeña. |
-| Periodos de indicadores | 4–200 | 20–250 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~8 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
+| Periodos de indicadores | 4–200 | 20–250 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~20 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–3 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w1, válida 1-5 velas) | Mayoritariamente a mercado; stop opcional válido 1-5 días. |
-| Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 2.5-6 × ATR(20-100) | Sin objetivo (dejar correr); trailing de 3-6 ATR como salida principal; salida por regla (p. ej. cierre bajo media) y temporal 3-12 meses. |
-| Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=false; 6-12 × ATR(20-100) | Sin objetivo (dejar correr); trailing de 3-6 ATR como salida principal; salida por regla (p. ej. cierre bajo media) y temporal 3-12 meses. |
-| Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | sí (70 %), 3-6 ATR | Sin objetivo (dejar correr); trailing de 3-6 ATR como salida principal; salida por regla (p. ej. cierre bajo media) y temporal 3-12 meses. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w2, válida 1-5 velas) | A mercado o con stop sobre el máximo, válida 1-5 días. |
+| Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 2.5-5 × ATR(20-100) | Sin objetivo (dejar correr); trailing de 2,5-5 ATR como salida principal; salida por regla y temporal de 2-8 semanas. |
+| Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=false; 6-12 × ATR(20-100) | Sin objetivo (dejar correr); trailing de 2,5-5 ATR como salida principal; salida por regla y temporal de 2-8 semanas. |
+| Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | sí (70 %), 2.5-5 ATR | Sin objetivo (dejar correr); trailing de 2,5-5 ATR como salida principal; salida por regla y temporal de 2-8 semanas. |
 | Break-even | no | no | Sin cambio. |
-| Salida temporal | no | sí (30 %), 60-250 velas | Sin objetivo (dejar correr); trailing de 3-6 ATR como salida principal; salida por regla (p. ej. cierre bajo media) y temporal 3-12 meses. |
-| Salida por regla | no | sí (50 %) | Sin objetivo (dejar correr); trailing de 3-6 ATR como salida principal; salida por regla (p. ej. cierre bajo media) y temporal 3-12 meses. |
+| Salida temporal | no | sí (30 %), 10-40 velas | Sin objetivo (dejar correr); trailing de 2,5-5 ATR como salida principal; salida por regla y temporal de 2-8 semanas. |
+| Salida por regla | no | sí (50 %) | Sin objetivo (dejar correr); trailing de 2,5-5 ATR como salida principal; salida por regla y temporal de 2-8 semanas. |
 | Ventana de señales | 01:30-23:30 | sin ventana | Con velas D1 (apertura 00:00) la ventana 01:30-23:30 del original podría bloquear todas las señales. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 1 | Position: una entrada como máximo. |
 | Distancia máx. orden | no | 5 % | 5 %: rupturas de máximos de 20-250 días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 12 señales / 17 indicadores / 5 stop-limit | Momentum sin niveles absolutos (ROC en %, MACD vs 0, medias, máximos de 20-250 días). Se eliminan osciladores: no aportan nada a un horizonte de meses. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 97 señales / 48 indicadores / 31 stop-limit | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
-| Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Ret/DD + estabilidad; SQN es poco fiable con <100 operaciones. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 40; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.5; AvgBarsInTrade(IS) >= 5 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.88; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 33; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Ret/DD + estabilidad; SQN es poco fiable con <200 operaciones. |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.4; AvgBarsInTrade(IS) >= 4 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.88; AvgBarsInTrade(IS) >= 4; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 28 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
@@ -695,25 +827,25 @@ El momentum de series temporales a 3-12 meses (rupturas de máximos de largo pla
 | Deslizamiento (pips) | 0 | 0.5 | D1 entra a la apertura del día (a menudo tras gap): 0,5 pips conservador. |
 | Modo de generación | simple | simple | Sin cambio. |
 | Condiciones de entrada | 1–3 | 1–2 | Nivel + 1-2 filtros como máximo; más condiciones = más grados de libertad. Position: máx. 2 por la muestra pequeña. |
-| Periodos de indicadores | 4–200 | 20–250 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~8 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
+| Periodos de indicadores | 4–200 | 20–250 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~20 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w1, válida 1-5 velas) | Mayoritariamente a mercado; stop opcional válido 1-5 días. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w2, válida 1-5 velas) | A mercado o con stop sobre el máximo, válida 1-5 días. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
 | Break-even | no | no | Sin cambio. |
-| Salida temporal | sí (50 %), 2-15 velas | sí (100 %), 20-120 velas | Test de ventaja: salida por tiempo 1-6 meses. |
+| Salida temporal | sí (50 %), 2-15 velas | sí (100 %), 5-40 velas | Test de ventaja: salida por tiempo 1-8 semanas. |
 | Salida por regla | no | no | Sin cambio. |
 | Ventana de señales | 01:30-23:30 | sin ventana | Con velas D1 (apertura 00:00) la ventana 01:30-23:30 del original podría bloquear todas las señales. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 1 | Position: una entrada como máximo. |
 | Distancia máx. orden | no | 5 % | 5 %: rupturas de máximos de 20-250 días. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 12 señales / 17 indicadores / 5 stop-limit | Momentum sin niveles absolutos (ROC en %, MACD vs 0, medias, máximos de 20-250 días). Se eliminan osciladores: no aportan nada a un horizonte de meses. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 97 señales / 48 indicadores / 31 stop-limit | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 40; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 33; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 4 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 4; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
@@ -727,7 +859,7 @@ El momentum de series temporales a 3-12 meses (rupturas de máximos de largo pla
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 60; DrawdownPct(Full) <= 25 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 190; NumberOfTrades(OOS) >= 60; DrawdownPct(Full) <= 25 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 2 (tick real + spread personalizado); 3 condiciones | Se activan también las condiciones de nº de operaciones y DD. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-1, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 175% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -738,69 +870,102 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.2; NumberOfTrades(Full) >= 60
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.2; NumberOfTrades(Full) >= 190; NumberOfTrades(OOS) >= 60
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Momentum sin niveles absolutos (ROC en %, MACD vs 0, medias, máximos de 20-250 días). Se eliminan osciladores: no aportan nada a un horizonte de meses. El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveHighestAfterOpenBelow` | 3 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | Nuevos máximos de 20-250 días (momentum de series temporales). | global del estilo |
-| `IchimokuKumoBreakoutBullish` | 1 | Ruptura de nivel | El precio sale por encima de la nube de Ichimoku. | Nuevos máximos de 20-250 días (momentum de series temporales). | global del estilo |
-| `ROCAboveLevel` | 2 | Momentum | Rate of Change (%) por encima de un nivel: momentum de series temporales. | ROC en % y MACD frente a cero: escalan a cualquier precio. | Level 0 a 15 (paso 1) |
-| `MACDMainCrossAboveZero` | 1 | Momentum | MACD cruza cero al alza. | ROC en % y MACD frente a cero: escalan a cualquier precio. | global del estilo |
-| `MACDMainHigherZero` | 1 | Momentum | MACD por encima de cero (media rápida > lenta): independiente de la escala de precio. | ROC en % y MACD frente a cero: escalan a cualquier precio. | global del estilo |
-| `ROCRising` | 1 | Momentum | ROC creciente. | ROC en % y MACD frente a cero: escalan a cualquier precio. | global del estilo |
-| `Indicators.SMA` | 2 | Tendencia | Media simple. | Pendiente de medias largas. | global del estilo |
-| `MABarClosesAbove` | 2 | Tendencia | Cierre por encima de una media móvil. | Pendiente de medias largas. | global del estilo |
-| `MARising` | 2 | Tendencia | Media móvil con pendiente positiva. | Pendiente de medias largas. | global del estilo |
-| `ADXHigher` | 1 | Tendencia | ADX por encima de un nivel: tendencia con fuerza. | Pendiente de medias largas. | Level 20 a 40 (paso 5) |
-| `Indicators.EMA` | 1 | Tendencia | Media exponencial. | Pendiente de medias largas. | global del estilo |
-| `KAMARising` | 1 | Tendencia | KAMA con pendiente positiva. | Pendiente de medias largas. | global del estilo |
-| `LinRegRising` | 1 | Tendencia | Regresión lineal con pendiente positiva. | Pendiente de medias largas. | global del estilo |
-| `SuperTrendUPTrend` | 1 | Tendencia | SuperTrend en modo alcista. | Pendiente de medias largas. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | ATR sólo como normalizador. | global del estilo |
-| `Indicators.Highest` | 2 | Nivel de referencia | Máximo de N velas (canal Donchian). | Máximos semanales/mensuales. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Máximos semanales/mensuales. | global del estilo |
-| `Prices.CloseW` | 1 | Nivel de referencia | Cierre semanal. | Máximos semanales/mensuales. | global del estilo |
-| `Prices.HighM` | 1 | Nivel de referencia | Máximo mensual. | Máximos semanales/mensuales. | global del estilo |
-| `Prices.HighW` | 1 | Nivel de referencia | Máximo semanal. | Máximos semanales/mensuales. | global del estilo |
-| `Prices.LowM` | 1 | Nivel de referencia | Mínimo mensual. | Máximos semanales/mensuales. | global del estilo |
-| `Prices.LowW` | 1 | Nivel de referencia | Mínimo semanal. | Máximos semanales/mensuales. | global del estilo |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones con medias y niveles. | global del estilo |
-| `Prices.High` | 1 | Precio | Máximo. | Comparaciones con medias y niveles. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones con medias y niveles. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Condiciones simples. | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Condiciones simples. | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Condiciones simples. | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Condiciones simples. | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 2 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Stop opcional sobre máximo. | global del estilo |
-| `Stop/Limit Price Levels.High` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de una vela (vela señal). | Stop opcional sobre máximo. | global del estilo |
-| `Stop/Limit Price Levels.HighM` | 1 | Precio de orden stop/limit | Precio = máximo mensual. | Stop opcional sobre máximo. | global del estilo |
-| `Stop/Limit Price Levels.HighW` | 1 | Precio de orden stop/limit | Precio = máximo semanal. | Stop opcional sobre máximo. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 1 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen en ATR. | global del estilo |
+Recuento: **97 señales, 48 indicadores y 31 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| rup_canal (8) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Nuevos máximos de 20-250 días (momentum de series temporales). | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_ichimoku (1) | Salida de la nube y cruces alcistas de Ichimoku. | Filtro auxiliar: amplía la variedad. | `IchimokuKumoBreakoutBullish`, `IchimokuKijunSenCrossBullish`, `IchimokuSenkouSpanCrossBullish`, `IchimokuTenkanKijunCrossBullish` | `IchimokuKumoBreakoutBearish`, `IchimokuKijunSenCrossBearish`, `IchimokuSenkouSpanCrossBearish`, `IchimokuTenkanKijunCrossBearish` |
+| mom_direccion (1) | Osciladores y momentum girando o subiendo (RSI, estocástico, MACD, OSMA, QQE, Reflex, ROC, CCI, WPR, DeMarker…), sin niveles absolutos. | Filtro auxiliar: amplía la variedad. | `RSIRising`, `RSIChangesUp`, `LaguerreRSIRising`, `LaguerreRSIChangesUP`, `StochSlowDRising`, `StochSlowDChangesUp`, `StochFastKUp`, `MomRising`, `MomChangesUp`, `MACDMainRising`, `MACDMainChangesUp`, `MACDMainCrossAboveSignal`, `MACDMainHigherSignal`, `MACDSignalRising`, `OSMARising`, `OSMAChangesUp`, `AWORising`, `AWOChangesUp`, `QQEValue1Rising`, `QQEValue1CrossAboveValue2`, `QQEValue1HigherValue2`, `QQEValue2Rising`, `ReflexRising`, `ReflexChangesDirectionUP`, `FastReflexCrossUPSlowReflex`, `ROCRising`, `CCIRising`, `CCIChangesUp`, `WPRRising`, `WPRChangesUp`, `DEMRising`, `DEMChangesUp` | `RSIFalling`, `RSIChangesDown`, `LaguerreRSIFalling`, `LaguerreRSIChangesDown`, `StochSlowDFalling`, `StochSlowDChangesDown`, `StochFastKDown`, `MomFalling`, `MomChangesDown`, `MACDMainFalling`, `MACDMainChangesDown`, `MACDMainCrossBelowSignal`, `MACDMainLowerSignal`, `MACDSignalFalling`, `OSMAFalling`, `OSMAChangesDown`, `AWOFalling`, `AWOChangesDown`, `QQEValue1Falling`, `QQEValue1CrossBelowValue2`, `QQEValue1LowerValue2`, `QQEValue2Falling`, `ReflexFalling`, `ReflexChangesDirectionDown`, `FastReflexCrossDownSlowReflex`, `ROCFalling`, `CCIFalling`, `CCIChangesDown`, `WPRFalling`, `WPRChangesDown`, `DEMFalling`, `DEMChangesDown` |
+| mom_nivel (2) | Osciladores en zona de fuerza (RSI 50-70, estocástico 50-80, CCI 0-150…) y MACD/OSMA/ROC por encima de cero. | ROC en % y MACD/OSMA frente a cero: escalan a cualquier precio. | `RSIHigher`, `RSICrossUp`, `LaguerreRSICrossUP`, `StochSlowDHigher`, `StochSlowDCrossUp`, `CCIHigher`, `CCICrossUp`, `WPRHigher`, `WPRCrossUp`, `QQEValue1Higher`, `QQEValue1CrossAbove`, `MACDMainHigherZero`, `MACDMainCrossAboveZero`, `OSMAHigherZero`, `OSMACrossZeroUp`, `ROCAboveLevel`, `ROCCrossesAboveLevel`, `SchaffTrendCycleAboveLevel`, `SchaffTrendCycleCrossesAboveLevel` | `RSILower`, `RSICrossDown`, `LaguerreRSICrossDown`, `StochSlowDLower`, `StochSlowDCrossDown`, `CCILower`, `CCICrossDown`, `WPRLower`, `WPRCrossDown`, `QQEValue1Lower`, `QQEValue1CrossBelow`, `MACDMainLowerZero`, `MACDMainCrossBelowZero`, `OSMALowerZero`, `OSMACrossZeroDown`, `ROCBelowLevel`, `ROCCrossesBelowLevel`, `SchaffTrendCycleBelowLevel`, `SchaffTrendCycleCrossesBelowLevel` |
+| tend_medias (2) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Pendiente de medias largas. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
+| tend_sistemas (2) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Sistemas de tendencia lentos. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
+| fuerza (1) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Filtro auxiliar: amplía la variedad. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
+| tiempo_calendario (1) | Día de la semana, mes y primer/último día de mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIs`, `BarDayOfWeekIsNot`, `BarMonthIs`, `BarMonthIsNot`, `IsMonthFirstTradingDay`, `IsMonthLastTradingDay` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| niv_canal (3) | Máximo/mínimo de N velas. | Máximos de N días. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| niv_semanal (2) | Máximo/mínimo/apertura/cierre de la semana. | Máximos semanales. | `HighW`, `LowW`, `OpenW`, `CloseW` | `LowW`, `HighW`, `OpenW`, `CloseW` |
+| niv_mensual (2) | Máximo/mínimo/apertura/cierre del mes. | Máximos mensuales. | `HighM`, `LowM`, `OpenM`, `CloseM` | `LowM`, `HighM`, `OpenM`, `CloseM` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| medias (2) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Medias largas para comparar. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| sistemas (1) | SuperTrend, Parabolic SAR, Ichimoku y Gann HiLo como valores. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| osciladores (1) | RSI, estocástico, CCI, Williams %R, RSI de Laguerre y DeMarker como valores. | Filtro auxiliar: amplía la variedad. | `RSI`, `Stochastic`, `CCI`, `WilliamsPR`, `LaguerreRSI`, `DeMarker` | igual (neutral) |
+| fuerza_ind (1) | ADX, eficiencia de Kaufman, Aroon y Vortex como valores. | Filtro auxiliar: amplía la variedad. | `ADX`, `KaufmanEfficiencyRatio`, `Aroon`, `Vortex` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (1) | N velas seguidas por encima/debajo, subiendo/bajando. | Filtro auxiliar: amplía la variedad. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_canal (4) | Orden en el máximo/mínimo de N velas. | Stop sobre máximo de N días. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_semanal (2) | Orden en niveles de la semana. | Stop sobre máximo semanal. | `HighW`, `LowW`(w1), `OpenW` | `LowW`, `HighW`, `OpenW` |
+| stl_mensual (2) | Orden en niveles del mes. | Stop sobre máximo mensual. | `HighM`, `LowM`(w1) | `LowM`, `HighM` |
+| stl_vela (1) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Filtro auxiliar: amplía la variedad. | `High`, `Low`, `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_medias (1) | Orden en una media móvil. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| stl_sistemas (1) | Orden en SuperTrend, PSAR, Ichimoku o Gann HiLo. | Filtro auxiliar: amplía la variedad. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| stl_rangos (1) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Filtro auxiliar: amplía la variedad. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `RSIHigher` | Level 50 a 70 (paso 5) | `RSILower` | Level 30 a 50 (paso 5) |
+| `RSICrossUp` | Level 50 a 70 (paso 5) | `RSICrossDown` | Level 30 a 50 (paso 5) |
+| `LaguerreRSICrossUP` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.4 a 0.85 (paso 0.05) | `LaguerreRSICrossDown` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.15 a 0.6 (paso 0.05) |
+| `StochSlowDHigher` | Level 50 a 80 (paso 5) | `StochSlowDLower` | Level 20 a 50 (paso 5) |
+| `StochSlowDCrossUp` | Level 50 a 80 (paso 5) | `StochSlowDCrossDown` | Level 20 a 50 (paso 5) |
+| `CCIHigher` | Level 0 a 150 (paso 10) | `CCILower` | Level -150 a 0 (paso 10) |
+| `CCICrossUp` | Level 0 a 150 (paso 10) | `CCICrossDown` | Level -150 a 0 (paso 10) |
+| `WPRHigher` | Level -50 a -20 (paso 5) | `WPRLower` | Level -80 a -50 (paso 5) |
+| `WPRCrossUp` | Level -50 a -20 (paso 5) | `WPRCrossDown` | Level -80 a -50 (paso 5) |
+| `QQEValue1Higher` | Level 50 a 70 (paso 5) | `QQEValue1Lower` | Level 30 a 50 (paso 5) |
+| `QQEValue1CrossAbove` | Level 50 a 70 (paso 5) | `QQEValue1CrossBelow` | Level 30 a 50 (paso 5) |
+| `SchaffTrendCycleAboveLevel` | Level 50 a 90 (paso 5) | `SchaffTrendCycleBelowLevel` | Level 10 a 50 (paso 5) |
+| `SchaffTrendCycleCrossesAboveLevel` | Level 25 a 75 (paso 5) | `SchaffTrendCycleCrossesBelowLevel` | Level 25 a 75 (paso 5) |
+| `ADXHigher` | Level 20 a 40 (paso 5) | `ADXHigher` | Level 20 a 40 (paso 5) |
+| `ADXCrossUp` | Level 20 a 35 (paso 5) | `ADXCrossUp` | Level 20 a 35 (paso 5) |
+| `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) | `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) |
+| `SuperTrendUPTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `SuperTrendDownTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `BarClosesAboveSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `BarClosesBelowSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `ROCAboveLevel` | Level 0 a 15 (paso 1) | `ROCBelowLevel` | Level -15 a 0 (paso 1) |
+| `ROCCrossesAboveLevel` | Level 0 a 15 (paso 1) | `ROCCrossesBelowLevel` | Level -15 a 0 (paso 1) |
 
 ### 4. Timeframe, símbolos y horarios
 
 - **Timeframe:** D1.
-- **Instrumento recomendado:** Índices (US500/US30/DAX), oro, y pares con tendencia macro. Necesita ≥15-20 años de datos: con 2013-2024 el número de operaciones es insuficiente (ver Fase 2).
-- **Horario:** D1 sin filtro horario. Las posiciones duran de semanas a meses; el swap es un componente principal del resultado.
+- **Instrumento recomendado:** Índices (US500/US30/DAX), oro, y pares con tendencia macro. Recomendable ≥15 años de datos.
+- **Horario:** D1 sin filtro horario. Las posiciones duran de 1 a 8 semanas; el swap es un componente importante del resultado.
 
 ### 5. Salidas y gestión del riesgo
 
-SL 2,5-6 ATR(20-100) diario obligatorio, **sin objetivo**, trailing 3-6 ATR (70 %), salida temporal 60-250 días (30 %) y salida por regla (50 %). Riesgo 1 %.
+SL 2,5-5 ATR(20-100) diario obligatorio, **sin objetivo**, trailing 2,5-5 ATR (70 %), salida temporal 10-40 días (30 %) y salida por regla (50 %). Riesgo 1 %.
 
 ### 6. Filtros y ranking
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Position_D1` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NumberOfTrades(IS) >= 40; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.5; AvgBarsInTrade(IS) >= 5 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NetProfit(OOS) > 0; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 60; DrawdownPct(Full) <= 25 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__Position_D1` | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 40; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1` | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.2; NumberOfTrades(Full) >= 60 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Position_D1_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 33; ProfitFactor(IS) >= 1.4; AvgBarsInTrade(IS) >= 4 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__Position_D1_BUY` | Weighted: ReturnDDRatio (peso 2, max), Stability (peso 1, max) | NetProfit(OOS) > 0; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 190; NumberOfTrades(OOS) >= 60; DrawdownPct(Full) <= 25 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_BUY` | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 4 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__Position_D1_BUY` | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.2; NumberOfTrades(Full) >= 190; NumberOfTrades(OOS) >= 60 |
 
-Justificación: Ret/DD + estabilidad; SQN es poco fiable con <100 operaciones. Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: Ret/DD + estabilidad; SQN es poco fiable con <200 operaciones. El mínimo de operaciones sale de la densidad del estilo (20/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
@@ -813,9 +978,9 @@ Justificación: Ret/DD + estabilidad; SQN es poco fiable con <100 operaciones. L
 
 ### 8. Riesgos conocidos, sobreoptimización y mitigación
 
-Riesgos propios del estilo: Muestra pequeña; dependencia de pocas operaciones grandes; swap acumulado; cambio de régimen macro.
+Riesgos propios del estilo: Muestra limitada; dependencia de pocas operaciones grandes; swap acumulado; cambio de régimen macro.
 
-1. Con 2013-2024 (≈11 años) un sistema de meses hace 40-90 operaciones: elegir la mejor entre miles de candidatas con esa muestra es minería de datos casi pura. Máximo 2 condiciones de entrada.
+1. Límite físico: con una sola posición abierta y duraciones de semanas, un mercado no da más de ~20-25 operaciones/año. Se exige ese máximo razonable (≥150 en 7,25 años); 300 en 7 años sólo es posible acortando la duración (eso ya es Swing/Trend) o construyendo sobre varios mercados. Máximo 2 condiciones de entrada.
 2. Dependencia de 2-3 tendencias grandes: what-if sin las 2 mejores operaciones.
 3. Sin OOS en el Builder (no hay muestra suficiente): toda la validación recae en el Retest y en otros mercados.
 
@@ -832,18 +997,22 @@ Riesgos propios del estilo: Muestra pequeña; dependencia de pocas operaciones g
 
 ## TrendFollowing
 
-**Seguimiento de tendencia (multi-filtro con trailing)** · timeframe `H4`
+**Seguimiento de tendencia (multi-filtro con trailing)** · timeframe `H1`
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/TrendFollowing/Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H4.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H4.md)
-- `configs/TrendFollowing/Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4.md)
-- `configs/TrendFollowing/Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H4.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H4.md)
-- `configs/TrendFollowing/Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_SELL.md) |
+
+**Operaciones mínimas exigidas** (50/año): Builder IS ≥ 260, OOS 2019-2020 ≥ 80 (≈340 en 7.3 años de construcción); Retest periodo completo ≥ 490 y holdout 2021-2024 ≥ 140.
 
 ### 1. Tesis
 
-Las tendencias persisten más de lo que predice un paseo aleatorio (reacción lenta a la información, flujos institucionales). Se entra cuando varios filtros de tendencia coinciden y se sale por trailing: pocas ganancias grandes pagan muchas pérdidas pequeñas.
+Las tendencias persisten más de lo que predice un paseo aleatorio (reacción lenta a la información, flujos institucionales). Se entra cuando varios filtros de tendencia coinciden y se sale por trailing: pocas ganancias grandes pagan muchas pérdidas pequeñas. En H1 para tener una muestra de cientos de operaciones (tendencias de 1-5 días).
 
 ### 2. Cambios respecto al original
 
@@ -851,76 +1020,76 @@ Las tendencias persisten más de lo que predice un paseo aleatorio (reacción le
 
 | Parámetro | Original | Nuevo | Justificación |
 |---|---|---|---|
-| Timeframe | H1 | H4 | Horizonte típico del estilo (H4). |
+| Timeframe | H1 | H1 | Sin cambio. |
 | Periodo de datos | 2013.09.30 – 2020.12.31 | 2013.09.30 – 2020.12.31 | Sin cambio. |
 | Tramo OOS | sin OOS | 2019.01.01 – 2020.12.31 | Validación dentro del Builder: el original filtraba sólo sobre IS. |
 | Deslizamiento (pips) | 0 | 0.3 | El original usa 0. |
 | Modo de generación | template (plantilla externa .sqx) | simple | El original dependía de una plantilla .sqx no incluida; en modo simple el archivo es autónomo (docs/04 §A.3 para volver a plantilla). |
 | Condiciones de entrada | 0–0 | 1–3 | Nivel + 1-2 filtros como máximo; más condiciones = más grados de libertad. |
-| Periodos de indicadores | 4–200 | 10–200 | 10-200 velas H4 = 2-33 días. |
+| Periodos de indicadores | 4–200 | 10–250 | 10-250 velas H1 = 10 h a 10 días. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 2–4 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w1, válida 1-4 velas) | A mercado con confirmación o stop sobre máximo reciente. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w2, válida 1-4 velas) | A mercado con confirmación o stop sobre máximo reciente. |
 | Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 2-4 × ATR(14-100) | El trailing (prob. 80 %) es la salida natural; objetivo raro y lejano. |
 | Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=false; 4-10 × ATR(14-100) | El trailing (prob. 80 %) es la salida natural; objetivo raro y lejano. |
 | Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | sí (80 %), 2.5-5 ATR | El trailing (prob. 80 %) es la salida natural; objetivo raro y lejano. |
 | Break-even | no | no | Sin cambio. |
 | Salida temporal | no | no | Sin cambio. |
 | Salida por regla | no | sí (50 %) | El trailing (prob. 80 %) es la salida natural; objetivo raro y lejano. |
-| Ventana de señales | 01:30-23:30 | sin ventana | Igual que Swing: en H4 la ventana del original sesga señales. |
+| Ventana de señales | 01:30-23:30 | 01:30-23:30 | Sin cambio. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
-| Máx. operaciones/día | 0 (sin límite) | 1 | Una entrada diaria como máximo. |
-| Distancia máx. orden | no | 3 % | 3 %: rupturas de canales largos. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 19 señales / 15 indicadores / 5 stop-limit | Sólo filtros de dirección/fuerza de tendencia; sin osciladores de sobrecompra/sobreventa (contradicen la tesis). |
+| Máx. operaciones/día | 0 (sin límite) | 2 | Hasta dos entradas diarias. |
+| Distancia máx. orden | no | 2 % | 2 %: rupturas de canales largos en H1. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 105 señales / 46 indicadores / 33 stop-limit | Núcleo: sistemas y medias de tendencia, fuerza (ADX/KER) y ruptura de canal; sin osciladores de sobrecompra/sobreventa (contradicen la tesis). |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | El talón de Aquiles del TF son las rachas planas largas: StagnationPct las penaliza. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 100; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.4; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.19; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 83; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80; ProfitFactor(OOS) >= 1.05 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.19; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 215; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
 | Parámetro | Original | Nuevo | Justificación |
 |---|---|---|---|
-| Timeframe | H1 | H4 | Horizonte típico del estilo (H4). |
+| Timeframe | H1 | H1 | Sin cambio. |
 | Periodo de datos | 2013.09.30 – 2020.12.31 | 2013.09.30 – 2020.12.31 | Sin cambio. |
 | Tramo OOS | sin OOS | 2019.01.01 – 2020.12.31 | Validación dentro del Builder: el original filtraba sólo sobre IS. |
 | Deslizamiento (pips) | 0 | 0.3 | El original usa 0. |
 | Modo de generación | simple | simple | Sin cambio. |
 | Condiciones de entrada | 1–3 | 1–3 | Sin cambio. |
-| Periodos de indicadores | 4–200 | 10–200 | 10-200 velas H4 = 2-33 días. |
+| Periodos de indicadores | 4–200 | 10–250 | 10-250 velas H1 = 10 h a 10 días. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w1, válida 1-4 velas) | A mercado con confirmación o stop sobre máximo reciente. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w2), EnterAtStop (w2, válida 1-4 velas) | A mercado con confirmación o stop sobre máximo reciente. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
 | Break-even | no | no | Sin cambio. |
-| Salida temporal | sí (50 %), 2-15 velas | sí (100 %), 12-60 velas | Test de ventaja: salida por tiempo 2-10 días. |
+| Salida temporal | sí (50 %), 2-15 velas | sí (100 %), 12-72 velas | Test de ventaja: salida por tiempo 12 h-3 días. |
 | Salida por regla | no | no | Sin cambio. |
-| Ventana de señales | 01:30-23:30 | sin ventana | Igual que Swing: en H4 la ventana del original sesga señales. |
+| Ventana de señales | 01:30-23:30 | 01:30-23:30 | Sin cambio. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
-| Máx. operaciones/día | 0 (sin límite) | 1 | Una entrada diaria como máximo. |
-| Distancia máx. orden | no | 3 % | 3 %: rupturas de canales largos. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 19 señales / 15 indicadores / 5 stop-limit | Sólo filtros de dirección/fuerza de tendencia; sin osciladores de sobrecompra/sobreventa (contradicen la tesis). |
+| Máx. operaciones/día | 0 (sin límite) | 2 | Hasta dos entradas diarias. |
+| Distancia máx. orden | no | 2 % | 2 %: rupturas de canales largos en H1. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 105 señales / 46 indicadores / 33 stop-limit | Núcleo: sistemas y medias de tendencia, fuerza (ADX/KER) y ruptura de canal; sin osciladores de sobrecompra/sobreventa (contradicen la tesis). |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 100; ReturnDDRatio(IS) >= 1.75; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.88; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 83; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 1.75; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.88; AvgBarsInTrade(IS) >= 5; NumberOfTrades(IS) >= 215; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 50 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
 | Parámetro | Original | Nuevo | Justificación |
 |---|---|---|---|
-| Timeframe | H1 | H4 | Debe coincidir con el Builder del estilo. |
+| Timeframe | H1 | H1 | Sin cambio. |
 | Periodo / OOS | 2013.09.30 – 2024.07.22; OOS 2021.01.01 – 2024.07.22 | 2013.09.30 – 2024.07.22; OOS 2021.01.01 – 2024.07.22 | Sin cambio. |
 | Deslizamiento | 0 | 0.3 | El original usa 0. |
-| Ventana de señales | 01:30-23:30 | sin ventana | Idéntica al Builder: si difiere, el Retest no reproduce lo construido. |
+| Ventana de señales | 01:30-23:30 | 01:30-23:30 | Sin cambio. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 5.25; NumberOfTrades(Full) >= 150; DrawdownPct(Full) <= 25 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 5.25; NumberOfTrades(Full) >= 490; NumberOfTrades(OOS) >= 140; DrawdownPct(Full) <= 25 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 2 (tick real + spread personalizado); 3 condiciones | Se activan también las condiciones de nº de operaciones y DD. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4, vela de inicio. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 175% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -931,74 +1100,103 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 150
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 490; NumberOfTrades(OOS) >= 140
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Sólo filtros de dirección/fuerza de tendencia; sin osciladores de sobrecompra/sobreventa (contradicen la tesis). El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: sistemas y medias de tendencia, fuerza (ADX/KER) y ruptura de canal; sin osciladores de sobrecompra/sobreventa (contradicen la tesis).
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveHighestAfterOpenBelow` | 2 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | Entrada por ruptura de canal (Donchian/Kumo), la clásica del TF. | global del estilo |
-| `IchimokuKumoBreakoutBullish` | 1 | Ruptura de nivel | El precio sale por encima de la nube de Ichimoku. | Entrada por ruptura de canal (Donchian/Kumo), la clásica del TF. | global del estilo |
-| `MACDMainCrossAboveSignal` | 1 | Momentum | MACD cruza por encima de su señal. | Confirmación por momentum (MACD). | global del estilo |
-| `MACDMainHigherZero` | 1 | Momentum | MACD por encima de cero (media rápida > lenta): independiente de la escala de precio. | Confirmación por momentum (MACD). | global del estilo |
-| `ADXHigher` | 2 | Tendencia | ADX por encima de un nivel: tendencia con fuerza. | Núcleo del estilo: varios estimadores independientes de tendencia. | Level 20 a 40 (paso 5) |
-| `BarClosesAboveSuperTrend` | 2 | Tendencia | Cierre por encima de la línea SuperTrend. | Núcleo del estilo: varios estimadores independientes de tendencia. | ATR Mult 1.5 a 5 (paso 0.5) |
-| `SuperTrendUPTrend` | 2 | Tendencia | SuperTrend en modo alcista. | Núcleo del estilo: varios estimadores independientes de tendencia. | ATR Mult 1.5 a 5 (paso 0.5) |
-| `ADXRising` | 1 | Tendencia | ADX creciente: la tendencia gana fuerza. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `AroonCrossesAbove` | 1 | Tendencia | Aroon Up cruza por encima de Aroon Down (deducido del nombre). | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `DICrossUp` | 1 | Tendencia | DI+ cruza por encima de DI- (deducido del nombre). | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `FastKAMAAboveSlowKAMA` | 1 | Tendencia | KAMA rápida por encima de la lenta (media adaptativa). | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `FasterHMAIsAboveSlowerHMA` | 1 | Tendencia | Media de Hull rápida por encima de la lenta. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `GannHiLoUPTrend` | 1 | Tendencia | Gann HiLo activador en modo alcista. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `IchimokuTenkanKijunCrossBullish` | 1 | Tendencia | Cruce alcista Tenkan/Kijun de Ichimoku. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `Indicators.EMA` | 1 | Tendencia | Media exponencial. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `Indicators.HullMovingAverage` | 1 | Tendencia | Media de Hull. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `Indicators.KAMA` | 1 | Tendencia | Media adaptativa de Kaufman. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `Indicators.SMA` | 1 | Tendencia | Media simple. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `Indicators.SuperTrend` | 1 | Tendencia | Línea SuperTrend. | Núcleo del estilo: varios estimadores independientes de tendencia. | ATR Mult 1.5 a 5 (paso 0.5) |
-| `KERaboveLevel` | 1 | Tendencia | Ratio de eficiencia de Kaufman alto: movimiento direccional limpio. | Núcleo del estilo: varios estimadores independientes de tendencia. | Level 0.3 a 0.7 (paso 0.05) |
-| `MABarClosesAbove` | 1 | Tendencia | Cierre por encima de una media móvil. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `MARising` | 1 | Tendencia | Media móvil con pendiente positiva. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `PSARBarLower` | 1 | Tendencia | Parabolic SAR por debajo de la vela (deducido: régimen alcista). | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `VortexUptrend` | 1 | Tendencia | Indicador Vortex en tendencia alcista. | Núcleo del estilo: varios estimadores independientes de tendencia. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | ATR como normalizador. | global del estilo |
-| `Indicators.Highest` | 2 | Nivel de referencia | Máximo de N velas (canal Donchian). | Canales para comparar. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Canales para comparar. | global del estilo |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones. | global del estilo |
-| `Prices.High` | 1 | Precio | Máximo. | Comparaciones. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Condiciones simples. | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Condiciones simples. | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Condiciones simples. | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Condiciones simples. | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 2 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Stop sobre máximo o SuperTrend. | global del estilo |
-| `Stop/Limit Price Levels.High` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de una vela (vela señal). | Stop sobre máximo o SuperTrend. | global del estilo |
-| `Stop/Limit Price Levels.KeltnerChannel` | 1 | Precio de orden stop/limit | Precio = banda de Keltner. | Stop sobre máximo o SuperTrend. | global del estilo |
-| `Stop/Limit Price Levels.SuperTrend` | 1 | Precio de orden stop/limit | Precio = línea SuperTrend. | Stop sobre máximo o SuperTrend. | ATR Mult 1.5 a 5 (paso 0.5) |
-| `Stop/Limit Price Ranges.ATR` | 1 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen en ATR. | global del estilo |
+Recuento: **105 señales, 46 indicadores y 33 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| tend_sistemas (4) | Sistemas de tendencia: SuperTrend, PSAR, Vortex, Gann HiLo, Aroon, DMI, Woodies. | Núcleo: estimadores independientes de tendencia. | `SuperTrendUPTrend`, `BarClosesAboveSuperTrend`, `PSARBarLower`, `VortexUptrend`, `VortexChangesTrendUP`, `GannHiLoUPTrend`, `AroonCrossesAbove`, `WoodiesTrendUP`, `WoodiesCCIZeroLineBreakUP`, `DIPlusRising`, `DIPlusChangesUp`, `DICrossUp`, `DIPlusHigher`, `DIMinusFalling`, `DIMinusChangesDown` | `SuperTrendDownTrend`, `BarClosesBelowSuperTrend`, `PSARBarHigher`, `VortexDowntrend`, `VortexChangesTrendDown`, `GannHiLoDownTrend`, `AroonCrossesBelow`, `WoodiesTrendDown`, `WoodiesCCIZeroLineBreakDown`, `DIMinusRising`, `DIMinusChangesUp`, `DICrossDown`, `DIPlusLower`, `DIPlusFalling`, `DIPlusChangesDown` |
+| tend_medias (2) | Pendiente y posición del precio respecto a medias (simple, Hull, KAMA, regresión lineal). | Pendiente y posición frente a medias. | `MARising`, `MABarClosesAbove`, `MABarOpensAbove`, `MABarOpensAboveAfterOpenBelow`, `LinRegRising`, `LinRegBarClosesAbove`, `LinRegBarOpensAbove`, `LinRegBarOpensAboveAfterOpenBelow`, `HMARising`, `HMAChangesUP`, `FasterHMAIsAboveSlowerHMA`, `KAMARising`, `FastKAMAAboveSlowKAMA`, `BarClosesAboveKAMA`, `IsUptrend` | `MAFalling`, `MABarClosesBelow`, `MABarOpensBelow`, `MABarOpensBelowAfterOpenAbove`, `LinRegFalling`, `LinRegBarClosesBelow`, `LinRegBarOpensBelow`, `LinRegBarOpensBelowAfterOpenAbove`, `HMAFalling`, `HMAChangesDown`, `FasterHMAIsBelowSlowerHMA`, `KAMAFalling`, `FastKAMABelowSlowKAMA`, `BarClosesBelowKAMA`, `IsDowntrend` |
+| fuerza (3) | ADX creciente o alto y eficiencia de Kaufman alta: hay tendencia. | Sólo operar tendencias con fuerza. | `ADXRising`, `ADXChangesUp`, `ADXHigher`, `ADXCrossUp`, `KERaboveLevel` | igual (neutral) |
+| rup_canal (6) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Entrada por ruptura de canal (Donchian), la clásica del TF. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_ichimoku (2) | Salida de la nube y cruces alcistas de Ichimoku. | Ruptura de la nube. | `IchimokuKumoBreakoutBullish`, `IchimokuKijunSenCrossBullish`, `IchimokuSenkouSpanCrossBullish`, `IchimokuTenkanKijunCrossBullish` | `IchimokuKumoBreakoutBearish`, `IchimokuKijunSenCrossBearish`, `IchimokuSenkouSpanCrossBearish`, `IchimokuTenkanKijunCrossBearish` |
+| rup_bandas (1) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Filtro auxiliar: amplía la variedad. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
+| mom_direccion (1) | Osciladores y momentum girando o subiendo (RSI, estocástico, MACD, OSMA, QQE, Reflex, ROC, CCI, WPR, DeMarker…), sin niveles absolutos. | Filtro auxiliar: amplía la variedad. | `RSIRising`, `RSIChangesUp`, `LaguerreRSIRising`, `LaguerreRSIChangesUP`, `StochSlowDRising`, `StochSlowDChangesUp`, `StochFastKUp`, `MomRising`, `MomChangesUp`, `MACDMainRising`, `MACDMainChangesUp`, `MACDMainCrossAboveSignal`, `MACDMainHigherSignal`, `MACDSignalRising`, `OSMARising`, `OSMAChangesUp`, `AWORising`, `AWOChangesUp`, `QQEValue1Rising`, `QQEValue1CrossAboveValue2`, `QQEValue1HigherValue2`, `QQEValue2Rising`, `ReflexRising`, `ReflexChangesDirectionUP`, `FastReflexCrossUPSlowReflex`, `ROCRising`, `CCIRising`, `CCIChangesUp`, `WPRRising`, `WPRChangesUp`, `DEMRising`, `DEMChangesUp` | `RSIFalling`, `RSIChangesDown`, `LaguerreRSIFalling`, `LaguerreRSIChangesDown`, `StochSlowDFalling`, `StochSlowDChangesDown`, `StochFastKDown`, `MomFalling`, `MomChangesDown`, `MACDMainFalling`, `MACDMainChangesDown`, `MACDMainCrossBelowSignal`, `MACDMainLowerSignal`, `MACDSignalFalling`, `OSMAFalling`, `OSMAChangesDown`, `AWOFalling`, `AWOChangesDown`, `QQEValue1Falling`, `QQEValue1CrossBelowValue2`, `QQEValue1LowerValue2`, `QQEValue2Falling`, `ReflexFalling`, `ReflexChangesDirectionDown`, `FastReflexCrossDownSlowReflex`, `ROCFalling`, `CCIFalling`, `CCIChangesDown`, `WPRFalling`, `WPRChangesDown`, `DEMFalling`, `DEMChangesDown` |
+| mom_nivel (1) | Osciladores en zona de fuerza (RSI 50-70, estocástico 50-80, CCI 0-150…) y MACD/OSMA/ROC por encima de cero. | Filtro auxiliar: amplía la variedad. | `RSIHigher`, `RSICrossUp`, `LaguerreRSICrossUP`, `StochSlowDHigher`, `StochSlowDCrossUp`, `CCIHigher`, `CCICrossUp`, `WPRHigher`, `WPRCrossUp`, `QQEValue1Higher`, `QQEValue1CrossAbove`, `MACDMainHigherZero`, `MACDMainCrossAboveZero`, `OSMAHigherZero`, `OSMACrossZeroUp`, `ROCAboveLevel`, `ROCCrossesAboveLevel`, `SchaffTrendCycleAboveLevel`, `SchaffTrendCycleCrossesAboveLevel` | `RSILower`, `RSICrossDown`, `LaguerreRSICrossDown`, `StochSlowDLower`, `StochSlowDCrossDown`, `CCILower`, `CCICrossDown`, `WPRLower`, `WPRCrossDown`, `QQEValue1Lower`, `QQEValue1CrossBelow`, `MACDMainLowerZero`, `MACDMainCrossBelowZero`, `OSMALowerZero`, `OSMACrossZeroDown`, `ROCBelowLevel`, `ROCCrossesBelowLevel`, `SchaffTrendCycleBelowLevel`, `SchaffTrendCycleCrossesBelowLevel` |
+| vol_expansion (1) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | Filtro auxiliar: amplía la variedad. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| medias (2) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Medias para comparar. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| sistemas (2) | SuperTrend, Parabolic SAR, Ichimoku y Gann HiLo como valores. | SuperTrend/PSAR/Ichimoku. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| niv_canal (2) | Máximo/mínimo de N velas. | Canales. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| niv_diario (1) | Máximo/mínimo/apertura/cierre del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| bandas (1) | Bandas de Bollinger y canal de Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel` | igual (neutral) |
+| fuerza_ind (1) | ADX, eficiencia de Kaufman, Aroon y Vortex como valores. | Filtro auxiliar: amplía la variedad. | `ADX`, `KaufmanEfficiencyRatio`, `Aroon`, `Vortex` | igual (neutral) |
+| osciladores (1) | RSI, estocástico, CCI, Williams %R, RSI de Laguerre y DeMarker como valores. | Filtro auxiliar: amplía la variedad. | `RSI`, `Stochastic`, `CCI`, `WilliamsPR`, `LaguerreRSI`, `DeMarker` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (1) | N velas seguidas por encima/debajo, subiendo/bajando. | Filtro auxiliar: amplía la variedad. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_canal (4) | Orden en el máximo/mínimo de N velas. | Stop sobre máximo reciente. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_sistemas (2) | Orden en SuperTrend, PSAR, Ichimoku o Gann HiLo. | Stop en SuperTrend/PSAR. | `SuperTrend`, `ParabolicSAR`, `Ichimoku`, `GannHiLo` | igual (neutral) |
+| stl_medias (1) | Orden en una media móvil. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| stl_bandas (1) | Orden en Bollinger/Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel`, `MTKeltnerChannel` | igual (neutral) |
+| stl_vela (1) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Filtro auxiliar: amplía la variedad. | `High`, `Low`, `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_diario (1) | Orden en niveles del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_rangos (2) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Margen en ATR. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `RSIHigher` | Level 50 a 70 (paso 5) | `RSILower` | Level 30 a 50 (paso 5) |
+| `RSICrossUp` | Level 50 a 70 (paso 5) | `RSICrossDown` | Level 30 a 50 (paso 5) |
+| `LaguerreRSICrossUP` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.4 a 0.85 (paso 0.05) | `LaguerreRSICrossDown` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.15 a 0.6 (paso 0.05) |
+| `StochSlowDHigher` | Level 50 a 80 (paso 5) | `StochSlowDLower` | Level 20 a 50 (paso 5) |
+| `StochSlowDCrossUp` | Level 50 a 80 (paso 5) | `StochSlowDCrossDown` | Level 20 a 50 (paso 5) |
+| `CCIHigher` | Level 0 a 150 (paso 10) | `CCILower` | Level -150 a 0 (paso 10) |
+| `CCICrossUp` | Level 0 a 150 (paso 10) | `CCICrossDown` | Level -150 a 0 (paso 10) |
+| `WPRHigher` | Level -50 a -20 (paso 5) | `WPRLower` | Level -80 a -50 (paso 5) |
+| `WPRCrossUp` | Level -50 a -20 (paso 5) | `WPRCrossDown` | Level -80 a -50 (paso 5) |
+| `QQEValue1Higher` | Level 50 a 70 (paso 5) | `QQEValue1Lower` | Level 30 a 50 (paso 5) |
+| `QQEValue1CrossAbove` | Level 50 a 70 (paso 5) | `QQEValue1CrossBelow` | Level 30 a 50 (paso 5) |
+| `SchaffTrendCycleAboveLevel` | Level 50 a 90 (paso 5) | `SchaffTrendCycleBelowLevel` | Level 10 a 50 (paso 5) |
+| `SchaffTrendCycleCrossesAboveLevel` | Level 25 a 75 (paso 5) | `SchaffTrendCycleCrossesBelowLevel` | Level 25 a 75 (paso 5) |
+| `ADXHigher` | Level 20 a 40 (paso 5) | `ADXHigher` | Level 20 a 40 (paso 5) |
+| `ADXCrossUp` | Level 20 a 35 (paso 5) | `ADXCrossUp` | Level 20 a 35 (paso 5) |
+| `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) | `KERaboveLevel` | Level 0.3 a 0.7 (paso 0.05) |
+| `SuperTrendUPTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `SuperTrendDownTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `BarClosesAboveSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `BarClosesBelowSuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Indicators.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) | `Stop/Limit Price Levels.SuperTrend` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `ROCAboveLevel` | Level 0 a 3 (paso 0.1) | `ROCBelowLevel` | Level -3 a 0 (paso 0.1) |
+| `ROCCrossesAboveLevel` | Level 0 a 3 (paso 0.1) | `ROCCrossesBelowLevel` | Level -3 a 0 (paso 0.1) |
 
 ### 4. Timeframe, símbolos y horarios
 
-- **Timeframe:** H4.
-- **Instrumento recomendado:** Cesta diversificada (índices, metales, JPY-cruces). En un solo símbolo el resultado depende de 2-3 tendencias: validar en varios mercados.
-- **Horario:** H4 sin filtro horario; mantiene posiciones días o semanas.
+- **Timeframe:** H1.
+- **Instrumento recomendado:** Índices, metales y cruces de JPY. En un solo símbolo el resultado depende de pocas tendencias: validar en varios mercados.
+- **Horario:** H1 con la ventana original 01:30-23:30 (evita el rollover); mantiene posiciones de 1 a 5 días.
 
 ### 5. Salidas y gestión del riesgo
 
-SL 2-4 ATR(14-100); **trailing 2,5-5 ATR como salida principal (80 %)**; objetivo raro y lejano (4-10 ATR, 30 %); salida por regla (50 %). Acierto esperado 30-40 %. Riesgo 1 %.
+SL 2-4 ATR(14-100) de H1; **trailing 2,5-5 ATR como salida principal (80 %)**; objetivo raro y lejano (4-10 ATR, 30 %); salida por regla (50 %). Acierto esperado 30-40 %. Riesgo 1 %.
 
 ### 6. Filtros y ranking
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H4` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 100; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.4; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 5.25; NumberOfTrades(Full) >= 150; DrawdownPct(Full) <= 25 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H4` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 100; ReturnDDRatio(IS) >= 1.75; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H4` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 150 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 3.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80; ProfitFactor(OOS) >= 1.05 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 5.25; NumberOfTrades(Full) >= 490; NumberOfTrades(OOS) >= 140; DrawdownPct(Full) <= 25 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 260; ReturnDDRatio(IS) >= 1.75; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 5; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 80 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__TrendFollowing_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 490; NumberOfTrades(OOS) >= 140 |
 
-Justificación: El talón de Aquiles del TF son las rachas planas largas: StagnationPct las penaliza. Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: El talón de Aquiles del TF son las rachas planas largas: StagnationPct las penaliza. El mínimo de operaciones sale de la densidad del estilo (50/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
@@ -1019,8 +1217,8 @@ Riesgos propios del estilo: Win rate bajo (30-40 %) y rachas perdedoras largas; 
 
 ### 9. Plan de validación
 
-1. `Ventaja_Build…TrendFollowing_H4` (salida 2-10 días) → `Ventaja_Retest…`.
-2. `Estrategia_Build…` → `Estrategia_Retest…TrendFollowing_H4`.
+1. `Ventaja_Build…TrendFollowing_H1` (salida 12 h-3 días) → `Ventaja_Retest…`.
+2. `Estrategia_Build…` → `Estrategia_Retest…TrendFollowing_H1`.
 3. Retest en 5+ mercados no correlacionados.
 4. Walk-Forward Matrix y comprobación de rachas perdedoras máximas frente a tu tolerancia.
 
@@ -1030,16 +1228,20 @@ Riesgos propios del estilo: Win rate bajo (30-40 %) y rachas perdedoras largas; 
 
 **Trading de rango (reversión a la media en régimen lateral)** · timeframe `H1`
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/Range/Estrategia_Build_ConfigInicial_H1_BUY__Range_H1.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__Range_H1.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Range_H1.md)
-- `configs/Range/Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1.md)
-- `configs/Range/Ventaja_Build_ConfigInicial_H1_BUY__Range_H1.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__Range_H1.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Range_H1.md)
-- `configs/Range/Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__Range_H1_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Range_H1_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__Range_H1_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__Range_H1_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1_SELL.md) |
+
+**Operaciones mínimas exigidas** (60/año): Builder IS ≥ 320, OOS 2019-2020 ≥ 100 (≈420 en 7.3 años de construcción); Retest periodo completo ≥ 580 y holdout 2021-2024 ≥ 170.
 
 ### 1. Tesis
 
-Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos respecto a la media se corrigen: se compra el exceso bajista y se sale en la media con objetivo corto.
+Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos respecto a la media se corrigen: se compra el exceso bajista (o se vende el alcista en SELL) y se sale en la media con objetivo corto.
 
 ### 2. Cambios respecto al original
 
@@ -1056,22 +1258,22 @@ Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos
 | Periodos de indicadores | 4–200 | 5–60 | 5-60 velas H1: la reversión a la media es un fenómeno de corto plazo. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 2–4 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtLimit (w2, válida 1-5 velas) | Límite bajo la banda/mínimo: se compra el exceso, no la ruptura. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtLimit (w3, válida 1-5 velas) | Límite bajo la banda/mínimo (sobre la banda/máximo en SELL): se opera el exceso, no la ruptura. |
 | Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 1.5-3 × ATR(14-60) | Objetivo corto obligatorio (PT 40-120 % del SL) y alta tasa de acierto; salida temporal: si no revierte en 5-30 h la tesis falló. |
 | Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=true; 0.8-2 × ATR(14-60); PT=40-120 % del SL | Objetivo corto obligatorio (PT 40-120 % del SL) y alta tasa de acierto; salida temporal: si no revierte en 5-30 h la tesis falló. |
 | Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | no | Objetivo corto obligatorio (PT 40-120 % del SL) y alta tasa de acierto; salida temporal: si no revierte en 5-30 h la tesis falló. |
 | Break-even | no | no | Sin cambio. |
 | Salida temporal | no | sí (50 %), 5-30 velas | Objetivo corto obligatorio (PT 40-120 % del SL) y alta tasa de acierto; salida temporal: si no revierte en 5-30 h la tesis falló. |
 | Salida por regla | no | sí (50 %) | Objetivo corto obligatorio (PT 40-120 % del SL) y alta tasa de acierto; salida temporal: si no revierte en 5-30 h la tesis falló. |
-| Ventana de señales | 01:30-23:30 | 01:30-09:30 | Sesión asiática: menor drift direccional en FX. |
+| Ventana de señales | 01:30-23:30 | 01:30-09:30 | Sesión asiática: menor deriva direccional en FX. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
-| Máx. operaciones/día | 0 (sin límite) | 2 | Evita promediar a la baja en tendencia. |
+| Máx. operaciones/día | 0 (sin límite) | 2 | Evita promediar en tendencia. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 16 señales / 18 indicadores / 9 stop-limit | Osciladores sólo en zona de sobreventa (sus rangos 0-100 originales permitían 'comprar en sobrecompra'); filtros de régimen lateral (ADX bajo, KER bajo). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 49 señales / 48 indicadores / 36 stop-limit | Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 75 por operación | Riesgo fijo 0.75 % (no compuesto: Ret/DD comparable en el tiempo). |
 | Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | PF alto es imprescindible en reversión (pérdidas medias > ganancias medias). |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 207; WinningPct(IS) >= 50 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 50 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
@@ -1087,22 +1289,22 @@ Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos
 | Periodos de indicadores | 4–200 | 5–60 | 5-60 velas H1: la reversión a la media es un fenómeno de corto plazo. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtLimit (w2, válida 1-5 velas) | Límite bajo la banda/mínimo: se compra el exceso, no la ruptura. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtLimit (w3, válida 1-5 velas) | Límite bajo la banda/mínimo (sobre la banda/máximo en SELL): se opera el exceso, no la ruptura. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
 | Break-even | no | no | Sin cambio. |
 | Salida temporal | sí (50 %), 2-15 velas | sí (100 %), 3-24 velas | Test de ventaja: salida por tiempo 3-24 h. |
 | Salida por regla | no | no | Sin cambio. |
-| Ventana de señales | 01:30-23:30 | 01:30-09:30 | Sesión asiática: menor drift direccional en FX. |
+| Ventana de señales | 01:30-23:30 | 01:30-09:30 | Sesión asiática: menor deriva direccional en FX. |
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
-| Máx. operaciones/día | 0 (sin límite) | 2 | Evita promediar a la baja en tendencia. |
+| Máx. operaciones/día | 0 (sin límite) | 2 | Evita promediar en tendencia. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 16 señales / 18 indicadores / 9 stop-limit | Osciladores sólo en zona de sobreventa (sus rangos 0-100 originales permitían 'comprar en sobrecompra'); filtros de régimen lateral (ADX bajo, KER bajo). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 49 señales / 48 indicadores / 36 stop-limit | Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 50; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 207; WinningPct(IS) >= 45 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 50; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 45 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
@@ -1116,7 +1318,7 @@ Cuando la tendencia es débil (ADX bajo, eficiencia de Kaufman baja) los excesos
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 75 por operación | Igual que el Builder correspondiente. |
 | Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 375; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 2 (tick real + spread personalizado); 3 condiciones | Se activan también las condiciones de nº de operaciones y DD. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -1127,57 +1329,89 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 375
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Osciladores sólo en zona de sobreventa (sus rangos 0-100 originales permitían 'comprar en sobrecompra'); filtros de régimen lateral (ADX bajo, KER bajo). El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: reentrada en bandas tras exceso, osciladores restringidos a sobreventa (sobrecompra en SELL) y filtros de régimen lateral; órdenes límite en la banda/extremo. Los rangos 0-100 originales permitían 'comprar en sobrecompra'.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveLowestAfterOpenBelow` | 1 | Ruptura de nivel | Abre por encima del mínimo de N velas tras abrir por debajo: recuperación tras una falsa ruptura bajista. | Sólo la recuperación tras falsa ruptura bajista. | global del estilo |
-| `BBBarOpensAboveDownAfterOpenBelow` | 2 | Reversión / sobreventa | Reentrada por encima de la banda inferior de Bollinger tras abrir por debajo. | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `KCBarOpensAboveLowerAfterOpenBelow` | 2 | Reversión / sobreventa | Reentrada por encima de la banda inferior de Keltner. | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `BBBarClosesBelowDown` | 1 | Reversión / sobreventa | Cierre por debajo de la banda inferior de Bollinger (exceso bajista). | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `CCICrossUp` | 1 | Reversión / sobreventa | CCI cruza al alza un nivel. | Núcleo: identificar el exceso bajista que se espera que revierta. | Level -150 a -80 (paso 5) |
-| `DEMCrossUp` | 1 | Reversión / sobreventa | DeMarker (0-1) cruza al alza un nivel. | Núcleo: identificar el exceso bajista que se espera que revierta. | Level 0.1 a 0.3 (paso 0.1) |
-| `Indicators.CCI` | 1 | Reversión / sobreventa | CCI (valor). | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `Indicators.RSI` | 1 | Reversión / sobreventa | RSI (valor). | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `Indicators.Stochastic` | 1 | Reversión / sobreventa | Estocástico (valor). | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `Indicators.WilliamsPR` | 1 | Reversión / sobreventa | Williams %R (valor). | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `KCBarClosesBelowLower` | 1 | Reversión / sobreventa | Cierre por debajo de la banda inferior de Keltner. | Núcleo: identificar el exceso bajista que se espera que revierta. | global del estilo |
-| `RSILower` | 1 | Reversión / sobreventa | RSI por debajo de un nivel. | Núcleo: identificar el exceso bajista que se espera que revierta. | Level 20 a 40 (paso 5) |
-| `StochFastKCrossUp` | 1 | Reversión / sobreventa | %K rápido del estocástico cruza al alza un nivel. | Núcleo: identificar el exceso bajista que se espera que revierta. | Level 10 a 30 (paso 5) |
-| `StochSlowDCrossUp` | 1 | Reversión / sobreventa | %D lento del estocástico cruza al alza un nivel. | Núcleo: identificar el exceso bajista que se espera que revierta. | Level 10 a 30 (paso 5) |
-| `WPRCrossUp` | 1 | Reversión / sobreventa | Williams %R cruza al alza un nivel (escala -100..0). | Núcleo: identificar el exceso bajista que se espera que revierta. | Level -95 a -75 (paso 5) |
-| `LaguerreRSICrossUP` | 1 | Oscilador | RSI de Laguerre (0-1, poco retardo) cruza al alza un nivel. | Restringido a zona de sobreventa. | Level 0.05 a 0.3 (paso 0.05) |
-| `RSICrossUp` | 1 | Oscilador | RSI cruza hacia arriba un nivel. | Restringido a zona de sobreventa. | Level 15 a 40 (paso 5) |
-| `ADXLower` | 2 | Régimen lateral | ADX por debajo de un nivel: tendencia débil. | Imprescindible: la reversión sólo funciona sin tendencia. | Level 15 a 30 (paso 5) |
-| `KERbelowLevel` | 2 | Régimen lateral | Ratio de eficiencia de Kaufman bajo: movimiento errático, sin dirección. | Imprescindible: la reversión sólo funciona sin tendencia. | Level 0.1 a 0.4 (paso 0.05) |
-| `ADXFalling` | 1 | Régimen lateral | ADX descendente: la tendencia pierde fuerza. | Imprescindible: la reversión sólo funciona sin tendencia. | global del estilo |
-| `Indicators.EMA` | 1 | Tendencia | Media exponencial. | Medias como 'centro' del rango (objetivo/regla de salida). | global del estilo |
-| `Indicators.SMA` | 1 | Tendencia | Media simple. | Medias como 'centro' del rango (objetivo/regla de salida). | global del estilo |
-| `Indicators.BollingerBands` | 1 | Nivel de referencia | Bandas de Bollinger (media ± k·desviación). | Bandas y extremos que delimitan el rango. | global del estilo |
-| `Indicators.Highest` | 1 | Nivel de referencia | Máximo de N velas (canal Donchian). | Bandas y extremos que delimitan el rango. | global del estilo |
-| `Indicators.KeltnerChannel` | 1 | Nivel de referencia | Canal de Keltner (media ± k·ATR). | Bandas y extremos que delimitan el rango. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Bandas y extremos que delimitan el rango. | global del estilo |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones con bandas. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones con bandas. | global del estilo |
-| `Prices.Open` | 1 | Precio | Apertura. | Comparaciones con bandas. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Construyen 'precio frente a banda/media'; IsLowerCount mide agotamiento (N velas por debajo). | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Construyen 'precio frente a banda/media'; IsLowerCount mide agotamiento (N velas por debajo). | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Construyen 'precio frente a banda/media'; IsLowerCount mide agotamiento (N velas por debajo). | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Construyen 'precio frente a banda/media'; IsLowerCount mide agotamiento (N velas por debajo). | global del estilo |
-| `IsLowerCount` | 1 | Comparador | A < B durante N velas seguidas. | Construyen 'precio frente a banda/media'; IsLowerCount mide agotamiento (N velas por debajo). | global del estilo |
-| `Stop/Limit Price Levels.BollingerBands` | 2 | Precio de orden stop/limit | Precio = banda de Bollinger. | Orden límite en la banda/mínimo: se compra el exceso. | global del estilo |
-| `Stop/Limit Price Levels.KeltnerChannel` | 2 | Precio de orden stop/limit | Precio = banda de Keltner. | Orden límite en la banda/mínimo: se compra el exceso. | global del estilo |
-| `Stop/Limit Price Levels.EMA` | 1 | Precio de orden stop/limit | Precio = media exponencial. | Orden límite en la banda/mínimo: se compra el exceso. | global del estilo |
-| `Stop/Limit Price Levels.Low` | 1 | Precio de orden stop/limit | Precio de la orden = mínimo de una vela. | Orden límite en la banda/mínimo: se compra el exceso. | global del estilo |
-| `Stop/Limit Price Levels.Lowest` | 1 | Precio de orden stop/limit | Precio de la orden = mínimo de N velas. | Orden límite en la banda/mínimo: se compra el exceso. | global del estilo |
-| `Stop/Limit Price Levels.SMA` | 1 | Precio de orden stop/limit | Precio = media simple. | Orden límite en la banda/mínimo: se compra el exceso. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 2 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Distancia de la orden límite bajo el nivel. | global del estilo |
-| `Stop/Limit Price Ranges.BBRange` | 1 | Desplazamiento de orden | Desplazamiento = k·anchura de Bollinger. | Distancia de la orden límite bajo el nivel. | global del estilo |
-| `Stop/Limit Price Ranges.BarRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango de la vela. | Distancia de la orden límite bajo el nivel. | global del estilo |
+Recuento: **49 señales, 48 indicadores y 36 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| rev_bandas (6) | Exceso fuera de la banda inferior y reentrada (reversión a la media). | Núcleo: exceso fuera de banda y reentrada. | `BBBarOpensAboveDownAfterOpenBelow`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `BBBarClosesAboveDown`, `KCBarOpensAboveLowerAfterOpenBelow`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower`, `KCBarClosesAboveLower` | `BBBarOpensBelowUpAfterOpenAbove`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `BBBarClosesBelowUp`, `KCBarOpensBelowUpperAfterOpenAbove`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper`, `KCBarClosesBelowUpper` |
+| sobreventa (3) | Osciladores en zona de sobreventa (RSI 15-40, estocástico 10-30, WPR -95…-75, CCI -200…-80…). | Identificar el exceso que se espera que revierta. | `RSICrossUp`, `RSILower`, `StochSlowDCrossUp`, `StochFastKCrossUp`, `StochSlowDLower`, `WPRCrossUp`, `WPRLower`, `CCICrossUp`, `CCILower`, `LaguerreRSICrossUP`, `DEMCrossUp`, `DEMLower`, `QQEValue1CrossAbove`, `QQEValue1Lower`, `SchaffTrendCycleCrossesAboveLevel`, `SchaffTrendCycleBelowLevel` | `RSICrossDown`, `RSIHigher`, `StochSlowDCrossDown`, `StochFastKCrossDown`, `StochSlowDHigher`, `WPRCrossDown`, `WPRHigher`, `CCICrossDown`, `CCIHigher`, `LaguerreRSICrossDown`, `DEMCrossDown`, `DEMHigher`, `QQEValue1CrossBelow`, `QQEValue1Higher`, `SchaffTrendCycleCrossesBelowLevel`, `SchaffTrendCycleAboveLevel` |
+| lateral (4) | ADX bajo/decreciente, eficiencia de Kaufman baja, SuperTrend en rango: no hay tendencia. | Imprescindible: la reversión sólo funciona sin tendencia. | `ADXLower`, `ADXFalling`, `ADXChangesDown`, `ADXCrossDown`, `KERbelowLevel`, `SuperTrendInRange` | igual (neutral) |
+| falsa_ruptura (3) | Recuperación por encima del mínimo de N velas tras perforarlo (trampa bajista). | Recuperación tras perforar el extremo del rango. | `BarOpensAboveLowestAfterOpenBelow` | `BarOpensBelowHighestAfterOpenAbove` |
+| vol_contraccion (1) | ATR/desviación típica/bandas cerrándose: compresión previa a un movimiento. | Filtro auxiliar: amplía la variedad. | `ATRFalling`, `ATRChangesDown`, `StdDevFalling`, `StdDevChangesDown`, `BBUpperFalling`, `BBLowerRising`, `KCUpperFalling`, `KCLowerRising` | igual (neutral) |
+| velas (1) | Patrones de vela de giro alcista (envolvente, martillo, pauta penetrante, doji) y fractal. | Filtro auxiliar: amplía la variedad. | `BullishEngulfing`, `Hammer`, `PiercingLine`, `Doji`, `IsBullishFractal` | `BearishEngulfing`, `ShootingStar`, `DarkCloud`, `Doji`, `IsBearishFractal` |
+| tiempo_intradia (1) | Hora y día de la semana de la vela. | Filtro auxiliar: amplía la variedad. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| bandas (3) | Bandas de Bollinger y canal de Keltner. | Bandas que delimitan el rango. | `BollingerBands`, `KeltnerChannel` | igual (neutral) |
+| medias (2) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Centro del rango (objetivo/regla de salida). | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| niv_canal (2) | Máximo/mínimo de N velas. | Extremos del rango. | `Highest`, `Lowest` | `Lowest`, `Highest` |
+| niv_horario (1) | Máximo/mínimo de un rango horario y de la sesión (apertura/cierre de sesión). | Filtro auxiliar: amplía la variedad. | `HighestInRange`, `LowestInRange`, `SessionHigh`, `SessionLow`, `SessionOpen`, `SessionClose` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen`, `SessionClose` |
+| niv_diario (1) | Máximo/mínimo/apertura/cierre del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| osciladores (2) | RSI, estocástico, CCI, Williams %R, RSI de Laguerre y DeMarker como valores. | Valores de osciladores para comparar. | `RSI`, `Stochastic`, `CCI`, `WilliamsPR`, `LaguerreRSI`, `DeMarker` | igual (neutral) |
+| fuerza_ind (1) | ADX, eficiencia de Kaufman, Aroon y Vortex como valores. | Filtro auxiliar: amplía la variedad. | `ADX`, `KaufmanEfficiencyRatio`, `Aroon`, `Vortex` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (2) | N velas seguidas por encima/debajo, subiendo/bajando. | Agotamiento: N velas seguidas en contra. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_bandas (5) | Orden en Bollinger/Keltner. | Orden límite en la banda: se opera el exceso. | `BollingerBands`, `KeltnerChannel`, `MTKeltnerChannel` | igual (neutral) |
+| stl_canal (2) | Orden en el máximo/mínimo de N velas. | Límite en el extremo de N velas. | `Highest`(w1), `Lowest`(w3) | `Lowest`, `Highest` |
+| stl_vela (2) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Límite en el extremo de la vela. | `High`(w1), `Low`(w3), `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_medias (2) | Orden en una media móvil. | Límite en la media. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| stl_diario (1) | Orden en niveles del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`(w2), `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_horario (1) | Orden en el extremo de un rango horario o de sesión. | Filtro auxiliar: amplía la variedad. | `HighestInRange`, `LowestInRange`(w2), `SessionHigh`, `SessionLow`(w2), `SessionOpen` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen` |
+| stl_estructura (1) | Orden en fractales o pivotes. | Filtro auxiliar: amplía la variedad. | `Fractal`, `Pivots` | igual (neutral) |
+| stl_rangos (2) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Distancia de la orden límite. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `RSICrossUp` | Level 15 a 40 (paso 5) | `RSICrossDown` | Level 60 a 85 (paso 5) |
+| `RSILower` | Level 20 a 40 (paso 5) | `RSIHigher` | Level 60 a 80 (paso 5) |
+| `StochSlowDCrossUp` | Level 10 a 30 (paso 5) | `StochSlowDCrossDown` | Level 70 a 90 (paso 5) |
+| `StochFastKCrossUp` | Level 10 a 30 (paso 5) | `StochFastKCrossDown` | Level 70 a 90 (paso 5) |
+| `StochSlowDLower` | Level 10 a 30 (paso 5) | `StochSlowDHigher` | Level 70 a 90 (paso 5) |
+| `WPRCrossUp` | Level -95 a -75 (paso 5) | `WPRCrossDown` | Level -25 a -5 (paso 5) |
+| `WPRLower` | Level -95 a -75 (paso 5) | `WPRHigher` | Level -25 a -5 (paso 5) |
+| `CCICrossUp` | Level -200 a -80 (paso 10) | `CCICrossDown` | Level 80 a 200 (paso 10) |
+| `CCILower` | Level -200 a -80 (paso 10) | `CCIHigher` | Level 80 a 200 (paso 10) |
+| `LaguerreRSICrossUP` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.05 a 0.3 (paso 0.05) | `LaguerreRSICrossDown` | Gamma 0.3 a 0.8 (paso 0.05); Level 0.7 a 0.95 (paso 0.05) |
+| `DEMCrossUp` | Level 0.1 a 0.3 (paso 0.05) | `DEMCrossDown` | Level 0.7 a 0.9 (paso 0.05) |
+| `DEMLower` | Level 0.1 a 0.3 (paso 0.05) | `DEMHigher` | Level 0.7 a 0.9 (paso 0.05) |
+| `QQEValue1CrossAbove` | Level 20 a 40 (paso 5) | `QQEValue1CrossBelow` | Level 60 a 80 (paso 5) |
+| `QQEValue1Lower` | Level 20 a 40 (paso 5) | `QQEValue1Higher` | Level 60 a 80 (paso 5) |
+| `SchaffTrendCycleCrossesAboveLevel` | Level 5 a 25 (paso 5) | `SchaffTrendCycleCrossesBelowLevel` | Level 75 a 95 (paso 5) |
+| `SchaffTrendCycleBelowLevel` | Level 5 a 25 (paso 5) | `SchaffTrendCycleAboveLevel` | Level 75 a 95 (paso 5) |
+| `ADXLower` | Level 15 a 30 (paso 5) | `ADXLower` | Level 15 a 30 (paso 5) |
+| `ADXCrossDown` | Level 20 a 30 (paso 5) | `ADXCrossDown` | Level 20 a 30 (paso 5) |
+| `KERbelowLevel` | Level 0.1 a 0.4 (paso 0.05) | `KERbelowLevel` | Level 0.1 a 0.4 (paso 0.05) |
+| `SuperTrendInRange` | ATR Mult 1.5 a 5 (paso 0.5) | `SuperTrendInRange` | ATR Mult 1.5 a 5 (paso 0.5) |
+| `Indicators.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Indicators.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Stop/Limit Price Levels.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Stop/Limit Price Levels.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Prices.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `BarHourIs` | Hour 1 a 9 (paso 1) | `BarHourIs` | Hour 1 a 9 (paso 1) |
+| `BarHourIsBigger` | Hour 1 a 4 (paso 1) | `BarHourIsBigger` | Hour 1 a 4 (paso 1) |
+| `BarHourIsSmaller` | Hour 5 a 10 (paso 1) | `BarHourIsSmaller` | Hour 5 a 10 (paso 1) |
 
 ### 4. Timeframe, símbolos y horarios
 
@@ -1193,12 +1427,12 @@ SL 1,5-3 ATR(14-60) obligatorio; objetivo 0,8-2 ATR obligatorio con PT = 40-120 
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__Range_H1` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 375; DrawdownPct(Full) <= 20 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__Range_H1` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 50; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 375 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 55; ProfitFactor(IS) >= 1.25; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 50; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__Range_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170 |
 
-Justificación: PF alto es imprescindible en reversión (pérdidas medias > ganancias medias). Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: PF alto es imprescindible en reversión (pérdidas medias > ganancias medias). El mínimo de operaciones sale de la densidad del estilo (60/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
@@ -1230,16 +1464,20 @@ Riesgos propios del estilo: Pérdida grande cuando el rango se rompe (cola izqui
 
 **Acción del precio (patrones de vela en niveles)** · timeframe `H1`
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/PriceAction/Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1.md)
-- `configs/PriceAction/Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1.md)
-- `configs/PriceAction/Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1.md)
-- `configs/PriceAction/Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1_SELL.md) |
+
+**Operaciones mínimas exigidas** (60/año): Builder IS ≥ 320, OOS 2019-2020 ≥ 100 (≈420 en 7.3 años de construcción); Retest periodo completo ≥ 580 y holdout 2021-2024 ≥ 170.
 
 ### 1. Tesis
 
-Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal) en niveles relevantes (mínimos recientes, máximo/mínimo del día anterior) señalan desequilibrios de órdenes; se entra con stop sobre el máximo de la vela señal.
+Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal y sus equivalentes bajistas en SELL) en niveles relevantes señalan desequilibrios de órdenes; se entra con stop sobre el extremo de la vela señal.
 
 ### 2. Cambios respecto al original
 
@@ -1256,7 +1494,7 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal)
 | Periodos de indicadores | 4–200 | 2–50 | Periodos 2-50 (estructura reciente); desplazamiento 1-3 para patrones de 2-3 velas. |
 | Desplazamiento (shift) | 1–1 | 1–3 | Patrones de 2-3 velas. |
 | Tipos de salida (mín–máx) | 1–5 | 2–4 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w2, válida 1-3 velas), EnterAtLimit (w1, válida 1-3 velas) | Stop sobre el máximo de la vela señal (confirmación) o límite en retroceso. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-3 velas), EnterAtLimit (w1, válida 1-3 velas) | Stop sobre el extremo de la vela señal (confirmación) o límite en retroceso. |
 | Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 1-2.5 × ATR(14-50) | R:R 1,5-3 sobre el riesgo de la vela; break-even tras 1-2 ATR. |
 | Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=true; 1.5-4 × ATR(14-50); PT=150-300 % del SL | R:R 1,5-3 sobre el riesgo de la vela; break-even tras 1-2 ATR. |
 | Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | no | R:R 1,5-3 sobre el riesgo de la vela; break-even tras 1-2 ATR. |
@@ -1267,11 +1505,11 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal)
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Evita encadenar señales en el mismo nivel. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 7 señales / 29 indicadores / 9 stop-limit | Sólo precio, velas y estructura; ATR únicamente como normalizador. Se excluyen patrones bajistas (el original los usaba como entrada larga, incoherente). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 38 señales / 37 indicadores / 32 stop-limit | Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | Ret/DD + SQN (consistencia por operación). |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 200; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 166; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 2.5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 35 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
@@ -1287,7 +1525,7 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal)
 | Periodos de indicadores | 4–200 | 2–50 | Periodos 2-50 (estructura reciente); desplazamiento 1-3 para patrones de 2-3 velas. |
 | Desplazamiento (shift) | 1–1 | 1–3 | Patrones de 2-3 velas. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w2, válida 1-3 velas), EnterAtLimit (w1, válida 1-3 velas) | Stop sobre el máximo de la vela señal (confirmación) o límite en retroceso. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-3 velas), EnterAtLimit (w1, válida 1-3 velas) | Stop sobre el extremo de la vela señal (confirmación) o límite en retroceso. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
@@ -1298,11 +1536,11 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal)
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Máx. operaciones/día | 0 (sin límite) | 2 | Evita encadenar señales en el mismo nivel. |
 | Distancia máx. orden | no | 1 % | 1 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 7 señales / 29 indicadores / 9 stop-limit | Sólo precio, velas y estructura; ATR únicamente como normalizador. Se excluyen patrones bajistas (el original los usaba como entrada larga, incoherente). |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 38 señales / 37 indicadores / 32 stop-limit | Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 200; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 166; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 265; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
 | Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 40 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
@@ -1316,7 +1554,7 @@ Patrones de rechazo/absorción (envolvente, martillo, pauta penetrante, fractal)
 | Cierres forzados | no diario; no viernes | no diario; no viernes | Sin cambio. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 100 por operación | Sin cambio. |
 | Fitness | type="ReturnDDRatio" | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 300; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 2 (tick real + spread personalizado); 3 condiciones | Se activan también las condiciones de nº de operaciones y DD. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 500 sims; OHLC ±10 % ATR(14), desliz. 0-0.5, spread 2-4. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -1327,59 +1565,66 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 300
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Sólo precio, velas y estructura; ATR únicamente como normalizador. Se excluyen patrones bajistas (el original los usaba como entrada larga, incoherente). El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: velas de giro y falsas rupturas, precio puro, Heikin-Ashi y estructura (niveles diarios/semanales, fractales); ATR sólo como normalizador. Sin osciladores ni medias.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveLowestAfterOpenBelow` | 2 | Ruptura de nivel | Abre por encima del mínimo de N velas tras abrir por debajo: recuperación tras una falsa ruptura bajista. | Recuperación tras falsa ruptura / ruptura de máximos recientes. | global del estilo |
-| `BarOpensAboveHighestAfterOpenBelow` | 1 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | Recuperación tras falsa ruptura / ruptura de máximos recientes. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | Sólo rango verdadero/ATR para normalizar tamaños de vela. | global del estilo |
-| `Indicators.TrueRange` | 1 | Volatilidad | Rango verdadero de la vela. | Sólo rango verdadero/ATR para normalizar tamaños de vela. | global del estilo |
-| `BullishEngulfing` | 2 | Patrón de vela | Envolvente alcista. | Núcleo: patrones de rechazo y absorción alcistas. | global del estilo |
-| `Hammer` | 2 | Patrón de vela | Martillo (rechazo de mínimos). | Núcleo: patrones de rechazo y absorción alcistas. | global del estilo |
-| `PiercingLine` | 2 | Patrón de vela | Pauta penetrante alcista. | Núcleo: patrones de rechazo y absorción alcistas. | global del estilo |
-| `Doji` | 1 | Patrón de vela | Doji (indecisión; útil sólo en contexto). | Núcleo: patrones de rechazo y absorción alcistas. | global del estilo |
-| `IsBullishFractal` | 1 | Patrón de vela | Fractal alcista de Williams (mínimo local confirmado). | Núcleo: patrones de rechazo y absorción alcistas. | global del estilo |
-| `Indicators.Fractal` | 1 | Nivel de referencia | Último fractal (máximo/mínimo local). | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Indicators.Highest` | 1 | Nivel de referencia | Máximo de N velas (canal Donchian). | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.CloseD` | 1 | Nivel de referencia | Cierre del día anterior. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.HighD` | 1 | Nivel de referencia | Máximo del día anterior. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.HighW` | 1 | Nivel de referencia | Máximo semanal. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.LowD` | 1 | Nivel de referencia | Mínimo del día anterior. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.LowW` | 1 | Nivel de referencia | Mínimo semanal. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.OpenD` | 1 | Nivel de referencia | Apertura diaria. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | global del estilo |
-| `Prices.SessionHigh` | 1 | Nivel de referencia | Máximo de una sesión horaria configurable. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Prices.SessionLow` | 1 | Nivel de referencia | Mínimo de una sesión horaria configurable. | Contexto: máximos/mínimos del día, semana, sesión y fractales. | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
-| `Prices.Close` | 2 | Precio | Cierre. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.High` | 2 | Precio | Máximo. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.Low` | 2 | Precio | Mínimo. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.Open` | 2 | Precio | Apertura. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.HeikenAshiClose` | 1 | Precio | Cierre Heikin-Ashi. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.HeikenAshiHigh` | 1 | Precio | Máximo Heikin-Ashi. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.HeikenAshiLow` | 1 | Precio | Mínimo Heikin-Ashi. | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `Prices.HeikenAshiOpen` | 1 | Precio | Apertura Heikin-Ashi (vela suavizada). | OHLC y Heikin-Ashi: estructura pura. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `IsFalling` | 1 | Comparador | A baja durante N velas. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `IsGreaterCount` | 1 | Comparador | A > B durante N velas seguidas. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `IsLowerCount` | 1 | Comparador | A < B durante N velas seguidas. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `IsRising` | 1 | Comparador | A sube durante N velas. | Secuencias (N velas al alza/baja, máximos crecientes). | global del estilo |
-| `Stop/Limit Price Levels.High` | 3 | Precio de orden stop/limit | Precio de la orden = máximo de una vela (vela señal). | Stop sobre el máximo de la vela señal (confirmación clásica). | global del estilo |
-| `Stop/Limit Price Levels.Fractal` | 1 | Precio de orden stop/limit | Precio = último fractal. | Stop sobre el máximo de la vela señal (confirmación clásica). | global del estilo |
-| `Stop/Limit Price Levels.HighD` | 1 | Precio de orden stop/limit | Precio = máximo del día anterior. | Stop sobre el máximo de la vela señal (confirmación clásica). | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Stop sobre el máximo de la vela señal (confirmación clásica). | global del estilo |
-| `Stop/Limit Price Levels.Low` | 1 | Precio de orden stop/limit | Precio de la orden = mínimo de una vela. | Stop sobre el máximo de la vela señal (confirmación clásica). | global del estilo |
-| `Stop/Limit Price Levels.OpenD` | 1 | Precio de orden stop/limit | Precio = apertura diaria. | Stop sobre el máximo de la vela señal (confirmación clásica). | global del estilo |
-| `Stop/Limit Price Ranges.BarRange` | 2 | Desplazamiento de orden | Desplazamiento = k·rango de la vela. | Margen en rango de vela/ATR. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 1 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen en rango de vela/ATR. | global del estilo |
-| `Stop/Limit Price Ranges.SmallestRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango mínimo de N velas (contracción). | Margen en rango de vela/ATR. | global del estilo |
+Recuento: **38 señales, 37 indicadores y 32 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| velas (8) | Patrones de vela de giro alcista (envolvente, martillo, pauta penetrante, doji) y fractal. | Núcleo: patrones de rechazo y absorción. | `BullishEngulfing`, `Hammer`, `PiercingLine`, `Doji`(w2), `IsBullishFractal` | `BearishEngulfing`, `ShootingStar`, `DarkCloud`, `Doji`, `IsBearishFractal` |
+| falsa_ruptura (4) | Recuperación por encima del mínimo de N velas tras perforarlo (trampa bajista). | Trampa: perforación y recuperación. | `BarOpensAboveLowestAfterOpenBelow` | `BarOpensBelowHighestAfterOpenAbove` |
+| rup_canal (3) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Ruptura de estructura reciente. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_bandas (1) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Filtro auxiliar: amplía la variedad. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
+| vol_expansion (1) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | Filtro auxiliar: amplía la variedad. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
+| vol_contraccion (1) | ATR/desviación típica/bandas cerrándose: compresión previa a un movimiento. | Filtro auxiliar: amplía la variedad. | `ATRFalling`, `ATRChangesDown`, `StdDevFalling`, `StdDevChangesDown`, `BBUpperFalling`, `BBLowerRising`, `KCUpperFalling`, `KCLowerRising` | igual (neutral) |
+| tiempo_intradia (1) | Hora y día de la semana de la vela. | Filtro auxiliar: amplía la variedad. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+| tiempo_calendario (1) | Día de la semana, mes y primer/último día de mes. | Filtro auxiliar: amplía la variedad. | `BarDayOfWeekIs`, `BarDayOfWeekIsNot`, `BarMonthIs`, `BarMonthIsNot`, `IsMonthFirstTradingDay`, `IsMonthLastTradingDay` | igual (neutral) |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| precio (3) | Apertura, máximo, mínimo y cierre de la vela. | OHLC: estructura pura. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| heiken (2) | Velas Heikin-Ashi (precio suavizado). | Heikin-Ashi: estructura suavizada. | `HeikenAshiOpen`, `HeikenAshiClose`, `HeikenAshiHigh`, `HeikenAshiLow` | `HeikenAshiOpen`, `HeikenAshiClose`, `HeikenAshiLow`, `HeikenAshiHigh` |
+| niv_diario (2) | Máximo/mínimo/apertura/cierre del día. | Contexto: niveles del día. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| niv_semanal (1) | Máximo/mínimo/apertura/cierre de la semana. | Filtro auxiliar: amplía la variedad. | `HighW`, `LowW`, `OpenW`, `CloseW` | `LowW`, `HighW`, `OpenW`, `CloseW` |
+| niv_horario (1) | Máximo/mínimo de un rango horario y de la sesión (apertura/cierre de sesión). | Filtro auxiliar: amplía la variedad. | `HighestInRange`, `LowestInRange`, `SessionHigh`, `SessionLow`, `SessionOpen`, `SessionClose` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen`, `SessionClose` |
+| niv_canal (2) | Máximo/mínimo de N velas. | Extremos recientes. | `Highest`, `Lowest` | `Lowest`, `Highest` |
+| estructura (2) | Fractales (máximos/mínimos locales). | Fractales. | `Fractal` | igual (neutral) |
+| volat_ind (1) | ATR y rango verdadero (para comparaciones relativas). | Filtro auxiliar: amplía la variedad. | `ATR`, `TrueRange` | igual (neutral) |
+| comparadores (2) | Mayor/menor, mayor o igual, cruces. | Comparaciones de precio. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (2) | N velas seguidas por encima/debajo, subiendo/bajando. | Secuencias de velas (máximos crecientes…). | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_vela (5) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Stop sobre el extremo de la vela señal: la confirmación clásica. | `High`, `Low`(w1), `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_canal (2) | Orden en el máximo/mínimo de N velas. | Stop en extremo reciente. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_diario (2) | Orden en niveles del día. | Stop en nivel diario. | `HighD`, `LowD`(w1), `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_semanal (1) | Orden en niveles de la semana. | Filtro auxiliar: amplía la variedad. | `HighW`, `LowW`, `OpenW` | `LowW`, `HighW`, `OpenW` |
+| stl_horario (1) | Orden en el extremo de un rango horario o de sesión. | Filtro auxiliar: amplía la variedad. | `HighestInRange`, `LowestInRange`, `SessionHigh`, `SessionLow`, `SessionOpen` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen` |
+| stl_estructura (2) | Orden en fractales o pivotes. | Stop en fractal. | `Fractal`, `Pivots` | igual (neutral) |
+| stl_heiken (1) | Orden en niveles Heikin-Ashi. | Filtro auxiliar: amplía la variedad. | `HeikenAshiOpen`, `HeikenAshiClose`, `HeikenAshiHigh`, `HeikenAshiLow` | `HeikenAshiOpen`, `HeikenAshiClose`, `HeikenAshiLow`, `HeikenAshiHigh` |
+| stl_rangos (2) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Margen en rango de vela/ATR. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `Indicators.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Indicators.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Stop/Limit Price Levels.HighestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) | `Stop/Limit Price Levels.LowestInRange` | Time From 0 a 300 (paso 100); Time To 700 a 1000 (paso 100) |
+| `Prices.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionHigh` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionLow` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 1 a 3 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 8 a 10 (paso 1); End Minutes 0 a 0 (paso 1) |
 
 ### 4. Timeframe, símbolos y horarios
 
@@ -1395,12 +1640,12 @@ SL 1-2,5 ATR(14-50); objetivo 1,5-4 ATR con PT = 150-300 % del SL; break-even 1-
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NumberOfTrades(IS) >= 200; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 300; DrawdownPct(Full) <= 20 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 200; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 300 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 4; WinningPct(IS) >= 40; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100; ProfitFactor(OOS) >= 1.1 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: ReturnDDRatio (peso 2, max), SQN (peso 1, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.1; ReturnDDRatio(Full) >= 6; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 320; ReturnDDRatio(IS) >= 2; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 100 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__PriceAction_H1_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170 |
 
-Justificación: Ret/DD + SQN (consistencia por operación). Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: Ret/DD + SQN (consistencia por operación). El mínimo de operaciones sale de la densidad del estilo (60/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
@@ -1434,12 +1679,16 @@ Riesgos propios del estilo: Los patrones de vela tienen poca ventaja aislada; el
 
 > **Viabilidad:** News trading real **no es viable de forma nativa** en SQX (sin calendario económico). Esta ficha es una aproximación horaria. Alternativas: (a) indicador personalizado en Java que lea un CSV de eventos (requiere programación y reimplementarlo en la plataforma; MT5 tiene calendario nativo en MQL5); (b) usar las noticias sólo como filtro de 'no operar' en el EA.
 
-**Archivos del kit** (todos *no validados en SQX*):
+**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):
 
-- `configs/NewsProxy/Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15.md`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15.md)
-- `configs/NewsProxy/Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15.cfx` — tabla completa de cambios: [`docs/cambios/Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15.md`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15.md)
-- `configs/NewsProxy/Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15.md`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15.md)
-- `configs/NewsProxy/Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15.cfx` — tabla completa de cambios: [`docs/cambios/Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15.md`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15.md)
+| Rol | BUY | SELL |
+|---|---|---|
+| EB | [`Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.md) | [`Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.cfx`](cambios/Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.md) |
+| ER | [`Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.md) | [`Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.cfx`](cambios/Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.md) |
+| VB | [`Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.md) | [`Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.cfx`](cambios/Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.md) |
+| VR | [`Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY.md) | [`Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.cfx`](cambios/Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_SELL.md) |
+
+**Operaciones mínimas exigidas** (60/año): Builder IS ≥ 210, OOS 2019-2020 ≥ 70 (≈280 en 5.0 años de construcción); Retest periodo completo ≥ 580 y holdout 2021-2024 ≥ 170.
 
 ### 1. Tesis
 
@@ -1460,7 +1709,7 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Periodos de indicadores | 4–200 | 4–48 | 4-48 velas M15 (1-12 h): contexto del día de la publicación. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 2–4 | SL obligatorio + salidas propias del estilo (el original pedía hasta 5 con 3 disponibles). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-4 velas) | Stop sobre el rango pre-dato, caduca en 15-60 min. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-4 velas) | Stop sobre el rango pre-dato (bajo él en SELL), caduca en 15-60 min. |
 | Stop loss | obligatorio=true; 1-3 × ATR(20-100) | obligatorio=true; 1-2 × ATR(10-40) | El impulso de una noticia dura minutos/horas: salida temporal 30 min-4 h. |
 | Profit target | obligatorio=true; 2-5 × ATR(20-100); PT=100-500 % del SL | obligatorio=false; 1.5-4 × ATR(10-40) | El impulso de una noticia dura minutos/horas: salida temporal 30 min-4 h. |
 | Trailing stop | sí (50 %), fijo 50-100 pips, 1-5 ATR | no | El impulso de una noticia dura minutos/horas: salida temporal 30 min-4 h. |
@@ -1471,12 +1720,12 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Cierres forzados | no diario; no viernes | diario 22:00; viernes 21:00 | Sin exposición nocturna. |
 | Máx. operaciones/día | 0 (sin límite) | 1 | Una reacción por día. |
 | Distancia máx. orden | no | 0.5 % | 0,5 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 8 señales / 14 indicadores / 6 stop-limit | Rango previo a la publicación (12:00-15:00 → 15:00/15:30) y filtros de hora/día; expansión de volatilidad como confirmación. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 54 señales / 38 indicadores / 26 stop-limit | Núcleo: rango previo a la publicación (12:00-15:00 → 15:00/15:30), filtros de hora/día y expansión de volatilidad y de volumen de ticks; órdenes stop sobre el rango pre-dato. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Riesgo fijo 0.5 % (no compuesto: Ret/DD comparable en el tiempo). |
-| Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | Pocas operaciones con mucha varianza: PF + Ret/DD. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05 | Umbrales del estilo + exigencia OOS. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.88; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 207; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 30 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | Operaciones con mucha varianza: PF + Ret/DD. |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 8; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.05 | Umbrales del estilo + exigencia OOS. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 5; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 1.88; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 174; WinningPct(IS) >= 30 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Motor genético | población 5 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.b Builder de test de ventaja (`Ventaja_Build`)
 
@@ -1491,7 +1740,7 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Periodos de indicadores | 4–200 | 4–48 | 4-48 velas M15 (1-12 h): contexto del día de la publicación. |
 | Desplazamiento (shift) | 1–1 | 1–1 | Sin cambio. |
 | Tipos de salida (mín–máx) | 1–5 | 1–1 | Sólo la salida temporal (test de ventaja). |
-| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-4 velas) | Stop sobre el rango pre-dato, caduca en 15-60 min. |
+| Tipos de orden | EnterAtMarket (w1) | EnterAtMarket (w1), EnterAtStop (w3, válida 1-4 velas) | Stop sobre el rango pre-dato (bajo él en SELL), caduca en 15-60 min. |
 | Stop loss | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Profit target | obligatorio=false; sin ATR | obligatorio=false; sin ATR | Sin cambio. |
 | Trailing stop | no | no | Sin cambio. |
@@ -1502,12 +1751,12 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Cierres forzados | no diario; no viernes | diario 22:00; viernes 21:00 | Sin exposición nocturna. |
 | Máx. operaciones/día | 0 (sin límite) | 1 | Una reacción por día. |
 | Distancia máx. orden | no | 0.5 % | 0,5 %. |
-| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 8 señales / 14 indicadores / 6 stop-limit | Rango previo a la publicación (12:00-15:00 → 15:00/15:30) y filtros de hora/día; expansión de volatilidad como confirmación. |
+| Bloques activos | 146 señales / 29 indicadores / 29 stop-limit | 54 señales / 38 indicadores / 26 stop-limit | Núcleo: rango previo a la publicación (12:00-15:00 → 15:00/15:30), filtros de hora/día y expansión de volatilidad y de volumen de ticks; órdenes stop sobre el rango pre-dato. |
 | Gestión monetaria | FixedSize: 1 lote | FixedSize: 1 lote | Sin cambio. |
 | Fitness | Weighted: Stagnation (peso 1, min) | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada; el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
-| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
-| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 207; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
-| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 30 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
+| Filtros (Ranking) | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 | Umbrales del estilo + exigencia OOS. Test de ventaja: Ret/DD a la mitad y PF ≥1,15. |
+| Filtro población inicial | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 174; WinningPct(IS) >= 25 | Misma proporción que el autor (≈60 % Ret/DD, ≈83 % operaciones, -5 puntos de acierto). |
+| Motor genético | población 15 × 5 islas, 10 generaciones, cruce 46 %, mutación 35 %, migración 6 % cada 5, reinicio por estancamiento a 30 | población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15 | Población y generaciones del original insuficientes para que la evolución actúe (Fase 1 §6). |
 
 #### 2.c Retesters (`Estrategia_Retest` / `Ventaja_Retest`)
 
@@ -1520,7 +1769,7 @@ Las publicaciones macro programadas de EE. UU. (8:30 ET = 15:30 servidor) provoc
 | Cierres forzados | no diario; no viernes | diario 22:00; viernes 21:00 | Idénticos al Builder. |
 | Gestión monetaria | FixedAmount: riesgo 100 por operación | FixedAmount: riesgo 50 por operación | Igual que el Builder correspondiente. |
 | Fitness | type="ReturnDDRatio" | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | Igual que el Builder correspondiente. |
-| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 375; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
+| Filtros (Ranking) | (ninguna activa) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 | El original no filtraba nada (todas use=false) ni borraba fallidas. |
 | Mayor precisión | activo; precisión 2 (tick real + spread personalizado); 1 condiciones | activo; precisión 3 (tick real + spread real); 3 condiciones | Spread aleatorio hasta 4x y deslizamiento hasta 3 pips: así es una publicación real. |
 | Monte Carlo retest | activo; 1000 sims; OHLC ±10 % ATR(14), spread 1-3. Acepta: NetProfit(IS) >= 0 | activo; 200 sims; OHLC ±10 % ATR(14), desliz. 0-3, spread 2-8. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main] | Spread desde el base hasta 2-4x, deslizamiento, percentil 95 (no el peor caso) y control del DD. |
 | Monte Carlo manipulación | no; orden de operaciones 'exact', saltar 10 % | activo; orden de operaciones 'resampling', saltar 10 % | Barato; 'resampling' y referencia corregida (el original comparaba MC contra MC). |
@@ -1531,42 +1780,64 @@ Diferencias del `Ventaja_Retest` respecto al anterior:
 
 - **Gestión monetaria:** FixedSize: 1 lote
 - **Fitness:** Weighted: SQN (peso 2, max), StagnationPct (peso 1, min)
-- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 375
+- **Filtros (Ranking):** NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170
 
 ### 3. Indicadores y bloques seleccionados
 
-Criterio general: Rango previo a la publicación (12:00-15:00 → 15:00/15:30) y filtros de hora/día; expansión de volatilidad como confirmación. El original activaba 146 señales + 29 indicadores + 29 niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en los centrales (w2-w3).
+Criterio general: Núcleo: rango previo a la publicación (12:00-15:00 → 15:00/15:30), filtros de hora/día y expansión de volatilidad y de volumen de ticks; órdenes stop sobre el rango pre-dato.
 
-| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |
-|---|---|---|---|---|---|
-| `BarOpensAboveHighestAfterOpenBelow` | 2 | Ruptura de nivel | La vela abre por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada en apertura). | Ruptura del rango previo a la publicación. | global del estilo |
-| `BBBarOpensAboveUpAfterOpenBelow` | 1 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Bollinger. | Ruptura del rango previo a la publicación. | global del estilo |
-| `KCBarOpensAboveUpperAfterOpenBelow` | 1 | Ruptura de nivel | Cruce de apertura por encima de la banda superior de Keltner (ATR). | Ruptura del rango previo a la publicación. | global del estilo |
-| `ATRRising` | 2 | Volatilidad | ATR creciente: expansión de volatilidad (sin nivel absoluto). | La publicación se manifiesta como expansión súbita de rango. | global del estilo |
-| `ATRChangesUp` | 1 | Volatilidad | El ATR cambia de dirección al alza. | La publicación se manifiesta como expansión súbita de rango. | global del estilo |
-| `Indicators.ATR` | 1 | Volatilidad | ATR: rango medio verdadero. | La publicación se manifiesta como expansión súbita de rango. | global del estilo |
-| `Indicators.TrueRange` | 1 | Volatilidad | Rango verdadero de la vela. | La publicación se manifiesta como expansión súbita de rango. | global del estilo |
-| `StdDevRising` | 1 | Volatilidad | Desviación típica creciente. | La publicación se manifiesta como expansión súbita de rango. | global del estilo |
-| `BarHourIs` | 2 | Tiempo | La vela es de una hora concreta. | Aproximación al calendario: hora (15-16) y día de la semana. | Hour 15 a 16 (paso 1) |
-| `BarDayOfWeekIs` | 1 | Tiempo | Día de la semana concreto. | Aproximación al calendario: hora (15-16) y día de la semana. | global del estilo |
-| `Indicators.HighestInRange` | 3 | Nivel de referencia | Máximo entre dos horas del día (rango horario, p. ej. asiático). | Rango 12:00-15:00 → 15:00/15:30 (pre-dato). | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) |
-| `Indicators.Highest` | 1 | Nivel de referencia | Máximo de N velas (canal Donchian). | Rango 12:00-15:00 → 15:00/15:30 (pre-dato). | global del estilo |
-| `Indicators.Lowest` | 1 | Nivel de referencia | Mínimo de N velas. | Rango 12:00-15:00 → 15:00/15:30 (pre-dato). | global del estilo |
-| `Indicators.LowestInRange` | 1 | Nivel de referencia | Mínimo entre dos horas del día. | Rango 12:00-15:00 → 15:00/15:30 (pre-dato). | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) |
-| `Prices.Close` | 1 | Precio | Cierre. | Comparaciones. | global del estilo |
-| `Prices.High` | 1 | Precio | Máximo. | Comparaciones. | global del estilo |
-| `Prices.Low` | 1 | Precio | Mínimo. | Comparaciones. | global del estilo |
-| `Prices.Open` | 1 | Precio | Apertura. | Comparaciones. | global del estilo |
-| `CrossesAbove` | 1 | Comparador | A cruza B al alza. | Condiciones. | global del estilo |
-| `CrossesBelow` | 1 | Comparador | A cruza B a la baja. | Condiciones. | global del estilo |
-| `IsGreater` | 1 | Comparador | A > B. | Condiciones. | global del estilo |
-| `IsLower` | 1 | Comparador | A < B. | Condiciones. | global del estilo |
-| `Stop/Limit Price Levels.HighestInRange` | 3 | Precio de orden stop/limit | Precio = máximo de un rango horario. | Stop sobre el rango pre-dato. | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) |
-| `Stop/Limit Price Levels.High` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de una vela (vela señal). | Stop sobre el rango pre-dato. | global del estilo |
-| `Stop/Limit Price Levels.Highest` | 1 | Precio de orden stop/limit | Precio de la orden = máximo de N velas. | Stop sobre el rango pre-dato. | global del estilo |
-| `Stop/Limit Price Ranges.ATR` | 2 | Desplazamiento de orden | Desplazamiento del precio de la orden = k·ATR. | Margen en ATR/rango verdadero para evitar el primer pico. | global del estilo |
-| `Stop/Limit Price Ranges.BarRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango de la vela. | Margen en ATR/rango verdadero para evitar el primer pico. | global del estilo |
-| `Stop/Limit Price Ranges.TrueRange` | 1 | Desplazamiento de orden | Desplazamiento = k·rango verdadero. | Margen en ATR/rango verdadero para evitar el primer pico. | global del estilo |
+Recuento: **54 señales, 38 indicadores y 26 niveles/rangos stop-limit** (el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. La columna SELL muestra el bloque espejo que se activa en el kit de ventas.
+
+#### Señales
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| tiempo_intradia (4) | Hora y día de la semana de la vela. | Aproximación al calendario: hora (15-16) y día de la semana. | `BarHourIs`, `BarHourIsBigger`, `BarHourIsSmaller`, `BarDayOfWeekIs`, `BarDayOfWeekIsNot` | igual (neutral) |
+| vol_expansion (4) | ATR/desviación típica/bandas abriéndose: entra volatilidad. | La publicación se manifiesta como expansión súbita de rango. | `ATRRising`, `ATRChangesUp`, `StdDevRising`, `StdDevChangesUp`, `BBUpperRising`, `BBLowerFalling`, `KCUpperRising`, `KCLowerFalling` | igual (neutral) |
+| vol_tick (2) | Volumen de ticks creciente (en FX es actividad, no volumen real). | Pico de actividad en la publicación. | `VolumeRising`, `AvgVolumeRising` | igual (neutral) |
+| rup_canal (6) | Apertura por encima del máximo de N velas tras abrir por debajo (ruptura Donchian confirmada). | Ruptura del rango previo. | `BarOpensAboveHighestAfterOpenBelow` | `BarOpensBelowLowestAfterOpenAbove` |
+| rup_bandas (2) | Apertura/cierre fuera de la banda superior de Bollinger o Keltner. | Ruptura de bandas. | `BBBarOpensAboveUpAfterOpenBelow`, `BBBarClosesAboveUp`, `BBBarOpensAboveUp`, `KCBarOpensAboveUpperAfterOpenBelow`, `KCBarClosesAboveUpper`, `KCBarOpensAboveUpper` | `BBBarOpensBelowDownAfterOpenAbove`, `BBBarClosesBelowDown`, `BBBarOpensBelowDown`, `KCBarOpensBelowLowerAfterOpenAbove`, `KCBarClosesBelowLower`, `KCBarOpensBelowLower` |
+| mom_direccion (1) | Osciladores y momentum girando o subiendo (RSI, estocástico, MACD, OSMA, QQE, Reflex, ROC, CCI, WPR, DeMarker…), sin niveles absolutos. | Filtro auxiliar: amplía la variedad. | `RSIRising`, `RSIChangesUp`, `LaguerreRSIRising`, `LaguerreRSIChangesUP`, `StochSlowDRising`, `StochSlowDChangesUp`, `StochFastKUp`, `MomRising`, `MomChangesUp`, `MACDMainRising`, `MACDMainChangesUp`, `MACDMainCrossAboveSignal`, `MACDMainHigherSignal`, `MACDSignalRising`, `OSMARising`, `OSMAChangesUp`, `AWORising`, `AWOChangesUp`, `QQEValue1Rising`, `QQEValue1CrossAboveValue2`, `QQEValue1HigherValue2`, `QQEValue2Rising`, `ReflexRising`, `ReflexChangesDirectionUP`, `FastReflexCrossUPSlowReflex`, `ROCRising`, `CCIRising`, `CCIChangesUp`, `WPRRising`, `WPRChangesUp`, `DEMRising`, `DEMChangesUp` | `RSIFalling`, `RSIChangesDown`, `LaguerreRSIFalling`, `LaguerreRSIChangesDown`, `StochSlowDFalling`, `StochSlowDChangesDown`, `StochFastKDown`, `MomFalling`, `MomChangesDown`, `MACDMainFalling`, `MACDMainChangesDown`, `MACDMainCrossBelowSignal`, `MACDMainLowerSignal`, `MACDSignalFalling`, `OSMAFalling`, `OSMAChangesDown`, `AWOFalling`, `AWOChangesDown`, `QQEValue1Falling`, `QQEValue1CrossBelowValue2`, `QQEValue1LowerValue2`, `QQEValue2Falling`, `ReflexFalling`, `ReflexChangesDirectionDown`, `FastReflexCrossDownSlowReflex`, `ROCFalling`, `CCIFalling`, `CCIChangesDown`, `WPRFalling`, `WPRChangesDown`, `DEMFalling`, `DEMChangesDown` |
+
+#### Indicadores
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| niv_horario (4) | Máximo/mínimo de un rango horario y de la sesión (apertura/cierre de sesión). | Rango 12:00-15:00 → 15:00/15:30 (pre-dato). | `HighestInRange`, `LowestInRange`(w2), `SessionHigh`, `SessionLow`(w2), `SessionOpen`, `SessionClose` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen`, `SessionClose` |
+| niv_canal (2) | Máximo/mínimo de N velas. | Extremos recientes. | `Highest`, `Lowest` | `Lowest`, `Highest` |
+| niv_diario (1) | Máximo/mínimo/apertura/cierre del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| precio (1) | Apertura, máximo, mínimo y cierre de la vela. | Filtro auxiliar: amplía la variedad. | `Close`, `Open`, `High`, `Low` | `Close`, `Open`, `Low`, `High` |
+| volat_ind (2) | ATR y rango verdadero (para comparaciones relativas). | ATR/rango verdadero para medir la expansión. | `ATR`, `TrueRange` | igual (neutral) |
+| bandas (1) | Bandas de Bollinger y canal de Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel` | igual (neutral) |
+| medias (1) | Medias móviles (SMA, EMA, LWMA, SMMA, TEMA, Hull, KAMA) y regresión lineal. | Filtro auxiliar: amplía la variedad. | `SMA`, `EMA`, `LWMA`, `SMMA`, `TEMA`, `HullMovingAverage`, `KAMA`, `LinearRegression` | igual (neutral) |
+| comparadores (1) | Mayor/menor, mayor o igual, cruces. | Filtro auxiliar: amplía la variedad. | `IsGreater`, `IsLower`, `IsGreaterOrEqual`, `IsLowerOrEqual`, `CrossesAbove`, `CrossesBelow` | `IsLower`, `IsGreater`, `IsLowerOrEqual`, `IsGreaterOrEqual`, `CrossesBelow`, `CrossesAbove` |
+| secuencias (1) | N velas seguidas por encima/debajo, subiendo/bajando. | Filtro auxiliar: amplía la variedad. | `IsGreaterCount`, `IsLowerCount`, `IsRising`, `IsFalling` | `IsLowerCount`, `IsGreaterCount`, `IsFalling`, `IsRising` |
+
+#### Niveles y rangos stop/limit
+
+| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |
+|---|---|---|---|---|
+| stl_horario (5) | Orden en el extremo de un rango horario o de sesión. | Stop sobre el rango pre-dato. | `HighestInRange`, `LowestInRange`(w1), `SessionHigh`, `SessionLow`(w1), `SessionOpen` | `LowestInRange`, `HighestInRange`, `SessionLow`, `SessionHigh`, `SessionOpen` |
+| stl_canal (2) | Orden en el máximo/mínimo de N velas. | Stop en extremo reciente. | `Highest`, `Lowest`(w1) | `Lowest`, `Highest` |
+| stl_vela (2) | Orden en el máximo/mínimo/apertura/cierre de una vela. | Stop en la vela previa. | `High`, `Low`(w1), `Open`, `Close` | `Low`, `High`, `Open`, `Close` |
+| stl_diario (1) | Orden en niveles del día. | Filtro auxiliar: amplía la variedad. | `HighD`, `LowD`, `OpenD`, `CloseD` | `LowD`, `HighD`, `OpenD`, `CloseD` |
+| stl_bandas (1) | Orden en Bollinger/Keltner. | Filtro auxiliar: amplía la variedad. | `BollingerBands`, `KeltnerChannel`, `MTKeltnerChannel` | igual (neutral) |
+| stl_rangos (3) | Desplazamiento de la orden: k·ATR, rango de vela, rango verdadero, mayor/menor rango, anchura de Bollinger. | Margen para evitar el primer pico. | `ATR`, `MTATR`, `BarRange`, `TrueRange`, `BiggestRange`, `SmallestRange`, `BBRange`, `BBWidthRatio` | igual (neutral) |
+
+#### Rangos específicos (BUY → SELL)
+
+| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |
+|---|---|---|---|
+| `Indicators.HighestInRange` | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) | `Indicators.LowestInRange` | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) |
+| `Stop/Limit Price Levels.HighestInRange` | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) | `Stop/Limit Price Levels.LowestInRange` | Time From 1200 a 1500 (paso 100); Time To 1500 a 1530 (paso 30) |
+| `Prices.SessionHigh` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 15 a 15 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionLow` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 15 a 15 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionHigh` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 15 a 15 (paso 1); End Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionLow` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1); End Hours 15 a 15 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `Prices.SessionOpen` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1) | `Prices.SessionOpen` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Stop/Limit Price Levels.SessionOpen` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1) | `Stop/Limit Price Levels.SessionOpen` | Start Hours 12 a 14 (paso 1); Start Minutes 0 a 0 (paso 1) |
+| `Prices.SessionClose` | End Hours 15 a 15 (paso 1); End Minutes 0 a 0 (paso 1) | `Prices.SessionClose` | End Hours 15 a 15 (paso 1); End Minutes 0 a 0 (paso 1) |
+| `BarHourIs` | Hour 15 a 16 (paso 1) | `BarHourIs` | Hour 15 a 16 (paso 1) |
+| `BarHourIsBigger` | Hour 14 a 16 (paso 1) | `BarHourIsBigger` | Hour 14 a 16 (paso 1) |
+| `BarHourIsSmaller` | Hour 16 a 18 (paso 1) | `BarHourIsSmaller` | Hour 16 a 18 (paso 1) |
 
 ### 4. Timeframe, símbolos y horarios
 
@@ -1582,16 +1853,16 @@ SL 1-2 ATR(10-40) de M15; objetivo opcional 1,5-4 ATR; break-even 0,5-1,5 ATR (5
 
 | Archivo | Fitness | Filtros |
 |---|---|---|
-| `Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05 |
-| `Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 375; DrawdownPct(Full) <= 20 |
-| `Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 250; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0 |
-| `Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 375 |
+| `Estrategia_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 3; WinningPct(IS) >= 35; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70; ProfitFactor(OOS) >= 1.05 |
+| `Estrategia_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: ProfitFactor (peso 1, max), ReturnDDRatio (peso 2, max) | NetProfit(OOS) > 0; ProfitFactor(OOS) >= 1.05; ReturnDDRatio(Full) >= 4.5; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170; DrawdownPct(Full) <= 20 |
+| `Ventaja_Build_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NumberOfTrades(IS) >= 210; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.15; AvgBarsInTrade(IS) >= 2; NetProfit(OOS) > 0; NumberOfTrades(OOS) >= 70 |
+| `Ventaja_Retest_ConfigInicial_H1_BUY__NewsProxy_M15_BUY` | Weighted: SQN (peso 2, max), StagnationPct (peso 1, min) | NetProfit(OOS) > 0; ProfitFactor(Full) >= 1.1; NumberOfTrades(Full) >= 580; NumberOfTrades(OOS) >= 170 |
 
-Justificación: Pocas operaciones con mucha varianza: PF + Ret/DD. Los umbrales reflejan la frecuencia y el acierto típicos del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).
+Justificación: Operaciones con mucha varianza: PF + Ret/DD. El mínimo de operaciones sale de la densidad del estilo (60/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al estilo. Los archivos SELL usan exactamente los mismos filtros.
 
 ### 7. Motor y robustez
 
-- **Builder:** población 30 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
+- **Builder:** población 40 × 4 islas, 30 generaciones, cruce 80 %, mutación 30 %, migración 10 % cada 10, reinicio por estancamiento a 15.
 - **Retest:** activo; precisión 3 (tick real + spread real); 3 condiciones. Spread aleatorio hasta 4x y deslizamiento hasta 3 pips: así es una publicación real.
 - **Monte Carlo:** activo; 200 sims; OHLC ±10 % ATR(14), desliz. 0-3, spread 2-8. Acepta: NetProfit(Full) >= 0; DrawdownPct(Full) <= 150% de DrawdownPct[main].
 - **Manipulación MC:** activo; orden de operaciones 'resampling', saltar 10 %.

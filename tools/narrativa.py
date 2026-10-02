@@ -15,7 +15,7 @@ PREGUNTAS = [
 ]
 
 SUPUESTOS = [
-    ("S1", "Símbolo", "Se conserva `GBPJPY_M1_M1_UTCPlus02` en los 32 archivos para que carguen en tu instalación "
+    ("S1", "Símbolo", "Se conserva `GBPJPY_M1_M1_UTCPlus02` en los 64 archivos para que carguen en tu instalación "
      "(es el único símbolo presente en los Setup de los 4 originales). Cada ficha indica el instrumento "
      "recomendado; cámbialo en *Data* antes de ejecutar."),
     ("S2", "Costes", "Se conservan los costes del original (spread 2, comisión SizeBased 0,7, swap -7,67/+4,30 "
@@ -27,100 +27,93 @@ SUPUESTOS = [
      "del Builder (2019-2020, o 2019.07-2020 en M5/M15)."),
     ("S5", "Horario del servidor", "UTC+2 en invierno / UTC+3 en verano siguiendo el cambio de hora de "
      "EE. UU. (convención \"cierre de Nueva York = 00:00\"). Con ella, 8:30 ET = 15:30 servidor todo el año."),
-    ("S6", "Dirección", "Sólo largos, como los originales; el kit SELL se obtiene replicando con *Market sides* = short."),
+    ("S6", "Dirección", "Dos kits por estilo: BUY (*Market sides* = long, como los originales) y SELL (*Market sides* = short) con los bloques y niveles espejados. El valor `short` del XML es deducido (sólo hay `long` en los originales): verifica la dirección al importar."),
     ("S7", "Capital y riesgo", "10.000 de capital; riesgo fijo 0,5 % (alta frecuencia) o 1 % por operación; "
      "drawdown máximo tolerable 20 % (25 % en Position/Trend)."),
     ("S8", "Build", "Los archivos son de la build 140.2099. Se asume que la build 144 los importa (SQX suele "
      "mantener compatibilidad hacia atrás), pero **no está verificado**."),
 ]
 
-FAMILY_WHY = {
+# Por qué cada familia NÚCLEO (peso ≥ 2) encaja en el estilo; las de peso 1 son filtros auxiliares que amplían la
+# variedad de estrategias sin cambiar la tesis.
+CORE_WHY = {
     "Scalping": {
-        "ruptura": "La tesis es la micro-ruptura: estos bloques definen el nivel roto.",
-        "volatilidad": "Sin expansión de volatilidad la ruptura no cubre costes; confirman que entra flujo.",
-        "oscilador": "Sólo como filtro de momentum (niveles 50-70 / 0,4-0,85), nunca como sobreventa.",
-        "tendencia": "Filtro de dirección de muy corto plazo.",
-        "nivel": "Máximos/mínimos de N velas y de la sesión asiática: los niveles que la apertura de Londres rompe.",
-        "precio": "Comparaciones de precio con los niveles.",
-        "comparador": "Construyen 'precio cruza/está sobre nivel'.",
-        "orden_nivel": "Dónde se coloca la orden stop de ruptura.",
-        "orden_offset": "Margen por encima del nivel para filtrar toques.",
+        "rup_canal": "La tesis es la micro-ruptura: define el nivel roto.",
+        "rup_bandas": "Ruptura de bandas de volatilidad: variante de la misma tesis.",
+        "vol_expansion": "Sin expansión de volatilidad la ruptura no cubre costes.",
+        "niv_canal": "Máximos/mínimos recientes: el nivel que se rompe.",
+        "niv_horario": "Extremos de la sesión asiática, que la apertura de Londres rompe.",
+        "stl_canal": "Orden stop en el extremo de N velas: materializa la ruptura.",
+        "stl_vela": "Stop sobre el extremo de la vela previa (micro-ruptura).",
+        "stl_horario": "Stop en el extremo de la sesión asiática.",
+        "stl_bandas": "Stop en la banda de volatilidad.",
+        "stl_rangos": "Margen sobre el nivel para filtrar toques.",
     },
     "DayTrading": {
-        "ruptura": "Rupturas de canal confirmadas en apertura.",
-        "tendencia": "Sesgo direccional intradía (ADX, pendientes).",
-        "volatilidad": "La ruptura necesita expansión.",
-        "tiempo": "Permiten al Builder acotar la franja de entrada dentro de la ventana global.",
-        "nivel": "Rango asiático, niveles del día anterior y aperturas de sesión: los niveles clásicos intradía.",
-        "precio": "Comparaciones con los niveles.",
-        "comparador": "Construyen las condiciones de ruptura.",
-        "orden_nivel": "Orden stop en el extremo del rango asiático/día anterior.",
-        "orden_offset": "Margen sobre el nivel.",
+        "rup_canal": "Ruptura de canal intradía.", "rup_bandas": "Ruptura de bandas.",
+        "vol_expansion": "La ruptura necesita expansión.",
+        "tiempo_intradia": "Acotan la franja de entrada dentro de la ventana global.",
+        "niv_horario": "Rango asiático y aperturas de sesión: los niveles clásicos intradía.",
+        "niv_canal": "Extremos recientes.", "niv_diario": "Niveles del día anterior.",
+        "stl_horario": "Stop en el extremo del rango asiático: el núcleo del estilo.",
+        "stl_diario": "Stop en máximo/mínimo/apertura del día.", "stl_canal": "Stop en extremo de N velas.",
+        "stl_vela": "Stop en la vela previa.", "stl_rangos": "Margen sobre el nivel.",
     },
     "Swing": {
-        "ruptura": "Ruptura de consolidaciones de varios días.",
-        "tendencia": "El swing a favor del régimen de fondo tiene más recorrido.",
-        "momentum": "Fuerza relativa (RSI > 50-70) como confirmación, no como sobrecompra.",
-        "volatilidad": "Contracción → expansión.",
-        "nivel": "Máximos de N velas, del día y de la semana.",
-        "precio": "Comparaciones con niveles.",
-        "comparador": "Incluye 'N velas seguidas por encima' (persistencia).",
-        "orden_nivel": "Stop sobre el máximo de la consolidación.",
-        "orden_offset": "Margen proporcional a la volatilidad.",
+        "rup_canal": "Ruptura de consolidaciones de varios días.", "rup_bandas": "Ruptura de bandas.",
+        "rup_ichimoku": "Salida de la nube: ruptura de equilibrio de medio plazo.",
+        "fuerza": "El swing a favor de un régimen con fuerza tiene más recorrido.",
+        "niv_canal": "Máximos de N velas.", "niv_diario": "Niveles diarios.", "niv_semanal": "Niveles semanales.",
+        "stl_canal": "Stop sobre el máximo de la consolidación.", "stl_diario": "Stop en niveles diarios.",
+        "stl_semanal": "Stop en niveles semanales.", "stl_bandas": "Stop en la banda.",
+        "stl_rangos": "Margen proporcional a la volatilidad.",
     },
     "Position": {
-        "ruptura": "Nuevos máximos de 20-250 días (momentum de series temporales).",
-        "tendencia": "Pendiente de medias largas.",
-        "momentum": "ROC en % y MACD frente a cero: escalan a cualquier precio.",
-        "nivel": "Máximos semanales/mensuales.",
-        "precio": "Comparaciones con medias y niveles.",
-        "comparador": "Condiciones simples.",
-        "volatilidad": "ATR sólo como normalizador.",
-        "orden_nivel": "Stop opcional sobre máximo.",
-        "orden_offset": "Margen en ATR.",
+        "rup_canal": "Nuevos máximos de 20-250 días (momentum de series temporales).",
+        "mom_nivel": "ROC en % y MACD/OSMA frente a cero: escalan a cualquier precio.",
+        "tend_medias": "Pendiente de medias largas.", "tend_sistemas": "Sistemas de tendencia lentos.",
+        "niv_canal": "Máximos de N días.", "niv_semanal": "Máximos semanales.", "niv_mensual": "Máximos mensuales.",
+        "medias": "Medias largas para comparar.", "stl_canal": "Stop sobre máximo de N días.",
+        "stl_semanal": "Stop sobre máximo semanal.", "stl_mensual": "Stop sobre máximo mensual.",
     },
     "TrendFollowing": {
-        "tendencia": "Núcleo del estilo: varios estimadores independientes de tendencia.",
-        "ruptura": "Entrada por ruptura de canal (Donchian/Kumo), la clásica del TF.",
-        "momentum": "Confirmación por momentum (MACD).",
-        "volatilidad": "ATR como normalizador.",
-        "nivel": "Canales para comparar.",
-        "precio": "Comparaciones.",
-        "comparador": "Condiciones simples.",
-        "orden_nivel": "Stop sobre máximo o SuperTrend.",
-        "orden_offset": "Margen en ATR.",
+        "tend_sistemas": "Núcleo: estimadores independientes de tendencia.",
+        "tend_medias": "Pendiente y posición frente a medias.", "fuerza": "Sólo operar tendencias con fuerza.",
+        "rup_canal": "Entrada por ruptura de canal (Donchian), la clásica del TF.",
+        "rup_ichimoku": "Ruptura de la nube.", "medias": "Medias para comparar.", "sistemas": "SuperTrend/PSAR/Ichimoku.",
+        "niv_canal": "Canales.", "stl_canal": "Stop sobre máximo reciente.", "stl_sistemas": "Stop en SuperTrend/PSAR.",
+        "stl_rangos": "Margen en ATR.",
     },
     "Range": {
-        "sobreventa": "Núcleo: identificar el exceso bajista que se espera que revierta.",
-        "oscilador": "Restringido a zona de sobreventa.",
-        "regimen_lateral": "Imprescindible: la reversión sólo funciona sin tendencia.",
-        "nivel": "Bandas y extremos que delimitan el rango.",
-        "tendencia": "Medias como 'centro' del rango (objetivo/regla de salida).",
-        "precio": "Comparaciones con bandas.",
-        "comparador": "Construyen 'precio frente a banda/media'; IsLowerCount mide agotamiento (N velas por debajo).",
-        "ruptura": "Sólo la recuperación tras falsa ruptura bajista.",
-        "orden_nivel": "Orden límite en la banda/mínimo: se compra el exceso.",
-        "orden_offset": "Distancia de la orden límite bajo el nivel.",
+        "rev_bandas": "Núcleo: exceso fuera de banda y reentrada.",
+        "sobreventa": "Identificar el exceso que se espera que revierta.",
+        "lateral": "Imprescindible: la reversión sólo funciona sin tendencia.",
+        "falsa_ruptura": "Recuperación tras perforar el extremo del rango.",
+        "bandas": "Bandas que delimitan el rango.", "medias": "Centro del rango (objetivo/regla de salida).",
+        "niv_canal": "Extremos del rango.", "osciladores": "Valores de osciladores para comparar.",
+        "secuencias": "Agotamiento: N velas seguidas en contra.",
+        "stl_bandas": "Orden límite en la banda: se opera el exceso.", "stl_canal": "Límite en el extremo de N velas.",
+        "stl_vela": "Límite en el extremo de la vela.", "stl_medias": "Límite en la media.",
+        "stl_rangos": "Distancia de la orden límite.",
     },
     "PriceAction": {
-        "vela": "Núcleo: patrones de rechazo y absorción alcistas.",
-        "ruptura": "Recuperación tras falsa ruptura / ruptura de máximos recientes.",
-        "precio": "OHLC y Heikin-Ashi: estructura pura.",
-        "nivel": "Contexto: máximos/mínimos del día, semana, sesión y fractales.",
-        "volatilidad": "Sólo rango verdadero/ATR para normalizar tamaños de vela.",
-        "comparador": "Secuencias (N velas al alza/baja, máximos crecientes).",
-        "orden_nivel": "Stop sobre el máximo de la vela señal (confirmación clásica).",
-        "orden_offset": "Margen en rango de vela/ATR.",
+        "velas": "Núcleo: patrones de rechazo y absorción.", "falsa_ruptura": "Trampa: perforación y recuperación.",
+        "rup_canal": "Ruptura de estructura reciente.", "precio": "OHLC: estructura pura.",
+        "heiken": "Heikin-Ashi: estructura suavizada.", "niv_diario": "Contexto: niveles del día.",
+        "niv_canal": "Extremos recientes.", "estructura": "Fractales.",
+        "comparadores": "Comparaciones de precio.", "secuencias": "Secuencias de velas (máximos crecientes…).",
+        "stl_vela": "Stop sobre el extremo de la vela señal: la confirmación clásica.",
+        "stl_canal": "Stop en extremo reciente.", "stl_diario": "Stop en nivel diario.",
+        "stl_estructura": "Stop en fractal.", "stl_rangos": "Margen en rango de vela/ATR.",
     },
     "NewsProxy": {
-        "tiempo": "Aproximación al calendario: hora (15-16) y día de la semana.",
-        "volatilidad": "La publicación se manifiesta como expansión súbita de rango.",
-        "ruptura": "Ruptura del rango previo a la publicación.",
-        "nivel": "Rango 12:00-15:00 → 15:00/15:30 (pre-dato).",
-        "precio": "Comparaciones.",
-        "comparador": "Condiciones.",
-        "orden_nivel": "Stop sobre el rango pre-dato.",
-        "orden_offset": "Margen en ATR/rango verdadero para evitar el primer pico.",
+        "tiempo_intradia": "Aproximación al calendario: hora (15-16) y día de la semana.",
+        "vol_expansion": "La publicación se manifiesta como expansión súbita de rango.",
+        "vol_tick": "Pico de actividad en la publicación.", "rup_canal": "Ruptura del rango previo.",
+        "rup_bandas": "Ruptura de bandas.", "niv_horario": "Rango 12:00-15:00 → 15:00/15:30 (pre-dato).",
+        "niv_canal": "Extremos recientes.", "volat_ind": "ATR/rango verdadero para medir la expansión.",
+        "stl_horario": "Stop sobre el rango pre-dato.", "stl_canal": "Stop en extremo reciente.",
+        "stl_vela": "Stop en la vela previa.", "stl_rangos": "Margen para evitar el primer pico.",
     },
 }
 
@@ -186,10 +179,10 @@ NARR = {
                 "00:00). Mantiene posiciones de noche y fin de semana (`RealisticGapsHandling` = true se "
                 "conserva para simular gaps).",
         salidas="SL 1,5-3,5 ATR(14-100) de H4; objetivo opcional 2-6 ATR; trailing 2-4 ATR (50 %); break-even "
-                "(30 %); salida temporal 10-40 velas = 2-7 días (30 %). Riesgo 1 %; 1 entrada/día.",
+                "(30 %); salida temporal 6-30 velas = 1-5 días (40 %). Riesgo 1 %; hasta 2 entradas/día.",
         sobreajuste=[
-            "~30 operaciones/año: la significación estadística es limitada. Mitigación: Stability en la "
-            "fitness, OOS 2019-2020, holdout 2021-2024 y validación multi-mercado.",
+            "≥45 operaciones/año exigidas (≈310 en 7,25 años): muestra suficiente, pero sigue siendo "
+            "recomendable Stability en la fitness, OOS 2019-2020, holdout 2021-2024 y validación multi-mercado.",
             "Sensibilidad al punto de inicio: MC con vela de inicio aleatoria.",
             "Swap: el original aplica el swap del Dow; con GBPJPY el carry real cambia el resultado de un swing.",
         ],
@@ -203,13 +196,15 @@ NARR = {
         alternativa="",
     ),
     "Position": dict(
-        horario="D1 sin filtro horario. Las posiciones duran de semanas a meses; el swap es un componente "
-                "principal del resultado.",
-        salidas="SL 2,5-6 ATR(20-100) diario obligatorio, **sin objetivo**, trailing 3-6 ATR (70 %), salida "
-                "temporal 60-250 días (30 %) y salida por regla (50 %). Riesgo 1 %.",
+        horario="D1 sin filtro horario. Las posiciones duran de 1 a 8 semanas; el swap es un componente "
+                "importante del resultado.",
+        salidas="SL 2,5-5 ATR(20-100) diario obligatorio, **sin objetivo**, trailing 2,5-5 ATR (70 %), salida "
+                "temporal 10-40 días (30 %) y salida por regla (50 %). Riesgo 1 %.",
         sobreajuste=[
-            "Con 2013-2024 (≈11 años) un sistema de meses hace 40-90 operaciones: elegir la mejor entre miles "
-            "de candidatas con esa muestra es minería de datos casi pura. Máximo 2 condiciones de entrada.",
+            "Límite físico: con una sola posición abierta y duraciones de semanas, un mercado no da más de "
+            "~20-25 operaciones/año. Se exige ese máximo razonable (≥150 en 7,25 años); 300 en 7 años sólo es "
+            "posible acortando la duración (eso ya es Swing/Trend) o construyendo sobre varios mercados. "
+            "Máximo 2 condiciones de entrada.",
             "Dependencia de 2-3 tendencias grandes: what-if sin las 2 mejores operaciones.",
             "Sin OOS en el Builder (no hay muestra suficiente): toda la validación recae en el Retest y en "
             "otros mercados.",
@@ -226,8 +221,8 @@ NARR = {
         alternativa="",
     ),
     "TrendFollowing": dict(
-        horario="H4 sin filtro horario; mantiene posiciones días o semanas.",
-        salidas="SL 2-4 ATR(14-100); **trailing 2,5-5 ATR como salida principal (80 %)**; objetivo raro y "
+        horario="H1 con la ventana original 01:30-23:30 (evita el rollover); mantiene posiciones de 1 a 5 días.",
+        salidas="SL 2-4 ATR(14-100) de H1; **trailing 2,5-5 ATR como salida principal (80 %)**; objetivo raro y "
                 "lejano (4-10 ATR, 30 %); salida por regla (50 %). Acierto esperado 30-40 %. Riesgo 1 %.",
         sobreajuste=[
             "Pocas operaciones ganadoras explican todo el beneficio: what-if sin las 2 mejores y 2 peores.",
@@ -235,8 +230,8 @@ NARR = {
             "En un solo símbolo el resultado depende de pocas tendencias: validar en cesta.",
         ],
         validacion=[
-            "`Ventaja_Build…TrendFollowing_H4` (salida 2-10 días) → `Ventaja_Retest…`.",
-            "`Estrategia_Build…` → `Estrategia_Retest…TrendFollowing_H4`.",
+            "`Ventaja_Build…TrendFollowing_H1` (salida 12 h-3 días) → `Ventaja_Retest…`.",
+            "`Estrategia_Build…` → `Estrategia_Retest…TrendFollowing_H1`.",
             "Retest en 5+ mercados no correlacionados.",
             "Walk-Forward Matrix y comprobación de rachas perdedoras máximas frente a tu tolerancia.",
         ],

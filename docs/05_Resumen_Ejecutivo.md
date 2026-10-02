@@ -23,10 +23,16 @@ una salida por tiempo; (2) `Ventaja_Retest` las valida; (3) `Estrategia_Build` c
 6. **Aciertos a conservar:** arquitectura ventaja → estrategia, *holdout* 2021-2024, SL en ATR con riesgo fijo no
    compuesto, ventana anti-rollover, retest con tick real, Monte Carlo de OHLC y SPP.
 
-**Viabilidad (32 combinaciones).** Todas configurables. Swing y Trend Following encajan casi directamente; Day Trading,
-Range y Price Action requieren cambios estructurales (órdenes stop/límite, cierres, paleta de bloques); Position queda
-**condicionado a más datos** (≥15 años); Scalping sólo como **aproximación en M5** (el de ticks no es representable) y
-News Trading sólo como **aproximación horaria** (SQX no tiene calendario económico).
+**Viabilidad (32 combinaciones × BUY/SELL).** Todas configurables. Swing y Trend Following (en H1) encajan casi
+directamente; Day Trading, Range y Price Action requieren cambios estructurales (órdenes stop/límite, cierres, paleta de
+bloques); Position queda **condicionado a más datos** y a un límite físico de ~20 operaciones/año por mercado; Scalping
+sólo como **aproximación en M5** (el de ticks no es representable) y News Trading sólo como **aproximación horaria**
+(SQX no tiene calendario económico).
+
+**Revisión 2 de los archivos:** (1) paletas amplias de 26-119 señales, 37-52 indicadores y 26-40 niveles stop/limit por
+estilo (núcleo con peso alto + filtros a peso 1, sin bloques de nivel absoluto); (2) mínimo de operaciones por densidad
+(≥41/año como el original; 45-300/año según estilo, salvo Position 20/año) en IS, OOS y Retest; (3) kits **SELL** con
+`Market sides = short` y bloques/niveles espejados.
 
 **Qué se entrega**
 
@@ -34,9 +40,9 @@ News Trading sólo como **aproximación horaria** (SQX no tiene calendario econ�
 |---|---|---|
 | A) Análisis por archivo | `docs/00_*`, `docs/01_*` | Completo |
 | B) Matriz de viabilidad | `docs/02_*` | Completo |
-| C) 8 fichas de diseño (32 configuraciones) | `docs/03_*` | Completo, con preguntas y supuestos explícitos |
+| C) 8 fichas de diseño (64 configuraciones) | `docs/03_*` | Completo, con preguntas y supuestos explícitos |
 | D) **Guía manual paso a paso** (opción principal) | `docs/04_*` §A | Completo |
-| D) 32 `.cfx` **experimentales, no validados en SQX** | `configs/` + `docs/cambios/` | Validación estática superada (`docs/validacion/`) |
+| D) 64 `.cfx` **experimentales, no validados en SQX** (32 BUY + 32 SELL) | `configs/` + `docs/cambios/` | Validación estática superada (`docs/validacion/`) |
 | E) Lista de verificación | `docs/04_*` §E | Completo |
 | Herramientas para regenerar todo | `tools/` | Reproducible |
 
@@ -49,8 +55,8 @@ costes reales distintos de los modelados, cambio de régimen de mercado y depend
 1. Responder a las 5 preguntas de docs/03 (instrumento/bróker, datos tick y zona horaria, capital/DD, dirección/
    plataforma, calendario de noticias) y ajustar `tools/estilos.py` en consecuencia.
 2. Corregir símbolo y costes en los kits que vayas a usar (checklist E.1, puntos 2-4).
-3. Empezar por el kit **Swing** (el más cercano al original): cargarlo, verificarlo con la checklist y hacer una prueba
-   corta de 15 minutos.
+3. Empezar por el kit **Swing** (el más cercano al original), BUY y SELL: cargarlo, verificarlo con la checklist (en SELL,
+   comprobar que la dirección es *Short only*) y hacer una prueba corta de 15 minutos.
 4. Ejecutar siempre primero **Ventaja_Build → Ventaja_Retest**; si no hay entradas con ventaja robusta, no pasar a
    construir salidas.
 5. Para las supervivientes: `Estrategia_Build → Estrategia_Retest`, Walk-Forward Matrix en el Optimizer (docs/04 §A.4)

@@ -19,7 +19,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sqx_cfx import Patcher, load_cfx, save_cfx  # noqa: E402
-from estilos import COMMON_WHY, STYLES  # noqa: E402
+from estilos import COMMON_WHY, SIDES, STYLES, min_trades  # noqa: E402
+from familias import compose  # noqa: E402
 
 ORIGINALS = {
     "EB": "Estrategia_Build_ConfigInicial_H1_BUY",
@@ -29,6 +30,11 @@ ORIGINALS = {
 }
 KIND_LABEL = {"EB": "Builder de estrategia completa", "ER": "Retester de estrategia completa",
               "VB": "Builder de test de ventaja (entrada)", "VR": "Retester de test de ventaja"}
+
+
+def cfx_name(base: str, st: dict, side: str) -> str:
+    """<Original>__<Estilo>_<TF>_<BUY|SELL> (sin extensión)."""
+    return f"{base}__{st['name']}_{st['tf']}_{side}"
 
 
 def locate(dir_: Path, base: str) -> Path:
@@ -82,8 +88,8 @@ def patch_mm(p: Patcher, kind: str, st: dict):
                   if st["risk"] < 100 else "1 %, como el original."))
 
 
-def patch_notes(p: Patcher, st: dict, kind: str, orig: str):
-    note = (f"<b>{st['title']} – {KIND_LABEL[kind]}</b><div>Derivado de {orig} (build 140.2099). "
+def patch_notes(p: Patcher, st: dict, kind: str, orig: str, side: str):
+    note = (f"<b>{st['title']} – {KIND_LABEL[kind]} – {side}</b><div>Derivado de {orig} (build 140.2099). "
             f"Timeframe {st['tf']}. Ver docs/03 (ficha {st['name']}) y docs/04 (checklist).</div>"
             "<div>NO VALIDADO EN SQX: revisar símbolo, costes, horario del servidor e importación.</div>")
     p.text("Settings/Notes", note, "Notes", "Notes", "Descripción del estilo y advertencias.")
@@ -95,10 +101,14 @@ def fitness(p: Patcher, tpl: ET.Element, goals: dict, why: str):
 
 
 # =========================================================================== Builder
-def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new_name: str, orig: str):
+def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new_name: str, orig: str, side: str):
     E = kind == "EB"
     patch_root(p, new_name)
     patch_options(p, st)
+    if side == "SELL":
+        p.attr("Settings/WhatToBuild/MarketSides", "type", "short", "What to build", "MarketSides@type",
+               "Kit SELL: sólo ventas. Sin simetría, SQX usa los bloques tal cual, por eso se activan los "
+               "equivalentes bajistas (espejo) en Building blocks.")
 
     # --- What to build
     stype = p.find("Settings/WhatToBuild/StrategyType")
@@ -179,10 +189,12 @@ def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new
 
     # --- Filtros de población inicial y finales
     f = st["filt"]
+    mt = min_trades(st)
+    tr = mt["is"]
     if E:
-        tr, rd, wn, pf, ab = f["trades"], f["retdd"], f["win"], f["pf"], f["avgbars"]
+        rd, wn, pf, ab = f["retdd"], f["win"], f["pf"], f["avgbars"]
     else:
-        tr, rd, wn, ab = f["trades"], round(f["retdd"] / 2, 2), max(30, f["win"] - 5), f["avgbars"]
+        rd, wn, ab = round(f["retdd"] / 2, 2), max(30, f["win"] - 5), f["avgbars"]
         pf = 1.3 if st["name"] == "Position" else 1.15
     init = [("ReturnDDRatio", ">=", round(rd * (0.625 if E else 0.5), 2), "IS"),
             ("AvgBarsInTrade", ">=", ab, "IS"),
@@ -196,12 +208,14 @@ def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new
              ("AvgBarsInTrade", ">=", ab, "IS")]
     if st["valid"]:
         final.append(("NetProfit", ">", 0, "OOS"))
+        final.append(("NumberOfTrades", ">=", mt["oos"], "OOS"))
         if E and f["oos_pf"]:
             final.append(("ProfitFactor", ">=", f["oos_pf"], "OOS"))
     p.replace_conditions(p.find("Settings/Rankings/Conditions"), final, "main", "Ranking",
                          "Rankings/Conditions (filtros)",
-                         "Umbrales del estilo (frecuencia, acierto típico, Ret/DD) + exigencia en el tramo de "
-                         "validación OOS, que el original no tenía."
+                         f"Mínimo de operaciones = {mt['per_year']}/año × años de cada tramo (el original exigía "
+                         "300 en 7,25 años ≈ 41/año; ningún estilo baja de esa densidad salvo Position) + "
+                         "umbrales del estilo + exigencia en el tramo de validación OOS, que el original no tenía."
                          + ("" if E else " Test de ventaja: Ret/DD a la mitad, PF mínimo 1,15."))
     fitness(p, weighted_tpl, st["fitness"] if E else st["edge_fitness"],
             st["fitness_why"] if E else "SQN mide la calidad estadística de la entrada (expectativa/desviación·√N); "
@@ -215,21 +229,22 @@ def patch_builder(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new
                  if bd[0] == "2013.09.30" else "M5/M15: 5 años bastan en operaciones y reducen el cómputo."))
     patch_oos(p, st["valid"], "Nuevo tramo de validación dentro del Builder (el original no tenía OOS y "
               "filtraba sólo sobre IS)." if st["valid"] else
-              "Sin OOS en el Builder: con ~8 operaciones/año un tramo de 2 años no es informativo; la "
+              "Sin OOS en el Builder: con ~20 operaciones/año un tramo de 2 años (≈40) es poco informativo; la "
               "validación se hace en el Retest (2021-2024).")
     for s in p.findall("Settings/CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup"):
         p.set_attr(s.find("Chart"), "timeframe", st["tf"], "Cross checks", "RetestOnAdditionalMarkets/Setup@timeframe",
                    "Coherencia si se activa (sigue desactivado).")
 
     # --- Bloques
-    patch_blocks(p, st)
+    patch_blocks(p, st, side)
     patch_order_types(p, st, kind)
     patch_exit_types(p, st, kind)
-    patch_notes(p, st, kind, orig)
+    patch_notes(p, st, kind, orig, side)
 
 
-def patch_blocks(p: Patcher, st: dict):
-    wanted = {**st["signals"], **st["indicators"], **st["stoplimit"]}
+def patch_blocks(p: Patcher, st: dict, side: str):
+    sig, ind, stl, params = compose(st["blocks"], side)
+    wanted = {**sig, **ind, **stl}
     blocks = {b.get("key"): b for b in p.findall("Settings/Blocks/BuildingBlocks/Block")}
     missing = [k for k in wanted if k not in blocks]
     if missing:
@@ -249,9 +264,11 @@ def patch_blocks(p: Patcher, st: dict):
                 p.touched.add((id(b), "weight"))
         new_on = sorted(k for k, b in blocks.items() if b.get("category") == cat and b.get("use") == "true")
         p._log("Building blocks", f"Bloques activos · {cat}", f"{len(old_on)} activos",
-               f"{len(new_on)} activos: " + ", ".join(f"{k}(w{wanted[k]})" for k in new_on), st["block_why"])
-    for k, ranges in st["block_params"].items():
-        p.block_params(blocks[k], ranges, "Rango acotado al estilo (ver ficha).")
+               f"{len(new_on)} activos: " + ", ".join(f"{k}(w{wanted[k]})" for k in new_on),
+               st["block_why"] + (" Versión SELL: bloques y niveles espejados." if side == "SELL" else ""))
+    for k, ranges in params.items():
+        p.block_params(blocks[k], ranges, "Rango acotado al estilo (ver ficha)"
+                       + (" y espejado para SELL." if side == "SELL" else "."))
 
 
 def patch_order_types(p: Patcher, st: dict, kind: str):
@@ -344,9 +361,10 @@ def patch_exit_types(p: Patcher, st: dict, kind: str):
 
 
 # =========================================================================== Retest
-def patch_retest(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new_name: str, orig: str):
+def patch_retest(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new_name: str, orig: str, side: str):
     E = kind == "ER"
     r, f = st["retest"], st["filt"]
+    mt = min_trades(st)
     patch_root(p, new_name)
     patch_options(p, st)
     patch_mm(p, kind, st)
@@ -363,12 +381,14 @@ def patch_retest(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new_
         if f["oos_pf"]:
             conds.append(("ProfitFactor", ">=", f["oos_pf"], "OOS"))
         conds += [("ReturnDDRatio", ">=", round(f["retdd"] * 1.5, 2), "FULL"),
-                  ("NumberOfTrades", ">=", int(f["trades"] * 1.5), "FULL"),
+                  ("NumberOfTrades", ">=", mt["full"], "FULL"),
+                  ("NumberOfTrades", ">=", mt["holdout"], "OOS"),
                   ("DrawdownPct", "<=", r["dd_max"], "FULL")]
     else:
         conds = [("NetProfit", ">", 0, "OOS"),
                  ("ProfitFactor", ">=", 1.2 if st["name"] == "Position" else 1.1, "FULL"),
-                 ("NumberOfTrades", ">=", int(f["trades"] * 1.5), "FULL")]
+                 ("NumberOfTrades", ">=", mt["full"], "FULL"),
+                 ("NumberOfTrades", ">=", mt["holdout"], "OOS")]
     p.replace_conditions(p.find("Settings/Rankings/Conditions"), conds, "portfolio", "Ranking",
                          "Rankings/Conditions (filtros)",
                          "El original no filtraba nada en el Retest (todas use=false) y no borraba fallidos: "
@@ -449,7 +469,7 @@ def patch_retest(p: Patcher, st: dict, kind: str, weighted_tpl: ET.Element, new_
                    "Estilo de pocas ganancias grandes: se quitan las 2 mejores y 2 peores (no el 5 %, que "
                    "por diseño destruiría cualquier sistema tendencial).")
 
-    patch_notes(p, st, kind, orig)
+    patch_notes(p, st, kind, orig, side)
 
 
 # =========================================================================== cobertura del registro
@@ -472,10 +492,10 @@ def diff_unlogged(orig: ET.Element, new: ET.Element, p: Patcher, path="Task") ->
 
 
 # =========================================================================== salida
-def write_changes_md(path: Path, title: str, orig: str, st: dict, kind: str, changes):
+def write_changes_md(path: Path, title: str, orig: str, st: dict, kind: str, changes, side: str):
     lines = [f"# {title}", "",
              f"*Original:* `{orig}.cfx` · *Estilo:* {st['title']} · *Timeframe:* {st['tf']} · "
-             f"*Rol:* {KIND_LABEL[kind]}", "",
+             f"*Rol:* {KIND_LABEL[kind]} · *Dirección:* {side}", "",
              "Tabla generada automáticamente a partir de los cambios aplicados al XML (cada fila es un valor "
              "que difiere del original). Estado: **no validado en SQX** (ver docs/04).", "",
              "| Sección | Parámetro | Valor original | Valor nuevo | Justificación |",
@@ -504,24 +524,25 @@ def main(argv=None):
     for st in STYLES:
         if a.estilo and st["name"] not in a.estilo:
             continue
-        for kind, base in ORIGINALS.items():
-            pristine = load_cfx(paths[kind])
-            work = copy.deepcopy(pristine)
-            p = Patcher(work)
-            new_name = f"{base}__{st['name']}_{st['tf']}"
-            if kind in ("EB", "VB"):
-                patch_builder(p, st, kind, tpl_build, new_name, base)
-            else:
-                patch_retest(p, st, kind, tpl_retest, new_name, base)
-            unlogged = diff_unlogged(pristine, work, p)
-            if unlogged:
-                errors += 1
-                print(f"[ERROR] {new_name}: cambios sin registrar:\n  " + "\n  ".join(unlogged[:20]))
-            out = a.salida / st["name"] / f"{new_name}.cfx"
-            save_cfx(work, out)
-            write_changes_md(a.docs / f"{new_name}.md", new_name, base, st, kind, p.changes)
-            index.append((st["name"], kind, out, len(p.changes)))
-            print(f"OK {out.relative_to(root)}  ({len(p.changes)} cambios registrados)")
+        for side in SIDES:
+            for kind, base in ORIGINALS.items():
+                pristine = load_cfx(paths[kind])
+                work = copy.deepcopy(pristine)
+                p = Patcher(work)
+                new_name = cfx_name(base, st, side)
+                if kind in ("EB", "VB"):
+                    patch_builder(p, st, kind, tpl_build, new_name, base, side)
+                else:
+                    patch_retest(p, st, kind, tpl_retest, new_name, base, side)
+                unlogged = diff_unlogged(pristine, work, p)
+                if unlogged:
+                    errors += 1
+                    print(f"[ERROR] {new_name}: cambios sin registrar:\n  " + "\n  ".join(unlogged[:20]))
+                out = a.salida / st["name"] / f"{new_name}.cfx"
+                save_cfx(work, out)
+                write_changes_md(a.docs / f"{new_name}.md", new_name, base, st, kind, p.changes, side)
+                index.append((st["name"], kind, out, len(p.changes)))
+                print(f"OK {out.relative_to(root)}  ({len(p.changes)} cambios registrados)")
     print(f"\n{len(index)} archivos generados, {errors} con cambios sin registrar.")
     return 1 if errors else 0
 

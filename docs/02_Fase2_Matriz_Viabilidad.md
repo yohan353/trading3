@@ -12,16 +12,20 @@ sus versiones pasan a modo `simple` (autónomo); el modo plantilla sigue siendo 
 
 ### Horizonte y costes por estilo
 
-| Estilo | Timeframe elegido | Mantenimiento típico | Operaciones/año esperables | Coste (spread 2 pips GBPJPY) / ATR del TF (B, orden de magnitud) | Sensibilidad a costes |
+| Estilo | Timeframe elegido | Mantenimiento típico | Operaciones/año exigidas (mínimo) | Coste (spread 2 pips GBPJPY) / ATR del TF (B, orden de magnitud) | Sensibilidad a costes |
 |---|---|---|---|---|---|
-| Scalping | M5 | 15 min – 3 h | 200-600 | ≈ 20-40 % del ATR(M5) | **Extrema** |
-| Day Trading | M15 | 1 – 10 h, plano al cierre | 80-200 | ≈ 13-20 % del ATR(M15) | Alta |
-| Swing | H4 | 2 – 10 días | 20-60 | ≈ 3 % del ATR(H4) | Baja (swap relevante) |
-| Position | D1 | 1 – 12 meses | 4-10 | ≈ 1-2 % del ATR(D1) | Muy baja (swap dominante) |
-| Trend Following | H4 | 1 – 6 semanas | 15-40 | ≈ 3 % | Baja |
-| Range | H1 | 3 – 30 h | 40-120 | ≈ 6-10 % del ATR(H1) | Media |
-| Price Action | H1 | 3 – 30 h | 40-120 | ≈ 6-10 % | Media |
-| Noticias (proxy) | M15 | 30 min – 4 h | 100-250 | spread y deslizamiento reales ×3-×10 en la publicación | **Extrema** |
+| Scalping | M5 | 15 min – 3 h | 300 | ≈ 20-40 % del ATR(M5) | **Extrema** |
+| Day Trading | M15 | 1 – 10 h, plano al cierre | 120 | ≈ 13-20 % del ATR(M15) | Alta |
+| Swing | H4 | 1 – 5 días | 45 | ≈ 3 % del ATR(H4) | Baja (swap relevante) |
+| Position | D1 | 1 – 8 semanas | 20 (límite físico, ver motivo 4) | ≈ 1-2 % del ATR(D1) | Muy baja (swap dominante) |
+| Trend Following | H1 | 1 – 5 días | 50 | ≈ 6-10 % del ATR(H1) | Media |
+| Range | H1 | 3 – 30 h | 60 | ≈ 6-10 % del ATR(H1) | Media |
+| Price Action | H1 | 3 – 30 h | 60 | ≈ 6-10 % | Media |
+| Noticias (proxy) | M15 | 30 min – 4 h | 60 | spread y deslizamiento reales ×3-×10 en la publicación | **Extrema** |
+
+El mínimo de operaciones de cada archivo es *operaciones/año × años del tramo* (IS, OOS de validación, periodo
+completo y holdout del Retest). El original exigía 300 en 7,25 años (≈41/año); salvo Position, ningún estilo baja de
+esa densidad.
 
 (Los ATR de GBPJPY 2013-2024 se han estimado por orden de magnitud: M5 ≈ 5-10 pips, M15 ≈ 10-15, H1 ≈ 20-35, H4 ≈ 50-80,
 D1 ≈ 100-150. Compruébalos con tus datos; la conclusión cualitativa no cambia.)
@@ -49,14 +53,17 @@ D1 ≈ 100-150. Compruébalos con tus datos; la conclusión cualitativa no cambi
    final del día (`ExitAtEndOfDay`), rangos horarios en horas válidas, M15. Los Retest sólo cambian timeframe/opciones.
 3. **Swing.** El estilo más cercano al original (H1 con SL/PT en ATR y mantenimiento de horas a días): basta pasar a
    H4 y reparametrizar.
-4. **Position.** Técnicamente representable (D1, salidas por trailing/tiempo), pero con los datos 2013-2024 un sistema
-   de meses hace 40-90 operaciones: estadística insuficiente para un Builder genético (riesgo de minería de datos
-   extremo) y para el Monte Carlo de manipulación. Viable **si se amplían los datos (≥15-20 años) y se valida en varios
-   mercados**. El swap pasa a ser una parte principal del resultado (y el del original es incorrecto).
-5. **Trend Following (test de ventaja).** El Builder y los Retest encajan (H4, trailing). Pero el test de ventaja con
-   **salida a tiempo fijo trunca la cola derecha**, que es justo donde está la ventaja del seguimiento de tendencia:
-   puede rechazar entradas válidas. Se compensa alargando la salida temporal (2-10 días) y, si hace falta, con un test
-   alternativo de ventaja con trailing como única salida.
+4. **Position.** Técnicamente representable (D1, salidas por trailing/tiempo), pero hay un **límite físico de
+   operaciones**: con una sola posición abierta y duraciones de semanas, un mercado no da más de ~20-25 operaciones/año
+   (≈150 en 7 años). Para llegar a 300 en 7 años habría que acortar la duración (eso ya es Swing/Trend) o construir
+   sobre varios mercados. Se configura con duraciones de 1-8 semanas y un mínimo de 20/año; es viable **si se amplían
+   los datos (≥15-20 años) y se valida en varios mercados**. El swap es una parte importante del resultado (y el del
+   original es incorrecto).
+5. **Trend Following (test de ventaja).** El Builder y los Retest encajan (trailing). Se usa **H1** en lugar de H4 para
+   que la muestra alcance ≥50 operaciones/año (tendencias de 1-5 días). El test de ventaja con **salida a tiempo fijo
+   trunca la cola derecha**, que es justo donde está la ventaja del seguimiento de tendencia: puede rechazar entradas
+   válidas. Se compensa con una salida temporal larga (12 h-3 días) y, si hace falta, con un test alternativo de
+   ventaja con trailing como única salida.
 6. **Range.** Es la lógica opuesta a la del original (reversión, no ruptura): órdenes **límite**, objetivo corto
    obligatorio, osciladores restringidos a sobreventa y filtros de régimen lateral. GBPJPY es tendencial: el símbolo
    debería cambiarse (EURCHF/EURGBP/AUDNZD). Los Retest sólo cambian el what-if (exclusión de extremos).
@@ -86,8 +93,14 @@ D1 ≈ 100-150. Compruébalos con tus datos; la conclusión cualitativa no cambi
   Trading, Swing, Trend y Range; se describe cómo configurarlo a mano en docs/04 §A.4. En Position no es fiable
   (pocas operaciones por ventana) y se sustituye por SPP + multi-mercado.
 
+## Dirección: kits BUY y SELL
+
+Todas las celdas son válidas para ambas direcciones: el kit SELL es el mismo diseño con `Market sides = short` y los
+bloques y niveles espejados. Matices: en activos con deriva alcista de largo plazo (índices, oro) el SELL de Position
+y Trend Following encontrará menos estrategias robustas; en FX el swap corto puede ser positivo o negativo según el par.
+
 ## Conclusión de la fase
 
-Las 32 combinaciones se pueden configurar en SQX; ninguna se descarta, pero dos se entregan **explícitamente como
+Las 32 combinaciones (64 con BUY y SELL) se pueden configurar en SQX; ninguna se descarta, pero dos se entregan **explícitamente como
 aproximaciones** (Scalping en M5 y Noticias por ventana horaria) y una (Position) queda **condicionada a disponer de más
 datos**. Antes de diseñar se formulan las preguntas abiertas y los supuestos (docs/03, al inicio).

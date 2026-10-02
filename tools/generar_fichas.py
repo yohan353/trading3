@@ -12,9 +12,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sqx_cfx import Patcher, load_cfx  # noqa: E402
 from estilos import STYLES  # noqa: E402
-from generar_cfx import ORIGINALS, locate  # noqa: E402
-from bloques_info import BLOCK_INFO, FAMILY_LABEL  # noqa: E402
-from narrativa import FAMILY_WHY, NARR, PREGUNTAS, SUPUESTOS  # noqa: E402
+from generar_cfx import ORIGINALS, cfx_name, locate  # noqa: E402
+from estilos import min_trades  # noqa: E402
+from familias import FAMILIA_DESC, IND, SIG, STL, compose, mirror_key  # noqa: E402
+from narrativa import CORE_WHY, NARR, PREGUNTAS, SUPUESTOS  # noqa: E402
 
 BASE = Path(__file__).resolve().parent.parent
 
@@ -252,15 +253,22 @@ def table(rows, orig, new, st, narr, kind):
 def ficha(st, origs) -> list[str]:
     n = st["name"]
     narr = NARR[n]
-    files = {k: BASE / "configs" / n / f"{v}__{n}_{st['tf']}.cfx" for k, v in ORIGINALS.items()}
+    files = {k: BASE / "configs" / n / f"{cfx_name(v, st, 'BUY')}.cfx" for k, v in ORIGINALS.items()}
+    files_sell = {k: BASE / "configs" / n / f"{cfx_name(v, st, 'SELL')}.cfx" for k, v in ORIGINALS.items()}
     new = {k: load_cfx(p) for k, p in files.items()}
+    mt = min_trades(st)
     L = [f"## {n}", "", f"**{st['title']}** · timeframe `{st['tf']}`", ""]
     if narr["alternativa"]:
         L += [f"> **Viabilidad:** {narr['alternativa']}", ""]
-    L += ["**Archivos del kit** (todos *no validados en SQX*):", ""]
-    for k, p in files.items():
-        L.append(f"- `{p.relative_to(BASE)}` — tabla completa de cambios: "
-                 f"[`docs/cambios/{p.stem}.md`](cambios/{p.stem}.md)")
+    L += ["**Archivos del kit** (todos *no validados en SQX*; tabla completa de cambios en `docs/cambios/`):", "",
+          "| Rol | BUY | SELL |", "|---|---|---|"]
+    for k in ORIGINALS:
+        b, sl = files[k], files_sell[k]
+        L.append(f"| {k} | [`{b.name}`](cambios/{b.stem}.md) | [`{sl.name}`](cambios/{sl.stem}.md) |")
+    L += ["", f"**Operaciones mínimas exigidas** ({mt['per_year']}/año): Builder IS ≥ {mt['is']}"
+          + (f", OOS 2019-2020 ≥ {mt['oos']}" if mt["oos"] else "")
+          + f" (≈{mt['is'] + mt['oos']} en {mt['build_total_years']:.1f} años de construcción); Retest periodo "
+          f"completo ≥ {mt['full']} y holdout 2021-2024 ≥ {mt['holdout']}."]
     L += ["", "### 1. Tesis", "", st["tesis"], "",
           "### 2. Cambios respecto al original", "",
           "#### 2.a Builder de estrategia completa (`Estrategia_Build`)", ""]
@@ -273,18 +281,39 @@ def ficha(st, origs) -> list[str]:
     for label, fn, _w in RETEST_ROWS:
         if fn(new["ER"]) != fn(new["VR"]):
             L.append(f"- **{label}:** {esc(fn(new['VR']))}")
+    sig, ind, stl, params = compose(st["blocks"], "BUY")
+    sig_s, ind_s, stl_s, params_s = compose(st["blocks"], "SELL")
     L += ["", "### 3. Indicadores y bloques seleccionados", "",
-          f"Criterio general: {st['block_why']} El original activaba 146 señales + 29 indicadores + 29 "
-          "niveles stop/limit genéricos con peso 1; aquí sólo los coherentes con la tesis, con peso mayor en "
-          "los centrales (w2-w3).", "",
-          "| Bloque | Peso | Familia | Qué mide | Por qué en este estilo | Rango específico |",
-          "|---|---|---|---|---|---|"]
-    allb = {**st["signals"], **st["indicators"], **st["stoplimit"]}
-    order = list(FAMILY_LABEL)
-    for k in sorted(allb, key=lambda k: (order.index(BLOCK_INFO[k][0]), -allb[k], k)):
-        fam, desc = BLOCK_INFO[k]
-        rng = "; ".join(f"{p} {a} a {b} (paso {c})" for p, (a, b, c) in st["block_params"].get(k, {}).items())
-        L.append(f"| `{k}` | {allb[k]} | {FAMILY_LABEL[fam]} | {desc} | {FAMILY_WHY[n].get(fam, '')} | {rng or 'global del estilo'} |")
+          f"Criterio general: {st['block_why']}", "",
+          f"Recuento: **{len(sig)} señales, {len(ind)} indicadores y {len(stl)} niveles/rangos stop-limit** "
+          "(el original: 146 / 29 / 29, todos con peso 1 y sin relación con la tesis). Las familias con peso ≥ 2 "
+          "son el núcleo del estilo; las de peso 1 son filtros auxiliares que amplían la variedad de estrategias "
+          "sin cambiar la tesis. Se excluyen siempre los bloques con niveles absolutos dependientes del precio. "
+          "La columna SELL muestra el bloque espejo que se activa en el kit de ventas.", ""]
+    for cat, fams, d, d_s in (("Señales", SIG, sig, sig_s), ("Indicadores", IND, ind, ind_s),
+                              ("Niveles y rangos stop/limit", STL, stl, stl_s)):
+        L += [f"#### {cat}", "", "| Familia (peso) | Qué mide | Por qué en este estilo | Bloques BUY | Espejo SELL |",
+              "|---|---|---|---|---|"]
+        spec = st["blocks"]["signals" if fams is SIG else "indicators" if fams is IND else "stoplimit"]
+        for fam, w in spec:
+            keys = fams[fam]
+            buy = ", ".join(f"`{k.split('.')[-1]}`" + (f"(w{d[k]})" if d[k] != w else "") for k in keys)
+            mir = [mirror_key(k) for k in keys]
+            sell = "igual (neutral)" if mir == keys else ", ".join(f"`{m.split('.')[-1]}`" for m in mir)
+            why = CORE_WHY[n].get(fam) if w >= 2 else None
+            why = why or ("Núcleo del estilo." if w >= 2 else "Filtro auxiliar: amplía la variedad.")
+            L.append(f"| {fam} ({w}) | {FAMILIA_DESC[fam]} | {why} | {buy} | {sell} |")
+        L.append("")
+    L += ["#### Rangos específicos (BUY → SELL)", "", "| Bloque BUY | Rango BUY | Bloque SELL | Rango SELL |",
+          "|---|---|---|---|"]
+    fmt_r = lambda ps: "; ".join(f"{p} {a} a {b} (paso {c})" for p, (a, b, c) in ps.items())
+    seen = set()
+    for k, ps in params.items():
+        m = mirror_key(k)
+        if (k, m) in seen or (m, k) in seen:
+            continue
+        seen.add((k, m))
+        L.append(f"| `{k}` | {fmt_r(ps)} | `{m}` | {fmt_r(params_s[m])} |")
     L += ["", "### 4. Timeframe, símbolos y horarios", "",
           f"- **Timeframe:** {st['tf']}.",
           f"- **Instrumento recomendado:** {st['instrumento']}",
@@ -294,8 +323,9 @@ def ficha(st, origs) -> list[str]:
           "| Archivo | Fitness | Filtros |", "|---|---|---|"]
     for k in ORIGINALS:
         L.append(f"| `{files[k].stem}` | {esc(fit(new[k]))} | {esc(filt(new[k]))} |")
-    L += ["", f"Justificación: {st['fitness_why']} Los umbrales reflejan la frecuencia y el acierto típicos "
-          f"del estilo (no se usa el 40 % de acierto ni las 300 operaciones del original para todos).", "",
+    L += ["", f"Justificación: {st['fitness_why']} El mínimo de operaciones sale de la densidad del estilo "
+          f"({mt['per_year']}/año) multiplicada por los años de cada tramo; el acierto y el Ret/DD se adaptan al "
+          "estilo. Los archivos SELL usan exactamente los mismos filtros.", "",
           "### 7. Motor y robustez", "",
           f"- **Builder:** {gen(new['EB'])}.",
           f"- **Retest:** {hp(new['ER'])}. {st['retest_why']}",
@@ -325,7 +355,9 @@ def main():
     L += ["", "## Supuestos explícitos", "", "| Id | Tema | Supuesto |", "|---|---|---|"]
     L += [f"| {a} | {b} | {c} |" for a, b, c in SUPUESTOS]
     L += ["", "## Estructura común de cada kit", "",
-          "Cada estilo conserva la arquitectura de dos etapas del autor, que es su principal acierto:", "",
+          "Cada estilo tiene **dos kits idénticos salvo la dirección**: BUY (`Market sides` = long) y SELL "
+          "(`Market sides` = short, bloques y niveles espejados). Cada kit conserva la arquitectura de dos etapas "
+          "del autor, que es su principal acierto:", "",
           "1. **`Ventaja_Build`** busca *entradas* con ventaja usando sólo una salida temporal y tamaño fijo "
           "(sin SL/PT), para medir la entrada aislada.",
           "2. **`Ventaja_Retest`** comprueba la robustez de esa ventaja (tick real, Monte Carlo, SPP, OOS 2021-2024).",

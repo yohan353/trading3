@@ -15,13 +15,13 @@ Empieza por el **[resumen ejecutivo](docs/05_Resumen_Ejecutivo.md)**.
 | 2 | [docs/02_Fase2_Matriz_Viabilidad.md](docs/02_Fase2_Matriz_Viabilidad.md) | Matriz archivo × estilo con motivos y alternativas |
 | 3 | [docs/03_Fase3_Fichas_Diseno.md](docs/03_Fase3_Fichas_Diseno.md) | Preguntas, supuestos y una ficha por estilo (tesis, cambios, bloques, salidas, filtros, motor, riesgos, validación) |
 | 4 | [docs/04_Fase4_Guia_Manual_y_Checklist.md](docs/04_Fase4_Guia_Manual_y_Checklist.md) | **Guía manual paso a paso (entregable principal)** y lista de verificación al importar |
-| — | [docs/cambios/](docs/cambios/) | Tabla de cambios (original → nuevo → justificación) de cada uno de los 32 archivos |
-| — | [docs/validacion/informe_validacion.md](docs/validacion/informe_validacion.md) | Validación estática de los 32 archivos |
+| — | [docs/cambios/](docs/cambios/) | Tabla de cambios (original → nuevo → justificación) de cada uno de los 64 archivos |
+| — | [docs/validacion/informe_validacion.md](docs/validacion/informe_validacion.md) | Validación estática de los 64 archivos |
 
 ## Archivos de configuración
 
-`configs/<Estilo>/<NombreOriginal>__<Estilo>_<TF>.cfx` — 4 por estilo (Builder y Retester de *ventaja* y de
-*estrategia*). **Son experimentales y no se han abierto en SQX**: se generaron modificando sólo valores de los
+`configs/<Estilo>/<NombreOriginal>__<Estilo>_<TF>_<BUY|SELL>.cfx` — 8 por estilo (Builder y Retester de *ventaja* y
+de *estrategia*, en compras y en ventas), 64 en total. **Son experimentales y no se han abierto en SQX**: se generaron modificando sólo valores de los
 originales y superan una validación estática (estructura, catálogo de bloques, rangos, fechas), pero eso no garantiza
 que la build 144 los importe sin avisos. Si alguno falla, aplica los valores a mano con la guía de la Fase 4.
 
@@ -36,7 +36,8 @@ bash tools/regenerar_todo.sh
 
 | Script | Función |
 |---|---|
-| `tools/estilos.py` | Especificación de cada estilo con la justificación de cada valor (editar aquí los supuestos) |
+| `tools/estilos.py` | Especificación de cada estilo con la justificación de cada valor (editar aquí los supuestos y la densidad de operaciones) |
+| `tools/familias.py` | Familias de bloques (BUY), espejo BUY→SELL de cada bloque y de sus niveles |
 | `tools/generar_cfx.py` | Aplica los estilos a los originales, escribe `configs/` y `docs/cambios/`; falla si algún cambio no queda registrado |
 | `tools/validar_cfx.py` | Validación estática e informe |
 | `tools/generar_fichas.py`, `tools/generar_guia.py` | Generan las Fases 3 y 4 leyendo los `.cfx` resultantes |

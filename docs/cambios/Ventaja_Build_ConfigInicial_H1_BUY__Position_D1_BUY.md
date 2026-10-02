@@ -1,0 +1,69 @@
+# Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_BUY
+
+*Original:* `Ventaja_Build_ConfigInicial_H1_BUY.cfx` · *Estilo:* Position Trading (momentum de medio-largo plazo) · *Timeframe:* D1 · *Rol:* Builder de test de ventaja (entrada) · *Dirección:* BUY
+
+Tabla generada automáticamente a partir de los cambios aplicados al XML (cada fila es un valor que difiere del original). Estado: **no validado en SQX** (ver docs/04).
+
+| Sección | Parámetro | Valor original | Valor nuevo | Justificación |
+|---|---|---|---|---|
+| Task | `Task@templateFile` | C:\Users\<usuario>\Desktop\Ventaja_Build_ConfigInicial_H1_BUY.cfx | Ventaja_Build_ConfigInicial_H1_BUY__Position_D1_BUY.cfx | Ruta local del autor (C:\Users\<usuario>\Desktop\...) sustituida por el nombre del nuevo archivo: no aporta nada y expone el nombre de usuario de Windows. |
+| Trading options | `Param key="LimitTimeRange"` | true | false | Con velas D1 (apertura 00:00) la ventana 01:30-23:30 del original podría bloquear todas las señales. |
+| Trading options | `Param key="MaxTradesPerDay"` | 0 | 1 | Position: una entrada como máximo. |
+| Trading options | `Param key="MaxDistanceFromMarket"` | false | true | Tope de distancia para stops. |
+| Trading options | `Param key="MaxDistancePct"` | 6 | 5 | 5 %: rupturas de máximos de 20-250 días. |
+| Trading options | `Param key="ReservedBars"` | 50 | 260 | ≥ periodo máximo (250). |
+| What to build · complejidad | `Chart@maxConditions` | 3 | 2 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~20 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
+| What to build · complejidad | `Chart@maxExitTypes` | 5 | 1 | Test de ventaja: sólo salida temporal, para medir la entrada aislada. |
+| What to build · complejidad | `Chart@minPeriod` | 4 | 20 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~20 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
+| What to build · complejidad | `Chart@maxPeriod` | 200 | 250 | 20-250 días (1 mes-1 año). Máximo 2 condiciones: con ~20 operaciones/año cada grado de libertad extra es sobreajuste casi seguro. |
+| Genetic options | `PopulationSize` | 15 | 50 | 5-15 individuos por isla es demasiado poco para que el cruce explore; 30-50 es un mínimo práctico. |
+| Genetic options | `MaxGenerations` | 10 | 30 | Con 10 generaciones la evolución apenas actúa (y el reinicio por estancamiento a 30 nunca saltaba). |
+| Genetic options | `Islands` | 5 | 4 | 4 islas: diversidad suficiente con menos coste. |
+| Genetic options | `CrossoverProbability` | 46 | 80 | 46 % es bajo para un AG; 70-90 % es lo habitual (supuesto de práctica general, no de SQX). |
+| Genetic options | `MutationProbability` | 35 | 30 | Algo menor para no destruir buenas soluciones. |
+| Genetic options | `MigrationModulo` | 5 | 10 | Migrar cada 10 generaciones (con 30-40 generaciones). |
+| Genetic options | `MigrationRate` | 6 | 10 | 6 % de 5 individuos = 0,3: la migración original era nula en la práctica. |
+| Genetic options | `EvoRestartOnStagnation@generations` | 30 | 15 | Debe ser menor que MaxGenerations para poder actuar. |
+| Genetic options | `BuildMode/Conditions (población inicial)` | ReturnDDRatio(IS) >= 2; AvgBarsInTrade(IS) >= 2; NumberOfTrades(IS) >= 250; WinningPct(IS) >= 35 | ReturnDDRatio(IS) >= 0.75; AvgBarsInTrade(IS) >= 4; NumberOfTrades(IS) >= 124; WinningPct(IS) >= 25 | Misma lógica del autor (≈60 % del Ret/DD final, ≈83 % de las operaciones, -5 puntos de acierto) con los umbrales del estilo. |
+| Ranking | `Rankings/Conditions (filtros)` | AvgBarsInTrade(IS) >= 2; ReturnDDRatio(IS) >= 4; NumberOfTrades(IS) >= 300; WinningPct(IS) >= 40 | NumberOfTrades(IS) >= 150; ReturnDDRatio(IS) >= 1.5; WinningPct(IS) >= 30; ProfitFactor(IS) >= 1.3; AvgBarsInTrade(IS) >= 4 | Mínimo de operaciones = 20/año × años de cada tramo (el original exigía 300 en 7,25 años ≈ 41/año; ningún estilo baja de esa densidad salvo Position) + umbrales del estilo + exigencia en el tramo de validación OOS, que el original no tenía. Test de ventaja: Ret/DD a la mitad, PF mínimo 1,15. |
+| Ranking | `FitnessCriteria/Settings/Ranking` | Weighted: Stagnation (peso 1, min) | Weighted: ProfitFactor (peso 2, max), StagnationPct (peso 1, min) | SQN mide la calidad estadística de la entrada (expectativa/desviación·√N); el original optimizaba sólo 'Stagnation', que ignora el beneficio. |
+| Data | `Setup/Chart@timeframe` | H1 | D1 | Timeframe del estilo Position. |
+| Data | `Setup@slippage` | 0 | 0.5 | D1 entra a la apertura del día (a menudo tras gap): 0,5 pips conservador. |
+| Cross checks | `RetestOnAdditionalMarkets/Setup@timeframe` | H1 | D1 | Coherencia si se activa (sigue desactivado). |
+| Building blocks | `Bloques activos · signals` | 146 activos | 97 activos: ADXChangesUp(w1), ADXCrossUp(w1), ADXHigher(w1), ADXRising(w1), AWOChangesUp(w1), AWORising(w1), AroonCrossesAbove(w2), BarClosesAboveKAMA(w2), BarClosesAboveSuperTrend(w2), BarDayOfWeekIs(w1), BarDayOfWeekIsNot(w1), BarMonthIs(w1), BarMonthIsNot(w1), BarOpensAboveHighestAfterOpenBelow(w8), CCIChangesUp(w1), CCICrossUp(w2), CCIHigher(w2), CCIRising(w1), DEMChangesUp(w1), DEMRising(w1), DICrossUp(w2), DIMinusChangesDown(w2), DIMinusFalling(w2), DIPlusChangesUp(w2), DIPlusHigher(w2), DIPlusRising(w2), FastKAMAAboveSlowKAMA(w2), FastReflexCrossUPSlowReflex(w1), FasterHMAIsAboveSlowerHMA(w2), GannHiLoUPTrend(w2), HMAChangesUP(w2), HMARising(w2), IchimokuKijunSenCrossBullish(w1), IchimokuKumoBreakoutBullish(w1), IchimokuSenkouSpanCrossBullish(w1), IchimokuTenkanKijunCrossBullish(w1), IsMonthFirstTradingDay(w1), IsMonthLastTradingDay(w1), IsUptrend(w2), KAMARising(w2), KERaboveLevel(w1), LaguerreRSIChangesUP(w1), LaguerreRSICrossUP(w2), LaguerreRSIRising(w1), LinRegBarClosesAbove(w2), LinRegBarOpensAbove(w2), LinRegBarOpensAboveAfterOpenBelow(w2), LinRegRising(w2), MABarClosesAbove(w2), MABarOpensAbove(w2), MABarOpensAboveAfterOpenBelow(w2), MACDMainChangesUp(w1), MACDMainCrossAboveSignal(w1), MACDMainCrossAboveZero(w2), MACDMainHigherSignal(w1), MACDMainHigherZero(w2), MACDMainRising(w1), MACDSignalRising(w1), MARising(w2), MomChangesUp(w1), MomRising(w1), OSMAChangesUp(w1), OSMACrossZeroUp(w2), OSMAHigherZero(w2), OSMARising(w1), PSARBarLower(w2), QQEValue1CrossAbove(w2), QQEValue1CrossAboveValue2(w1), QQEValue1Higher(w2), QQEValue1HigherValue2(w1), QQEValue1Rising(w1), QQEValue2Rising(w1), ROCAboveLevel(w2), ROCCrossesAboveLevel(w2), ROCRising(w1), RSIChangesUp(w1), RSICrossUp(w2), RSIHigher(w2), RSIRising(w1), ReflexChangesDirectionUP(w1), ReflexRising(w1), SchaffTrendCycleAboveLevel(w2), SchaffTrendCycleCrossesAboveLevel(w2), StochFastKUp(w1), StochSlowDChangesUp(w1), StochSlowDCrossUp(w2), StochSlowDHigher(w2), StochSlowDRising(w1), SuperTrendUPTrend(w2), VortexChangesTrendUP(w2), VortexUptrend(w2), WPRChangesUp(w1), WPRCrossUp(w2), WPRHigher(w2), WPRRising(w1), WoodiesCCIZeroLineBreakUP(w2), WoodiesTrendUP(w2) | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
+| Building blocks | `Bloques activos · indicators` | 29 activos | 48 activos: CrossesAbove(w1), CrossesBelow(w1), Indicators.ADX(w1), Indicators.ATR(w1), Indicators.Aroon(w1), Indicators.CCI(w1), Indicators.DeMarker(w1), Indicators.EMA(w2), Indicators.GannHiLo(w1), Indicators.Highest(w3), Indicators.HullMovingAverage(w2), Indicators.Ichimoku(w1), Indicators.KAMA(w2), Indicators.KaufmanEfficiencyRatio(w1), Indicators.LWMA(w2), Indicators.LaguerreRSI(w1), Indicators.LinearRegression(w2), Indicators.Lowest(w1), Indicators.ParabolicSAR(w1), Indicators.RSI(w1), Indicators.SMA(w2), Indicators.SMMA(w2), Indicators.Stochastic(w1), Indicators.SuperTrend(w1), Indicators.TEMA(w2), Indicators.TrueRange(w1), Indicators.Vortex(w1), Indicators.WilliamsPR(w1), IsFalling(w1), IsGreater(w1), IsGreaterCount(w1), IsGreaterOrEqual(w1), IsLower(w1), IsLowerCount(w1), IsLowerOrEqual(w1), IsRising(w1), Prices.Close(w1), Prices.CloseM(w2), Prices.CloseW(w2), Prices.High(w1), Prices.HighM(w2), Prices.HighW(w2), Prices.Low(w1), Prices.LowM(w2), Prices.LowW(w2), Prices.Open(w1), Prices.OpenM(w2), Prices.OpenW(w2) | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
+| Building blocks | `Bloques activos · stopLimitBlocks` | 29 activos | 31 activos: Stop/Limit Price Levels.Close(w1), Stop/Limit Price Levels.EMA(w1), Stop/Limit Price Levels.GannHiLo(w1), Stop/Limit Price Levels.High(w1), Stop/Limit Price Levels.HighM(w2), Stop/Limit Price Levels.HighW(w2), Stop/Limit Price Levels.Highest(w4), Stop/Limit Price Levels.HullMovingAverage(w1), Stop/Limit Price Levels.Ichimoku(w1), Stop/Limit Price Levels.KAMA(w1), Stop/Limit Price Levels.LWMA(w1), Stop/Limit Price Levels.LinearRegression(w1), Stop/Limit Price Levels.Low(w1), Stop/Limit Price Levels.LowM(w1), Stop/Limit Price Levels.LowW(w1), Stop/Limit Price Levels.Lowest(w1), Stop/Limit Price Levels.Open(w1), Stop/Limit Price Levels.OpenW(w2), Stop/Limit Price Levels.ParabolicSAR(w1), Stop/Limit Price Levels.SMA(w1), Stop/Limit Price Levels.SMMA(w1), Stop/Limit Price Levels.SuperTrend(w1), Stop/Limit Price Levels.TEMA(w1), Stop/Limit Price Ranges.ATR(w1), Stop/Limit Price Ranges.BBRange(w1), Stop/Limit Price Ranges.BBWidthRatio(w1), Stop/Limit Price Ranges.BarRange(w1), Stop/Limit Price Ranges.BiggestRange(w1), Stop/Limit Price Ranges.MTATR(w1), Stop/Limit Price Ranges.SmallestRange(w1), Stop/Limit Price Ranges.TrueRange(w1) | Núcleo: nuevos máximos de 20-250 días, semanales y mensuales; momentum sin niveles absolutos (ROC en %, MACD/OSMA frente a cero) y tendencia de medias/sistemas. |
+| Building blocks | `RSIHigher · Level` | 0..100/5 | 50..70/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `RSICrossUp · Level` | 0..100/5 | 50..70/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `LaguerreRSICrossUP · Gamma` | 0..0.95/0.01 | 0.3..0.8/0.05 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `LaguerreRSICrossUP · Level` | 0.05..0.95/0.05 | 0.4..0.85/0.05 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `StochSlowDHigher · Level` | 0..100/5 | 50..80/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `StochSlowDCrossUp · Level` | 0..100/5 | 50..80/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `CCIHigher · Level` | -120..120/5 | 0..150/10 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `CCICrossUp · Level` | -120..120/5 | 0..150/10 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `WPRHigher · Level` | -100..0/5 | -50..-20/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `WPRCrossUp · Level` | -100..0/5 | -50..-20/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `QQEValue1Higher · Level` | 20..90/5 | 50..70/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `QQEValue1CrossAbove · Level` | 20..90/5 | 50..70/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `SchaffTrendCycleAboveLevel · Level` | 10..99.9/0.1 | 50..90/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `SchaffTrendCycleCrossesAboveLevel · Level` | 0.1..99.9/0.1 | 25..75/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `ADXHigher · Level` | 20..90/10 | 20..40/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `ADXCrossUp · Level` | 20..90/10 | 20..35/5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `KERaboveLevel · Level` | 0..0.95/0.05 | 0.3..0.7/0.05 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `SuperTrendUPTrend · ATR Mult` | 0.5..10/0.1 | 1.5..5/0.5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `BarClosesAboveSuperTrend · ATR Mult` | 0.5..10/0.1 | 1.5..5/0.5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `Indicators.SuperTrend · ATR Mult` | 0.5..10/0.1 | 1.5..5/0.5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `Stop/Limit Price Levels.SuperTrend · ATR Mult` | 0.5..10/0.1 | 1.5..5/0.5 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `ROCAboveLevel · Level` | -100..100/0.001 | 0..15/1 | Rango acotado al estilo (ver ficha). |
+| Building blocks | `ROCCrossesAboveLevel · Level` | -100..100/0.001 | 0..15/1 | Rango acotado al estilo (ver ficha). |
+| Order types | `EnterAtMarket@weight` | 1 | 2 | Peso relativo entre tipos de orden. |
+| Order types | `EnterAtMarket · ExitAfterBars max` | 20 | 40 | Alineado con el rango de ExitTypes. |
+| Order types | `EnterAtStop@use` | false | true | A mercado o con stop sobre el máximo, válida 1-5 días. |
+| Order types | `EnterAtStop@weight` | 1 | 2 | Peso relativo entre tipos de orden. |
+| Order types | `EnterAtStop · BarsValid min` | 2 | 1 | A mercado o con stop sobre el máximo, válida 1-5 días. |
+| Order types | `EnterAtStop · BarsValid max` | 10 | 5 | A mercado o con stop sobre el máximo, válida 1-5 días. |
+| Order types | `EnterAtStop · ExitAfterBars max` | 20 | 40 | Alineado con el rango de ExitTypes. |
+| Exit types | `ExitAfterBars@probability` | 50 | 100 | Explícito: es la única salida (el original ponía 50 y dependía de minExitTypes=1). |
+| Exit types | `ExitAfterBars min` | 2 | 5 | Test de ventaja: salida por tiempo 1-8 semanas. |
+| Exit types | `ExitAfterBars max` | 15 | 40 | Test de ventaja: salida por tiempo 1-8 semanas. |
+| Notes | `Notes` | <b>Breakout strategies setup</b><div><br></div><div><br></div><div><br></div><div><br></div> | <b>Position Trading (momentum de medio-largo plazo) – Builder de test de ventaja (entrada) – BUY</b><div>Derivado de Ventaja_Build_ConfigInicial_H1_BUY (build 140.2099). Timeframe D1. Ver docs/03 (ficha Position) y docs/04 (checklist).</div><div>NO VALIDADO EN SQX: revisar símbolo, costes, horario del servidor e importación.</div> | Descripción del estilo y advertencias. |

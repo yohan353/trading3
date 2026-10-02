@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sqx_cfx import load_cfx  # noqa: E402
 from estilos import STYLES  # noqa: E402
-from generar_cfx import ORIGINALS  # noqa: E402
+from generar_cfx import ORIGINALS, cfx_name  # noqa: E402
 import generar_fichas as F  # noqa: E402
 
 BASE = Path(__file__).resolve().parent.parent
@@ -90,7 +90,7 @@ def esc(s):
 
 
 def field_table(fields, kind):
-    roots = {st["name"]: load_cfx(BASE / "configs" / st["name"] / f"{ORIGINALS[kind]}__{st['name']}_{st['tf']}.cfx")
+    roots = {st["name"]: load_cfx(BASE / "configs" / st["name"] / f"{cfx_name(ORIGINALS[kind], st, 'BUY')}.cfx")
              for st in STYLES}
     L = ["| Pestaña › campo | Nodo XML | " + " | ".join(st["name"] for st in STYLES) + " |",
          "|---|---|" + "---|" * len(STYLES)]
@@ -105,12 +105,12 @@ def main():
          "## D) Qué se entrega", "",
          "> **Opción entregada: la GUÍA PASO A PASO de esta página es el entregable principal.** No puedo garantizar que",
          "> los `.cfx` abran sin errores en SQX **build 144**: los originales son de la build 140.2099 y no he podido",
-         "> ejecutar SQX. Como apoyo se entregan además 32 archivos `.cfx` **experimentales, NO validados en SQX**,",
+         "> ejecutar SQX. Como apoyo se entregan además 64 archivos `.cfx` **experimentales, NO validados en SQX**,",
          "> generados modificando sólo valores de los originales (sin nodos ni atributos nuevos) y verificados",
          "> estáticamente (`docs/validacion/informe_validacion.md`). Si un archivo no carga o SQX avisa de algo,",
          "> aplica los valores a mano con las tablas de abajo, que contienen exactamente lo mismo que los archivos.", "",
-         "Archivos: `configs/<Estilo>/<NombreOriginal>__<Estilo>_<TF>.cfx` (4 por estilo × 8 estilos). Detalle de cada valor "
-         "cambiado y su justificación: `docs/cambios/`.", "",
+         "Archivos: `configs/<Estilo>/<NombreOriginal>__<Estilo>_<TF>_<BUY|SELL>.cfx` (4 por estilo y dirección × 8 "
+         "estilos × 2 direcciones = 64). Detalle de cada valor cambiado y su justificación: `docs/cambios/`.", "",
          "## A.1 Cargar un `.cfx` (vía rápida, experimental)", "",
          "1. Haz una copia de seguridad de tu proyecto y trabaja en un proyecto personalizado nuevo (p. ej. `Kit_<Estilo>`).",
          "2. Crea una tarea **Build** (para `*_Build_*`) o **Retest** (para `*_Retest_*`).",
@@ -131,6 +131,11 @@ def main():
          "5. Repite para los otros 3 archivos del kit y verifica con la lista E.", "",
          "Los nombres de campo de la interfaz son aproximados (pueden variar entre builds); la columna *Nodo XML* da el "
          "nombre exacto del parámetro en el archivo.", "",
+         "Las tablas muestran el kit **BUY**. El kit **SELL** es idéntico salvo dos cosas: (1) *What to build › Trading "
+         "direction* = **Short only** (`MarketSides@type=\"short\"`); (2) en *Building blocks* se activa el bloque "
+         "espejo de cada bloque direccional con su peso, y los niveles de osciladores se espejan (RSI/estocástico "
+         "100−L, WPR −100−L, CCI y ROC −L, Laguerre/DeMarker 1−L). La lista exacta está en la columna *Espejo SELL* "
+         "de cada ficha (docs/03 §3).", "",
          "### A.2.1 `Estrategia_Build` (estrategia completa)", ""]
     L += field_table(BUILD_FIELDS, "EB")
     L += ["", "### A.2.2 `Ventaja_Build` (test de ventaja de la entrada)", ""]
@@ -164,7 +169,7 @@ def main():
           "rentables, ninguna ejecución con > 50 % del beneficio total, DD por ejecución ≤ 25 %, y una zona de la "
           "matriz (no una celda aislada) que pase.", "",
           "## E) Lista de verificación al importar", "",
-          "### E.1 Para los 32 archivos", "",
+          "### E.1 Para los 64 archivos", "",
           "1. **Versión:** SQX puede avisar de que el archivo es de la build 140.2099. Anota cualquier aviso; si dice que "
           "ignora o reinicia secciones, aplica esas secciones a mano (A.2).",
           "2. **Símbolo:** `Data` → el símbolo `GBPJPY_M1_M1_UTCPlus02` debe existir en tu *Data Manager*. Si usas otro "
@@ -185,32 +190,46 @@ def main():
           "9. **Fitness ponderada:** en *Ranking* deben aparecer exactamente los objetivos y pesos de la ficha (docs/03 §6).",
           "10. **Filtros:** revisa que las condiciones IS/OOS/Full aparecen con la muestra correcta (IS, OOS, *Full*).",
           "11. **Bases de datos:** Builder → salida `Results`; Retest → entrada y salida `Results`. Si encadenas Builder y "
-          "Retest en un proyecto, apunta la entrada del Retest al banco de resultados del Builder.", "",
+          "Retest en un proyecto, apunta la entrada del Retest al banco de resultados del Builder.",
+          "12. **No mezclar direcciones:** retestea las estrategias BUY con los Retest `_BUY` y las SELL con los `_SELL` "
+          "(o en bancos de datos separados).", "",
+          "### E.1b Sólo kits SELL", "",
+          "- *What to build › Trading direction* debe mostrar **Short only**. `short` es el valor deducido del XML (los "
+          "originales sólo traen `long`): si SQX lo ignora y muestra *Long only*, cámbialo a mano.",
+          "- En *Building blocks* deben estar activos los bloques bajistas (p. ej. `BarOpensBelowLowestAfterOpenAbove`, "
+          "`BearishEngulfing`, `RSICrossDown`) y desactivados sus equivalentes alcistas; los niveles stop de mayor peso "
+          "son los mínimos (`Lowest`, `Low`, `LowestInRange`, `SessionLow`…).",
+          "- **Swap corto**: el heredado (+4,30 triple viernes) es del US30; pon el swap corto real de tu bróker.",
+          "- Un kit SELL sobre un activo con deriva alcista de largo plazo (índices) encontrará menos estrategias: es "
+          "esperable, no un fallo de configuración.", "",
           "### E.2 Builders", "",
-          "12. *What to build*: `Simple strategy` (o plantilla, si sigues A.3), sólo largos, rangos de complejidad de la tabla A.2.",
-          "13. *Building blocks*: nº de bloques activos = el de la tabla A.2 (p. ej. Scalping 12/17/8). Si la build 144 "
+          "13. *What to build*: `Simple strategy` (o plantilla, si sigues A.3), dirección del kit, rangos de complejidad de "
+          "la tabla A.2.",
+          "14. *Building blocks*: nº de bloques activos = el de la tabla A.2 (p. ej. Scalping 93/48/40). Si la build 144 "
           "añade bloques nuevos, deben quedar **desactivados**.",
-          "14. *Order types* y *Exit types*: sólo los de la tabla; en `Ventaja_*`, **únicamente** *Exit after bars*.",
-          "15. Prueba corta: lanza el Builder 10-15 minutos y comprueba que se generan estrategias con el nº de operaciones "
-          "esperado y que los rechazos no se deben a un filtro mal puesto (p. ej. todas descartadas por `NumberOfTrades`).",
-          "16. Abre 2-3 estrategias generadas y verifica a ojo que su lógica corresponde al estilo (p. ej. órdenes stop en "
-          "el máximo del rango asiático en Day Trading, órdenes límite en Range).", "",
+          "15. *Order types* y *Exit types*: sólo los de la tabla; en `Ventaja_*`, **únicamente** *Exit after bars*.",
+          "16. Prueba corta: lanza el Builder 10-15 minutos y comprueba que se generan estrategias con el nº de operaciones "
+          "esperado y que los rechazos no se deben a un filtro mal puesto (p. ej. todas descartadas por `NumberOfTrades`). "
+          "Si casi todo se descarta por número de operaciones, baja la densidad del estilo en `tools/estilos.py` en vez "
+          "de quitar el filtro.",
+          "17. Abre 2-3 estrategias generadas y verifica a ojo que su lógica corresponde al estilo (p. ej. órdenes stop en "
+          "el máximo del rango asiático en Day Trading BUY / en el mínimo en SELL, órdenes límite en Range).", "",
           "### E.3 Retesters", "",
-          "17. **Datos tick:** *Retest with higher precision* usa precisión 2 (tick real + spread personalizado) o 3 "
+          "18. **Datos tick:** *Retest with higher precision* usa precisión 2 (tick real + spread personalizado) o 3 "
           "(tick real + spread real, en Scalping y Noticias). Sin datos tick ese cross check fallará o no se ejecutará.",
-          "18. Monte Carlo: nº de simulaciones, métodos (OHLC, spread, deslizamiento, vela de inicio) y condiciones al 95 %.",
-          "19. Monte Carlo de manipulación: la condición de beneficio debe compararse contra el resultado **principal** "
+          "19. Monte Carlo: nº de simulaciones, métodos (OHLC, spread, deslizamiento, vela de inicio) y condiciones al 95 %.",
+          "20. Monte Carlo de manipulación: la condición de beneficio debe compararse contra el resultado **principal** "
           "(no contra otro Monte Carlo).",
-          "20. SPP: nº de tests y % de rentables de la tabla; empieza con pocas estrategias (el coste es alto).",
-          "21. *Retest on additional markets* sigue **desactivado**: configúralo con 1-3 símbolos reales relacionados si "
+          "21. SPP: nº de tests y % de rentables de la tabla; empieza con pocas estrategias (el coste es alto).",
+          "22. *Retest on additional markets* sigue **desactivado**: configúralo con 1-3 símbolos reales relacionados si "
           "vas a usarlo (el original repetía GBPJPY).", "",
           "### E.4 Comprobaciones específicas por estilo", "",
           "| Estilo | Comprobar |", "|---|---|",
           "| Scalping | Instrumento de spread bruto bajo; datos tick con spread real; coste total < 15 % del ATR(M5); cierre al final de la ventana activo. |",
           "| Day Trading | Rango asiático en horas del servidor correctas; cierre diario 22:30 y viernes 21:30; órdenes stop activas. |",
           "| Swing | Swap real del instrumento (se mantienen noches y fines de semana); `RealisticGapsHandling=true`. |",
-          "| Position | Ampliar datos a ≥15 años antes de fiarse; sin filtro horario; preparar retest multi-mercado. |",
-          "| Trend Following | Trailing activo con prob. 80 %; acierto mínimo 30 % (no 40 %); what-if de 2 mejores/peores. |",
+          "| Position | Mínimo 150 operaciones en 7,25 años (límite físico de un solo mercado con duraciones de semanas); ampliar datos a ≥15 años; sin filtro horario; retest multi-mercado. |",
+          "| Trend Following | H1 (no H4); trailing activo con prob. 80 %; acierto mínimo 30 % (no 40 %); what-if de 2 mejores/peores. |",
           "| Range | Símbolo de rango (no GBPJPY); órdenes límite; PT obligatorio 40-120 % del SL; ventana 01:30-09:30. |",
           "| Price Action | Sólo patrones alcistas; desplazamiento 1-3; MC de OHLC activo. |",
           "| Noticias (proxy) | Ventana 15:00-17:00 = 8:00-10:00 ET con tu servidor; spread MC hasta 8 pips; precisión 3; cruzar después las operaciones con un calendario real. |", ""]
